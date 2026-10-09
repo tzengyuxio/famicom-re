@@ -12,7 +12,8 @@ def main():
         tile_data = f.read()
 
     # Read current HTML
-    html_path = "../../docs/mob-kao-explorer.html"
+    # The published page (docs/) now redirects to kaodata; keep updating the retired copy here.
+    html_path = "mob-kao-explorer.html"
     with open(html_path, "r") as f:
         html = f.read()
 
