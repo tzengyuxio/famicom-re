@@ -18,12 +18,26 @@ python3 sangokushi_extract_v2.py path/to/rom.nes
 
 依賴: Python 3, openpyxl (可選, 用於 Excel 匯出)
 
+```bash
+# kaodata 統一格式資料集 san1-fc (大眾臉組合臉 + 255 武將姓名/讀音)
+uv venv && uv pip install pillow   # 只有驗證腳本需要 Pillow
+.venv/bin/python tools/export_kaodata.py --rom "Sangokushi (Japan).nes" --out <kaodata>/data-local/san1-fc
+# 與探索器舊算法、截圖、Mesen 驗證紀錄逐 pixel 比對
+.venv/bin/python tools/verify_kaodata_export.py --rom "Sangokushi (Japan).nes" --dataset <輸出目錄>
+```
+
+格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像 (P00-P80) 尚未匯出，這些武將沒有 `face`。
+
 ## 關鍵檔案
 
 | 檔案 | 用途 |
 |------|------|
 | `sangokushi_extract_v2.py` | 主程式: 解析 ROM 並匯出武將資料 |
 | `portrait_export.py` | 頭像匯出工具 (48×48 PNG) |
+| `tools/export_kaodata.py` | kaodata 資料集匯出 (san1-fc) + 參考渲染器 |
+| `tools/verify_kaodata_export.py` | 匯出結果的獨立驗證 |
+| `data/kanji_tiles.tsv` | 姓名漢字 (page, tile) → 漢字對照表，依 ROM 字形逐一確認 |
+| `data/surnames.tsv` | 姓氏讀音，用於 reading 的姓名分隔 |
 | `docs/DATA_FORMAT.md` | 武將資料表格式技術規格 |
 | `docs/ROM_STRUCTURE.md` | ROM 檔案結構 (含頭像系統) |
 | `MEMORY.md` | 逆向工程研究筆記 |

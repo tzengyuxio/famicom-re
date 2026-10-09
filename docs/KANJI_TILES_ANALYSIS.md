@@ -221,4 +221,11 @@ ROM 資料: 8E 00 8D 00 00 00
 3. ~~匯出所有漢字圖形~~ ✓
 4. ~~追蹤 Page 1 漢字的 ROM 位置~~ ✓
 5. ~~追蹤地名漢字的位置~~ ✓
-6. 使用 OCR 或人工對照建立正確的 KANJI_TILE_MAP
+6. ~~人工對照建立正確的漢字對照表~~ ✓ → `data/kanji_tiles.tsv`
+
+## 漢字對照表 `data/kanji_tiles.tsv`
+
+- key 是 **(page, tile_id)**：同一個 tile_id 在 Page 0 與 Page 1 是不同的字。`sangokushi_extract_v2.py` 的 `KANJI_TILE_MAP` 忽略 page，這是 `KANJI_DIFF.md` 大部分差異的原因。
+- Page 1 的 tile_id 從 0x00 開始 (例：周瑜 = `62 00 00 01`)，所以只有 page 與 tile 都是 0 才表示「沒有字」。
+- 共 308 字 (Page 0: 241 字，Page 1: 0x00-0x42 共 67 字)，覆蓋 255 名武將用到的所有 tile。
+- 字以 ROM 字形為準 (新字體，例：関、黄、楽)。遊戲用了代用字的地方照字形記錄，並在 note 欄註明史書寫法，例如 許収 (攸)、旬攸 (荀)、李湛 (堪)、蔡仲 (中)、雷同 (銅)、鮑龍 (隆)、呂廣 (曠)、沙摩可 (柯)、刑道栄 (邢)。

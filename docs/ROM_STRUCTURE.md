@@ -113,14 +113,12 @@ portrait_index = name_record[+14] - 1
 
 | 偏移 | 大小 | 內容 |
 |------|------|------|
-| 0x1C194 - 0x1DE13 | 7,296 | Head 框架 tiles (19 Heads, 430 tiles) |
+| 0x1C014 - 0x1DE13 | 7,680 | Head 框架 tiles (20 Heads × 24 tiles × 16 bytes) |
 | 0x1DE14 - 0x1E1D3 | 960 | 眼睛變體 (20 組 × 3 tiles × 16 bytes) |
 | 0x1E1D4 - 0x1E593 | 960 | 鼻子變體 (20 組 × 3 tiles × 16 bytes) |
 | 0x1E594 - 0x1ED13 | 1,920 | 嘴巴變體 (20 組 × 6 tiles × 16 bytes) |
 | 0x1ED14 - 0x1EFC3 | 720 | Template 排列表 (20 筆 × 36 bytes) |
-| 0x1EFE4 - 0x1F091 | 174 | 索引表 1 (P081-P254, 值 0-4) |
-| 0x1F092 - 0x1F13F | 174 | 索引表 2 (P081-P254, 值 0-4) |
-| 0x1F140 - 0x1F1ED | 174 | 索引表 3 (P081-P254, 值 0-4) |
+| 0x1F034 - 0x1F389 | 870 | 組件索引表 (174 筆 × 5 bytes [Cat, Head, Eye, Nose, Mouth]，見 MOB_PORTRAIT_SYSTEM_PSEUDOCODE.md) |
 
 **20 個 Head 位置 (2026-02-27 更新):**
 
