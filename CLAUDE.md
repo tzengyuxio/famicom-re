@@ -10,12 +10,13 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 
 | 資料夾 | 遊戲 |
 |--------|------|
-| `sangokushi/` | 三國志 (KOEI, 1988, MMC1)：武將表、專屬頭像、大眾臉、漢字對照、kaodata `san1-fc` |
-| `suikoden/` | 水滸伝・天命の誓い (KOEI, 1989, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、kaodata `suikoden-fc` |
+| `sangokushi/` | 三國志 (KOEI, 1988, MMC1)：武將表、專屬頭像、大眾臉、漢字對照、58 國戰爭地圖、kaodata `san1-fc` |
+| `suikoden/` | 水滸伝・天命の誓い (KOEI, 1989, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、四季戰鬥地圖、kaodata `suikoden-fc` |
+| `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
 
 - ROM：解好的 `.nes` 放 repo 根目錄（各遊戲腳本的預設路徑），待處理的 zip 放 `roms/`；兩者都不進版控
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
-- 兩款遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 可為任一資料集畫大眾臉零件總覽圖
+- 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 可為任一資料集畫大眾臉零件總覽圖
 
 ## 常用指令
 
