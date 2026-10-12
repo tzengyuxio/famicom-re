@@ -116,7 +116,7 @@ ROM：`roms/Sangokushi II (Japan).zip`。iNES：PRG 256 KB（32 × 8 KB bank）�
        36
 ```
 
-（每列是半格高，同一欄上下相鄰的兩州隔兩列。錯位以 `output/province_hex.png` 為準。）
+（每列是半格高，同一欄上下相鄰的兩州隔兩列。錯位以 `output/province_hex.png` 為準。`output/province_hex_rot60.png` 是同一張順時針轉 60°，輪廓比較接近中國地圖（第 1 州遼東在東，35/36 在西，26 在南）。）
 
 **磚牆排法接不起來。** 把 41 張 13×12 圖照尖頂六角格排成磚牆式（東西相鄰並排，南一列錯開半張；這是 `province_hex.png` 改版前的排法）。試了 4 種方向（原樣、左右鏡像、上下翻轉、兩者都翻）× 半張錯位 6 或 7 格 × 東西互換，取最好的一種：
 
