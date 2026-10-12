@@ -13,6 +13,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `sangokushi/` | 三國志 (KOEI, 1988, MMC1)：武將表、專屬頭像、大眾臉、漢字對照、58 國戰爭地圖、kaodata `san1-fc` |
 | `suikoden/` | 水滸伝・天命の誓い (KOEI, 1989, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、四季戰鬥地圖、kaodata `suikoden-fc` |
 | `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
+| `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
 
 - ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，水滸傳直接讀 `roms/` 裡的 zip；其他遊戲的 `.nes` 暫時解在 repo 根目錄
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
