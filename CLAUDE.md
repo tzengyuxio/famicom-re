@@ -19,6 +19,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `ishin/` | 維新の嵐 (KOEI, 1990, MMC5)：人物（2 劇本）、藩、地點、頭像（專屬＋組合臉）、HEX 地圖／全國大地圖、kaodata `ishin-fc` |
 | `gunyuu/` | 信長の野望・戦国群雄伝 (KOEI, 1990, MMC5)：武將（2 劇本）、38 國、大名、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `gunyuu-fc` |
 | `zenkoku/` | 信長の野望・全国版 (KOEI, 1988, MMC1)：大名（50／17 國）、國、相鄰、頭像（大名＋姫 75 張）、地方地圖、戰場地圖、kaodata `nobunaga1-fc` |
+| `royal/` | ロイヤルブラッド (KOEI, 1991, MMC5)：人物（4 劇本）、家、領地、第 5 部隊、頭像（人物 64＋相談役 4＋部隊 23）、戰略地圖、戰場 30 張、kaodata `royal-fc` |
 | `chuugen/` | 三國志 中原の覇者 (Namco, 1988, Namco 163)：武將、州、道路、頭像（共用整張臉 120 張＋表情）、大地圖、戰場地圖、kaodata `chuugen-fc` |
 | `haou/` | 三國志II 覇王の大陸 (Namco, 1992, Namco 163)：武將（[EXT] 漢字）、州、君主、道具、頭像（共用整張臉＋5 表情）、大地圖、戰場地圖 30 張、kaodata `haou-fc` |
 
