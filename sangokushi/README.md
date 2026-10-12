@@ -4,19 +4,19 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 
 ## 指令
 
-在 repo 根目錄執行；ROM 預設是根目錄的 `Sangokushi (Japan).nes`。
+在 repo 根目錄執行；ROM 預設是 `roms/Sangokushi (Japan).nes`。
 
 ```bash
 # 武將資料 → CSV + XLSX（寫在目前目錄）
-.venv/bin/python sangokushi/sangokushi_extract_v2.py "Sangokushi (Japan).nes"
+.venv/bin/python sangokushi/sangokushi_extract_v2.py "roms/Sangokushi (Japan).nes"
 
 # 專屬頭像 P00–P80 → kanji_output/
-.venv/bin/python sangokushi/portrait_export.py "Sangokushi (Japan).nes"
+.venv/bin/python sangokushi/portrait_export.py "roms/Sangokushi (Japan).nes"
 
 # kaodata 統一格式資料集 san1-fc（大眾臉組合臉 + 255 武將姓名／讀音）
-.venv/bin/python sangokushi/tools/export_kaodata.py --rom "Sangokushi (Japan).nes" --out <kaodata>/data-local/san1-fc
+.venv/bin/python sangokushi/tools/export_kaodata.py --rom "roms/Sangokushi (Japan).nes" --out <kaodata>/data-local/san1-fc
 # 驗證：和探索器舊算法、截圖、Mesen 紀錄逐 pixel 比對
-.venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "Sangokushi (Japan).nes" --dataset <輸出目錄>
+.venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "roms/Sangokushi (Japan).nes" --dataset <輸出目錄>
 
 # 58 國戰爭地圖 → sangokushi/output/battle_maps/（NN_州名.png + terrain.png）
 .venv/bin/python sangokushi/export_battle_maps.py [--scale N]

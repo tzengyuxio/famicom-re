@@ -18,7 +18,7 @@ KOEI, 1989, FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](doc
 .venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
-ROM 預設是 repo 根目錄的 `Suikoden - Tenmei no Chikai (Japan).nes`。
+ROM 預設直接讀 `roms/Suikoden - Tenmei no Chikai (Japan).zip`（也接受 `--rom` 指定 .nes 或 .zip）。
 依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（可選，驗證時跑模擬器）。
 
 ## 檔案

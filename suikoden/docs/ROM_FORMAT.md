@@ -1,6 +1,6 @@
 # FC 水滸伝・天命の誓い ROM 格式
 
-KOEI, 1989。檔案 `Suikoden - Tenmei no Chikai (Japan).nes`。
+KOEI, 1989。檔案 `roms/Suikoden - Tenmei no Chikai (Japan).zip` 內的 `.nes`（SHA-1 `ea20beadf28617dbb2e6786aae307fd6cd26159d`）。
 本文的位址除特別註明外都是 **PRG 位址**（檔案位址 − 0x10）；`$xxxx` 是 CPU 位址。
 
 ## 1. 硬體與 bank

@@ -5,7 +5,7 @@ Spec: docs/data-format.md of the kaodata website repo. Writes dataset.json,
 pixels.bin (raw deflate) and checksums.json. The checksums come from the
 reference renderer below, which implements spec §6.
 
-Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --rom "Sangokushi (Japan).nes" --out <dir>
+Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --rom "roms/Sangokushi (Japan).nes" --out <dir>
 
 Scope (M1): mob (大眾臉) composite faces only. Generals with a dedicated
 portrait (face index 0-80) are listed without `face`.
@@ -278,7 +278,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 san1-fc")
-    ap.add_argument("--rom", required=True, help="Sangokushi (Japan).nes")
+    ap.add_argument("--rom", required=True, help="roms/Sangokushi (Japan).nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
     meta, blobs = build(args.rom)

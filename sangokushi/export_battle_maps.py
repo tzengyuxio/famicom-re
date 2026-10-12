@@ -15,7 +15,7 @@ import os
 from PIL import Image
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_ROM = os.path.join(REPO, "Sangokushi (Japan).nes")
+DEFAULT_ROM = os.path.join(REPO, "roms", "Sangokushi (Japan).nes")
 
 # PRG offsets (file offset - 0x10)
 MAPS = 0x259A4           # bank 9 $99A4: 58 maps x 168 bytes, value = terrain << 3 | zone bits

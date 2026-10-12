@@ -252,7 +252,7 @@ def export_portrait_atlas(rom, output_path, scale=2):
 
 
 def main():
-    rom_path = sys.argv[1] if len(sys.argv) > 1 else "Sangokushi (Japan).nes"
+    rom_path = sys.argv[1] if len(sys.argv) > 1 else "roms/Sangokushi (Japan).nes"
 
     if not os.path.exists(rom_path):
         print(f"錯誤: 找不到 ROM 檔案 '{rom_path}'")

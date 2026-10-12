@@ -9,7 +9,7 @@
 4. Ground truth images: mob_portrait/generated/*.png (8x) and
    mob_portrait/screenshot/*.png (game screenshots, ~4x).
 
-Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "Sangokushi (Japan).nes" --dataset <dir>
+Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "roms/Sangokushi (Japan).nes" --dataset <dir>
 """
 import argparse
 import hashlib

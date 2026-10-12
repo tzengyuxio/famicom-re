@@ -4,9 +4,10 @@ All offsets are PRG offsets (file offset - 0x10). See suikoden/docs/ROM_FORMAT.m
 """
 import os
 import unicodedata
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "Suikoden - Tenmei no Chikai (Japan).nes")
+DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "roms", "Suikoden - Tenmei no Chikai (Japan).zip")
 
 PRG_SIZE = 0x40000
 CHR_START = 0x10 + PRG_SIZE
@@ -73,10 +74,19 @@ def nes_rgb(i: int) -> tuple[int, int, int]:
     return c >> 16, (c >> 8) & 0xFF, c & 0xFF
 
 
+def read_rom(path: str) -> bytes:
+    """Read a .nes file, or the single .nes inside a .zip (as stored in roms/)."""
+    if path.lower().endswith(".zip"):
+        with zipfile.ZipFile(path) as z:
+            (name,) = [n for n in z.namelist() if n.lower().endswith(".nes")]
+            return z.read(name)
+    with open(path, "rb") as f:
+        return f.read()
+
+
 class Rom:
     def __init__(self, path: str = DEFAULT_ROM):
-        with open(path, "rb") as f:
-            self.data = f.read()
+        self.data = read_rom(path)
         assert self.data[:4] == b"NES\x1a" and self.data[4] == 16 and self.data[5] == 16, "not the expected ROM"
         self.prg = self.data[0x10:CHR_START]
         self.chr = self.data[CHR_START:]
