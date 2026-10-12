@@ -134,9 +134,14 @@ def write_xlsx(sheets: dict[str, list[dict]], path: str) -> None:
 
 
 def province_hex(rom: Rom, path: str) -> None:
-    """The 41 provinces on the hex lattice of the adjacency table, turned 180° so north is up."""
-    pos, size = rom.hex_layout(), 28
-    pts = {i: (-(2 * q + r) * size, -r * size * 1.7) for i, (q, r) in pos.items()}
+    """The 41 provinces on the hex lattice of the adjacency table, in the column layout of china_battle_map.
+
+    Flat-topped hexes: province (q, r) sits in column -(q + r), row -r, every other column half a hex
+    lower, so 41 -> 40 -> 31 stack straight up, as the battle fields do.
+    """
+    size = 28
+    cells = {i: (-(q + r), -r) for i, (q, r) in rom.hex_layout().items()}
+    pts = {i: (c * size * 1.5, (row - c / 2) * size * 3 ** 0.5) for i, (c, row) in cells.items()}
     x0, y0 = min(x for x, _ in pts.values()), min(y for _, y in pts.values())
     im = Image.new("RGB", (int(max(x for x, _ in pts.values()) - x0) + 2 * size + 20,
                            int(max(y for _, y in pts.values()) - y0) + 2 * size + 20), "white")
