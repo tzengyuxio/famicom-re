@@ -6,7 +6,7 @@ handler, which is entered whenever the main code spins waiting for vblank.
 """
 from py65.devices.mpu6502 import MPU
 
-WAIT_LOOPS = {0xFB91, 0xFB9A}  # wait for NMI to drain the PPU transfer queue ($72 / $0713)
+WAIT_LOOPS = {0xFB91, 0xFB9A, 0xFACC}  # wait for NMI: PPU transfer queue ($72 / $0713), palette fade
 
 
 class Mem:
@@ -130,3 +130,39 @@ def trace_face_copies(prg: bytes, code: int) -> list[tuple[int, int, int, int]]:
 
     call_pcode(Mem(prg), FACE_ROUTINE, 16, [0, 0, code, 0, 0], on_step)
     return copies
+
+
+
+BATTLE_INIT = 0xA47A      # bank 11: load terrain ($A41C), apply season ($A3BE), load regions ($A33B)
+BATTLE_DRAW = 0xA319      # bank 11: draw all 14x12 cells with bank 9 $92CF (bank 9 at $8000)
+SYSCALL = 0xEE39          # native: service number is the last value pushed; 8 = draw a tile/ExRAM image
+
+
+def trace_battle_map(prg: bytes, province: int, month: int) -> tuple[list[tuple[int, int, int, int]], bytes, bytes]:
+    """Run the game's battle map setup and drawing for a province.
+
+    Returns the image draws (col, row, tile ptr, ExRAM ptr) and the decoded 14x12 buffers:
+    block kinds at $7A8C and province ids at $7C84.
+
+    The battle record pointed to by $7A66 holds the province at byte 0; the month ($71F6) picks the
+    season. Service 8 is recorded and skipped, since the real one waits for frames forever here.
+    """
+    mem = Mem(prg)
+    mem[0x7A66], mem[0x7A67] = 0x00, 0x61
+    mem[0x6100], mem[0x71F6] = province, month
+    call_pcode(mem, BATTLE_INIT, 11, [])
+    mem.regs[0x5114] = 0x80 | 9
+    draws = []
+
+    def on_step(cpu):
+        if cpu.pc == SYSCALL:
+            m = cpu.memory
+            sp = m[2] | m[3] << 8
+            a = [m[sp + 2 + i] | m[sp + 3 + i] << 8 for i in range(0, 16, 2)]
+            if a[0] == 8:
+                draws.append((a[1], a[2], a[5], a[6]))
+                cpu.pc = cpu.stPopWord() + 1  # return without running the service
+        return False
+
+    call_pcode(mem, BATTLE_DRAW, 11, [], on_step)
+    return draws, bytes(mem[0x7A8C + i] for i in range(168)), bytes(mem[0x7C84 + i] for i in range(168))

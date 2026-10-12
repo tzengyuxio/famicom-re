@@ -4,14 +4,25 @@
 Usage: .venv/bin/python suikoden/export.py [--rom ROM] [--out DIR] [--scale N]
 
 Writes characters.csv (+ .xlsx when openpyxl is installed), provinces.csv,
-faces/ (one PNG per character), portraits/ (P00-P99), map.png.
+faces/ (one PNG per character), portraits/ (P00-P99), map.png,
+battle_maps/<season>/NN_<province>.png (all four seasons) and battle_maps.csv.
 """
 import argparse
 import csv
 import os
 
 from PIL import Image
-from rom import DEFAULT_ROM, MAP_W, PORTRAIT_COUNT, Rom, decode_mob_code, nes_rgb
+from rom import (
+    BATTLE_W,
+    DEFAULT_ROM,
+    MAP_W,
+    PORTRAIT_COUNT,
+    SEASONS,
+    TERRAIN_NAMES,
+    Rom,
+    decode_mob_code,
+    nes_rgb,
+)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Map palette is assigned at run time (province colours follow their ruler); this one is only for display.
@@ -78,6 +89,18 @@ def province_rows(rom: Rom) -> list[dict]:
     } for p in provinces]
 
 
+def battle_rows(rom: Rom) -> list[dict]:
+    """One row per battle map cell: terrain type and owning province."""
+    names = [p["name"] for p in rom.provinces()]
+    rows = []
+    for n in range(len(names)):
+        for i, (t, g) in enumerate(zip(rom.battle_terrain(n), rom.battle_regions(n))):
+            rows.append({"Province": n, "Province_Name": names[n], "X": i % BATTLE_W, "Y": i // BATTLE_W,
+                         "Terrain": t, "Terrain_Name": TERRAIN_NAMES[t],
+                         "Owner": "" if g == 0xFF else g, "Owner_Name": "" if g == 0xFF else names[g]})
+    return rows
+
+
 def write_csv(rows: list[dict], path: str) -> None:
     with open(path, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
@@ -141,6 +164,15 @@ def main() -> None:
     to_image(rom.render_cells(tiles, exram, MAP_W, MAP_PALETTE), MAP_W * 8, len(tiles) // MAP_W * 8,
              args.scale).save(path)
     print(f"已匯出 49 州地圖 → {path}（色盤為示意，非遊戲實際配色）")
+
+    for season, label in enumerate(SEASONS):
+        battle = os.path.join(args.out, "battle_maps", label)
+        os.makedirs(battle, exist_ok=True)
+        for p in rom.provinces():
+            w, h, px = rom.battle_pixels(p["id"], season)
+            to_image(px, w, h, args.scale).save(os.path.join(battle, f"{p['id'] + 1:02d}_{p['name']}.png"))
+        print(f"已匯出 {len(rom.provinces())} 張戰鬥地圖（{label}）→ {battle}")
+    write_csv(battle_rows(rom), os.path.join(args.out, "battle_maps.csv"))
 
 
 if __name__ == "__main__":

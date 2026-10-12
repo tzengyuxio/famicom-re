@@ -50,6 +50,20 @@ MAP_TILES = 0x26004
 MAP_EXRAM = 0x261E0
 MAP_W, MAP_H = 28, 17
 
+# Battle maps: 14 x 12 cells per province, drawn as a hex grid of 2x2-tile blocks
+BATTLE_W, BATTLE_H = 14, 12
+BATTLE_TERRAIN = 0x2C004      # bank 22: 49 x 84 bytes, 2 cells per byte, high nibble first
+BATTLE_REGION_PTRS = 0x2B2F2  # bank 21: 49 x LE16 -> RLE [value, count] at $8000 (FF = no province)
+BATTLE_KIND_TABLE = 0x17A84   # bank 11 $BA84: kind = table[terrain * 4 + season]
+BATTLE_TILE_PTRS = 0x13EAC    # bank 9 $9EAC: 19 x LE16 -> 4 tile ids in bank 19 ($A000)
+BATTLE_EXRAM_PTRS = 0x13ED2   # bank 9 $9ED2: 19 x LE16 -> 4 ExRAM bytes in bank 19
+BATTLE_BLOCKS = 0x26000       # bank 19 mapped at $A000
+# Base game palette (bank 13 $B246, same BG colours in banks 7 and 15); battle blocks use
+# sub-palettes 0, 2 and 3 only. Assumed: the battle keeps the palette already in $79E0.
+BATTLE_PALETTE = bytes.fromhex("0f273830 0f111430 0f2a393c 0f3c3816")
+SEASONS = ["春", "夏", "秋", "冬"]  # $D12A: month ($71F6) / 3 -> 1:0 2:1 3:2 else 3
+TERRAIN_NAMES = {0: "平地", 1: "森林", 2: "城", 3: "湿地", 4: "山地", 5: "川", 6: "海", 7: "高山"}
+
 # NES 2C02 palette (common emulator approximation), index = NES colour number
 NES_PALETTE = [int(x, 16) for x in ["7C7C7C", "0000FC", "0000BC", "4428BC", "940084", "A80020", "A81000", "881400", "503000", "007800", "006800", "005800", "004058", "000000", "000000", "000000", "BCBCBC", "0078F8", "0058F8", "6844FC", "D800CC", "E40058", "F83800", "E45C10", "AC7C00", "00B800", "00A800", "00A844", "008888", "000000", "000000", "000000", "F8F8F8", "3CBCFC", "6888FC", "9878F8", "F878F8", "F85898", "F87858", "FCA044", "F8B800", "B8F818", "58D854", "58F898", "00E8D8", "787878", "000000", "000000", "FCFCFC", "A4E4FC", "B8B8F8", "D8B8F8", "F8B8F8", "F8A4C0", "F0D0B0", "FCE0A8", "F8D878", "D8F878", "B8F8B8", "B8F8D8", "00FCFC", "F8D8F8", "000000", "000000"]]
 
@@ -221,6 +235,61 @@ class Rom:
     def map_cells(self) -> tuple[bytes, bytes]:
         n = MAP_W * MAP_H
         return self.prg[MAP_TILES:MAP_TILES + n], self.prg[MAP_EXRAM:MAP_EXRAM + n]
+
+    # ------------------------------------------------------------ battle maps
+
+    def battle_terrain(self, n: int) -> list[int]:
+        """Province n: 14x12 terrain types (0-7), row-major, as loaded by $A41C into $7A8C."""
+        out = []
+        for b in self.prg[BATTLE_TERRAIN + n * 84:BATTLE_TERRAIN + (n + 1) * 84]:
+            out += [b >> 4, b & 15]
+        return out
+
+    def battle_regions(self, n: int) -> list[int]:
+        """Province n: 14x12 province ids (0xFF = none), RLE-decoded as $A33B does into $7C84."""
+        o = 0x2A000 + self.u16(BATTLE_REGION_PTRS + 2 * n) - 0x8000
+        out = []
+        while len(out) < BATTLE_W * BATTLE_H:
+            out += [self.prg[o]] * self.prg[o + 1]
+            o += 2
+        return out[:BATTLE_W * BATTLE_H]
+
+    def battle_kinds(self, n: int, season: int) -> list[int]:
+        """Block kind (0-18) per cell, as $A3BE converts it for the season (0-3)."""
+        return [self.prg[BATTLE_KIND_TABLE + t * 4 + season] for t in self.battle_terrain(n)]
+
+    def battle_block(self, kind: int) -> tuple[bytes, bytes]:
+        """2x2 tile ids and ExRAM bytes of a block kind."""
+        t = BATTLE_BLOCKS + self.u16(BATTLE_TILE_PTRS + 2 * kind) - 0xA000
+        e = BATTLE_BLOCKS + self.u16(BATTLE_EXRAM_PTRS + 2 * kind) - 0xA000
+        return self.prg[t:t + 4], self.prg[e:e + 4]
+
+    def battle_cells(self, n: int, season: int) -> list[tuple[int, int, int]]:
+        """(screen tile col, row, kind) per cell; odd columns sit half a block higher ($8FA3)."""
+        kinds = self.battle_kinds(n, season)
+        return [(2 * x + 2, 2 * y + (3 if x & 1 else 4), kinds[y * BATTLE_W + x])
+                for y in range(BATTLE_H) for x in range(BATTLE_W)]
+
+    def battle_pixels(self, n: int, season: int) -> tuple[int, int, bytes]:
+        """Battle map as NES colour numbers, cropped to the drawn area (28 x 25 tiles)."""
+        cols, rows = 2 * BATTLE_W, 2 * BATTLE_H + 1
+        tiles, exram = [0] * (cols * rows), [0] * (cols * rows)
+        filled = [False] * (cols * rows)
+        for col, row, kind in self.battle_cells(n, season):
+            t, e = self.battle_block(kind)
+            for i in range(4):
+                k = (row - 3 + i // 2) * cols + col - 2 + i % 2
+                tiles[k], exram[k], filled[k] = t[i], e[i], True
+        px = bytearray(self.render_cells(tiles, exram, cols, BATTLE_PALETTE))
+        for k, f in enumerate(filled):  # half-block gaps at the top/bottom edge stay black
+            if not f:
+                r, c = divmod(k, cols)
+                for y in range(8):
+                    px[(r * 8 + y) * cols * 8 + c * 8:(r * 8 + y) * cols * 8 + c * 8 + 8] = b"\x0f" * 8
+        return cols * 8, rows * 8, bytes(px)
+
+    def u16(self, o: int) -> int:
+        return self.prg[o] | self.prg[o + 1] << 8
 
 
 def decode_mob_code(code: int) -> tuple[int, dict[str, int]]:
