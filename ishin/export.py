@@ -172,31 +172,37 @@ LEGEND_TERRAIN = [5, 2, 1, 3, 6, 7, 0, 4, 8, 0x0A, 9]  # 城 町 村 港 鉱山 
 
 
 def titled(rom: Rom, img: Image.Image, grid: bool) -> Image.Image:
-    """Title and credit in a band on top, legend (lines for the grid map, terrain icons) in the empty north-west."""
+    """Title over a credit bar (the bar doubles as the rule under it), legend in the empty north-west."""
     font = lambda size: ImageFont.truetype(JP_FONT, size)
     unit = img.width // 100
     top = unit * 10
     out = Image.new("RGB", (img.width, img.height + top), "black")
     out.paste(img, (0, top))
     dr = ImageDraw.Draw(out)
+    title = dr.textbbox((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", font=font(unit * 3))
     dr.text((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", fill="white", font=font(unit * 3))
-    dr.text((unit * 2, unit * 6), "FB: 司馬Game 遊戲存檔", fill=(200, 200, 200), font=font(unit * 3 // 2))
+    bar = [unit, title[3] + unit, title[2] + unit * 3, title[3] + unit * 3.5]
+    dr.rectangle(bar, fill=(160, 32, 32))
+    dr.text((unit * 2, (bar[1] + bar[3]) / 2), "FB：司馬Game 遊戲存檔", fill="white", font=font(unit * 6 // 5),
+            anchor="lm")
 
-    f, icon, row = font(unit * 3 // 2), unit * 3, unit * 4
+    f, icon, row = font(unit), unit * 2, unit * 2.6
     x, y = unit * 2, top + unit * 2
-    dr.text((x, y), "圖例", fill="white", font=font(unit * 2))
-    y += unit * 4
+    dr.text((x, y), "圖例", fill="white", font=font(unit * 3 // 2))
+    y += unit * 3
     if grid:
-        for colour, width, text in ((REGION_LINE, 3, "地方界"), ("white", 1, "國界（每張國地圖）")):
-            dr.line([x, y + icon // 2, x + icon, y + icon // 2], fill=colour, width=width * img.width // 1664)
-            dr.text((x + icon + unit, y + icon // 2), text, fill="white", font=f, anchor="lm")
-            y += row
+        lx = x
+        for colour, width, text in ((REGION_LINE, 3, "地方界"), ("white", 1, "國界")):
+            dr.line([lx, y + icon // 2, lx + icon, y + icon // 2], fill=colour, width=width * img.width // 1664)
+            dr.text((lx + icon + unit // 2, y + icon // 2), text, fill="white", font=f, anchor="lm")
+            lx += unit * 9
+        y += row
     pal = rom.prg[MAP_PALETTE:MAP_PALETTE + 16]
     for k, v in enumerate(LEGEND_TERRAIN):
-        cx, cy = x + (k // 6) * unit * 14, y + (k % 6) * row
+        cx, cy = x + (k // 6) * unit * 9, y + (k % 6) * row
         out.paste(to_image(rom.render_bg(*rom.cell_quad(v), 2, pal), 16, 16, 1).resize((icon, icon), Image.NEAREST),
-                  (cx, cy))
-        dr.text((cx + icon + unit, cy + icon // 2), TERRAIN[v], fill="white", font=f, anchor="lm")
+                  (cx, round(cy)))
+        dr.text((cx + icon + unit // 2, cy + icon // 2), TERRAIN[v], fill="white", font=f, anchor="lm")
     return out
 
 
