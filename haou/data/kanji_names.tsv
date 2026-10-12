@@ -1,0 +1,238 @@
+id	kana	kanji	source
+0	アカイナン	阿会喃	chuugen-fc 同讀音
+1	イコウ	韋康	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+2	イセキ	伊籍	chuugen-fc、san1-fc 同讀音
+3	インカイ	尹楷	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+4	インショウ	尹賞	chuugen-fc 同讀音
+5	ウキン	于禁	chuugen-fc、san1-fc 同讀音
+6	エツキツ	越吉	chuugen-fc 同讀音
+7	エンキ	袁煕	chuugen-fc、san1-fc 同讀音
+8	エンショウ	袁紹	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+9	エンタン	袁譚	chuugen-fc、san1-fc 同讀音
+10	エンホ	閻圃	chuugen-fc、san1-fc 同讀音
+11	オウケン		未定
+12	オウサン	王粲	chuugen-fc、san1-fc 同讀音
+13	オウソウ	王双	chuugen-fc、san1-fc 同讀音
+14	オウチュウ	王忠	chuugen-fc 同讀音
+15	オウヘイ	王平	chuugen-fc、san1-fc 同讀音
+16	オウホ	王甫	chuugen-fc 同讀音
+17	オウルイ	王累	chuugen-fc、san1-fc 同讀音
+18	カイエツ	蒯越	chuugen-fc、san1-fc 同讀音
+19	カイリョウ	蒯良	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+20	カカ	賈華	chuugen-fc 同讀音
+21	カキン	華歆	chuugen-fc、san1-fc 同讀音
+22	カク	賈詡	chuugen-fc、san1-fc 同讀音
+23	カクシ	郭汜	san1-fc 同讀音
+24	カクカ	郭嘉	chuugen-fc、san1-fc 同讀音
+25	カクショウ	郝昭	chuugen-fc、san1-fc 同讀音
+26	ガクシン	楽進	chuugen-fc、san1-fc 同讀音
+27	カクト	郭図	chuugen-fc、san1-fc 同讀音
+28	カクワイ	郭淮	san1-fc 同讀音
+29	カコウエン	夏侯淵	chuugen-fc、san1-fc 同讀音
+30	カコウトン	夏侯惇	chuugen-fc、san1-fc 同讀音
+31	カコウハ	夏侯覇	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+32	カコウボウ	夏侯楙	chuugen-fc 同讀音
+33	カコウラン	夏侯蘭	chuugen-fc 同讀音
+34	ガタン	雅丹	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+35	ガッカン	鄂煥	chuugen-fc 同讀音
+36	カハン	賈範	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+37	カユウ	華雄	san1-fc 同讀音
+38	カンウ	関羽	chuugen-fc、san1-fc 同讀音
+39	カンエイ	韓瑛	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+40	カンキ	韓琪	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+41	カンゲン	韓玄	chuugen-fc、san1-fc 同讀音
+42	カンコウ	関興	chuugen-fc、san1-fc 同讀音
+43	カンサク	関索	chuugen-fc、san1-fc 同讀音
+44	カンスイ	韓遂	chuugen-fc、san1-fc 同讀音
+45	カントウ	韓当	chuugen-fc、san1-fc 同讀音
+46	カントク	韓徳	chuugen-fc 同讀音
+47	カンネイ	甘寧	chuugen-fc、san1-fc 同讀音
+48	カンペイ	関平	chuugen-fc、san1-fc 同讀音
+49	カンモウ	韓猛	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+50	カンヨウ	簡雍	chuugen-fc、san1-fc 同讀音
+51	ガンリョウ	顔良	chuugen-fc、san1-fc 同讀音
+52	ギエン	魏延	chuugen-fc、san1-fc 同讀音
+53	ギキョ		未定
+54	ギュウキン	牛金	chuugen-fc、san1-fc 同讀音
+55	キョウイ	姜維	chuugen-fc、san1-fc 同讀音
+56	キョユウ	許攸	chuugen-fc 同讀音
+57	キョチョ	許褚	chuugen-fc、san1-fc 同讀音
+58	ギラン		未定
+59	キレイ	紀霊	san1-fc 同讀音
+60	キンカンケツ	金環三結	chuugen-fc 同讀音
+61	グホン	虞翻	chuugen-fc、san1-fc 同讀音
+62	ケイドウエイ	刑道栄	chuugen-fc、san1-fc 同讀音
+63	ゲンガン	厳顔	chuugen-fc、san1-fc 同讀音
+64	ゲンシュン	厳晙	chuugen-fc、san1-fc 同讀音
+65	ゲンコウ	厳綱	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+66	ゴイ	呉懿	chuugen-fc、san1-fc 同讀音
+67	コウガイ	黄蓋	chuugen-fc、san1-fc 同讀音
+68	コウカン	高幹	chuugen-fc 同讀音
+69	コウショウ	高翔	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+70	コウケン	黄権	chuugen-fc、san1-fc 同讀音
+71	コウセイ	侯成	chuugen-fc、san1-fc 同讀音
+72	コウセン	侯選	chuugen-fc、san1-fc 同讀音
+73	コウソンエン	公孫淵	chuugen-fc 同讀音
+74	コウソンコウ	公孫康	chuugen-fc 同讀音
+75	コウチュウ	黄忠	chuugen-fc、san1-fc 同讀音
+76	コウテイ	高定	chuugen-fc、san1-fc 同讀音
+77	コウラン	高覧	chuugen-fc、san1-fc 同讀音
+78	ゴツトツコツ	兀突骨	chuugen-fc 同讀音
+79	コヨウ	顧雍	chuugen-fc、san1-fc 同讀音
+80	コシャジ	胡車児	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+81	ゴラン	呉蘭	san1-fc 同讀音
+82	サイエン	崔琰	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+83	サイヨウ	蔡陽	chuugen-fc 同讀音
+84	サイリョウ	崔諒	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+85	シカン		未定
+86	シバイ	司馬懿	chuugen-fc、san1-fc 同讀音
+87	シバシ	司馬師	san1-fc 同讀音
+88	シバショウ	司馬昭	chuugen-fc、san1-fc 同讀音
+89	シュウゼン	周善	chuugen-fc 同讀音
+90	シュウソウ	周倉	chuugen-fc、san1-fc 同讀音
+91	シュウタイ	周泰	chuugen-fc、san1-fc 同讀音
+92	シュウホウ	周魴	chuugen-fc 同讀音
+93	シュウユ	周瑜	chuugen-fc、san1-fc 同讀音
+94	シュカン	朱桓	chuugen-fc、san1-fc 同讀音
+95	シュゼン	朱然	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+96	シュチ	朱治	chuugen-fc、san1-fc 同讀音
+97	シュホウ	朱褒	chuugen-fc、san1-fc 同讀音
+98	シュレイ	朱霊	chuugen-fc、san1-fc 同讀音
+99	ジュンイク	荀彧	chuugen-fc、san1-fc 同讀音
+100	ジュンウケイ	淳于瓊	chuugen-fc 同讀音
+101	ジュンジン	荀諶	chuugen-fc 同讀音
+102	ショウカン	蒋幹	chuugen-fc、san1-fc 同讀音
+103	ショウカイ	鍾会	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+104	ショウエン	蒋琬	san1-fc 同讀音
+105	ショウチョウ	尚寵	chuugen-fc、san1-fc 同讀音
+106	ジョエイ	徐栄	san1-fc 同讀音
+107	ショカツキン	諸葛瑾	chuugen-fc、san1-fc 同讀音
+108	ショカツセン	諸葛瞻	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+109	ショカツリョウ	諸葛亮	chuugen-fc、san1-fc 同讀音
+110	ショカツカク	諸葛恪	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+111	ジョコウ	徐晃	chuugen-fc、san1-fc 同讀音
+112	ジョショ	徐庶	chuugen-fc、san1-fc 同讀音
+113	ジョセイ	徐盛	chuugen-fc、san1-fc 同讀音
+114	ジンシュン	任峻	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+115	ジンソウ		未定
+116	シンタン	申耽	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+117	シンパイ	審配	chuugen-fc、san1-fc 同讀音
+118	シンピ	辛毘	san1-fc 同讀音
+119	シンピョウ	辛評	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+120	セイギ	成宜	chuugen-fc、san1-fc 同讀音
+121	セッソウ	薛綜	chuugen-fc、san1-fc 同讀音
+122	ゼンソウ	全琮	chuugen-fc、san1-fc 同讀音
+123	ソウエイ	曹叡	chuugen-fc、san1-fc 同讀音
+124	ソウキュウ	曹休	san1-fc 同讀音
+125	ソウケン	宋憲	san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+126	ソウコウ	曹洪	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+127	ソウショウ	曹彰	chuugen-fc 同讀音
+128	ソウショク	曹植	chuugen-fc、san1-fc 同讀音
+129	ソウシン	曹真	san1-fc 同讀音
+130	ソウジン	曹仁	chuugen-fc、san1-fc 同讀音
+131	ソウソウ	曹操	chuugen-fc、san1-fc 同讀音
+132	ソウヒ	曹丕	chuugen-fc、san1-fc 同讀音
+133	ソウユウ	曹熊	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+134	ソジュ	沮授	chuugen-fc、san1-fc 同讀音
+135	ソヒ	蘇飛	chuugen-fc 同讀音
+136	ソンカン	孫乾	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+137	ソンケン	孫権	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+138	ソンサク	孫策	san1-fc 同讀音
+139	ソンヨク	孫翊	chuugen-fc、san1-fc 同讀音
+140	ソンレイ	孫礼	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+141	タイシジ	太史慈	chuugen-fc、san1-fc 同讀音
+142	タンユウ	譚雄	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+143	チョウサイ	張済	san1-fc 同讀音
+144	チョウウン	趙雲	chuugen-fc、san1-fc 同讀音
+145	チョウエイ	張衛	chuugen-fc、san1-fc 同讀音
+146	チョウオウ	張横	chuugen-fc、san1-fc 同讀音
+147	チョウギ	張顗	chuugen-fc、san1-fc 同讀音
+148	チョウゲツ		未定
+149	チョウコウ	張郃	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+150	チョウショウ	張松	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+151	チョウジン	張任	chuugen-fc、san1-fc 同讀音
+152	チョウナン	張南	chuugen-fc 同讀音
+153	チョウヒ	張飛	chuugen-fc、san1-fc 同讀音
+154	チョウホウ	張苞	chuugen-fc、san1-fc 同讀音
+155	チョウヨク	張翼	chuugen-fc 同讀音
+156	チョウリョウ	張遼	chuugen-fc、san1-fc 同讀音
+157	チンシン	陳震	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+158	チンブ	陳武	chuugen-fc、san1-fc 同讀音
+159	チンラン	陳蘭	chuugen-fc、san1-fc 同讀音
+160	チンリン	陳琳	chuugen-fc、san1-fc 同讀音
+161	テイイク	程昱	chuugen-fc、san1-fc 同讀音
+162	テイギン	程銀	chuugen-fc、san1-fc 同讀音
+163	テイフ	程普	chuugen-fc、san1-fc 同讀音
+164	テイヘイ		未定
+165	テンイ	典韋	chuugen-fc、san1-fc 同讀音
+166	デンチュウ	田疇	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+167	デンホウ	田豊	chuugen-fc、san1-fc 同讀音
+168	トウイン	董允	chuugen-fc、san1-fc 同讀音
+169	トウガイ	鄧艾	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+170	トウシ	鄧芝	chuugen-fc、san1-fc 同讀音
+171	トウシュウ	董襲	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+172	トウトヌ	董荼那	chuugen-fc 同讀音
+173	トウタク	董卓	san1-fc 同讀音
+174	バエン	馬延	chuugen-fc、san1-fc 同讀音
+175	バガン	馬玩	chuugen-fc、san1-fc 同讀音
+176	バキュウ	馬休	chuugen-fc、san1-fc 同讀音
+177	バショク	馬謖	chuugen-fc、san1-fc 同讀音
+178	バジュン	馬遵	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+179	バタイ	馬岱	chuugen-fc、san1-fc 同讀音
+180	バチョウ	馬超	chuugen-fc、san1-fc 同讀音
+181	バテツ	馬鉄	chuugen-fc、san1-fc 同讀音
+182	バトウ	馬騰	chuugen-fc、san1-fc 同讀音
+183	バリョウ	馬良	chuugen-fc、san1-fc 同讀音
+184	バンイク		未定
+185	ハンショウ	潘璋	chuugen-fc、san1-fc 同讀音
+186	ハンチュウ	樊稠	san1-fc 同讀音
+187	ヒイ	費禕	chuugen-fc、san1-fc 同讀音
+188	ビジク	糜竺	chuugen-fc、san1-fc 同讀音
+189	ビホウ	糜芳	chuugen-fc、san1-fc 同讀音
+190	フエイ	傅嬰	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+191	ブンシュウ	文醜	chuugen-fc、san1-fc 同讀音
+192	ブンペイ	文聘	chuugen-fc、san1-fc 同讀音
+193	ブアンコク	武安国	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+194	ホウキ	逢紀	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+195	ホウジュウ	鮑忠	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+196	ホウセイ	法正	chuugen-fc、san1-fc 同讀音
+197	ホウトウ	龐統	chuugen-fc、san1-fc 同讀音
+198	ホウトク	龐徳	chuugen-fc、san1-fc 同讀音
+199	ホシツ	歩隲	chuugen-fc、san1-fc 同讀音
+200	モウカク	孟獲	chuugen-fc、san1-fc 同讀音
+201	モウタツ	孟達	chuugen-fc、san1-fc 同讀音
+202	モウユウ	孟優	chuugen-fc、san1-fc 同讀音
+203	ヨウガイ	雍闓	chuugen-fc、san1-fc 同讀音
+204	ヨウギ	楊儀	chuugen-fc、san1-fc 同讀音
+205	ヨウコウ	楊洪	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+206	ヨウシュウ	楊修	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+207	ヨウフ	楊阜	chuugen-fc 同讀音
+208	ライハク	雷薄	chuugen-fc、san1-fc 同讀音
+209	ライドウ	雷同	san1-fc 同讀音
+210	リイ	李異	chuugen-fc 同讀音
+211	リカク	李傕	san1-fc 同讀音
+212	リクセキ	陸績	chuugen-fc、san1-fc 同讀音
+213	リクソン	陸遜	chuugen-fc、san1-fc 同讀音
+214	リゲン	李厳	chuugen-fc、san1-fc 同讀音
+215	リタン	李湛	chuugen-fc、san1-fc 同讀音
+216	リテン	李典	chuugen-fc、san1-fc 同讀音
+217	リフ	李孚	人工判讀（三國志演義人名，同讀音者依能力值／時代）
+218	リョフ	呂布	san1-fc 同讀音
+219	リジュ	李儒	san1-fc 同讀音
+220	リュウショウ	劉璋	chuugen-fc、san1-fc 同讀音
+221	リュウド	劉度	chuugen-fc、san1-fc 同讀音
+222	リュウビ	劉備	chuugen-fc、san1-fc 同讀音
+223	リュウヘイ		未定
+224	リュウホウ	劉封	chuugen-fc、san1-fc 同讀音
+225	リュウヨウ	劉曄	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+226	リョウカ	廖化	chuugen-fc、san1-fc 同讀音
+227	リョウコウ	梁興	chuugen-fc、san1-fc 同讀音
+228	リョウトウ	凌統	chuugen-fc、san1-fc 同讀音
+229	リョガイ	呂凱	chuugen-fc、san1-fc 同讀音
+230	リョコウ	呂曠	chuugen-fc、san1-fc 同讀音（多名，依能力值／所屬勢力選定）
+231	リョケン	呂虔	chuugen-fc、san1-fc 同讀音
+232	リョショウ	呂翔	chuugen-fc、san1-fc 同讀音
+233	リョハン	呂範	chuugen-fc、san1-fc 同讀音
+234	リョモウ	呂蒙	chuugen-fc、san1-fc 同讀音
+235	ロシュク	魯粛	chuugen-fc、san1-fc 同讀音
+236	リケイ		未定

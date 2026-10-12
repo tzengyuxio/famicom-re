@@ -20,6 +20,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `gunyuu/` | 信長の野望・戦国群雄伝 (KOEI, 1990, MMC5)：武將（2 劇本）、38 國、大名、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `gunyuu-fc` |
 | `zenkoku/` | 信長の野望・全国版 (KOEI, 1988, MMC1)：大名（50／17 國）、國、相鄰、頭像（大名＋姫 75 張）、地方地圖、戰場地圖、kaodata `nobunaga1-fc` |
 | `chuugen/` | 三國志 中原の覇者 (Namco, 1988, Namco 163)：武將、州、道路、頭像（共用整張臉 120 張＋表情）、大地圖、戰場地圖、kaodata `chuugen-fc` |
+| `haou/` | 三國志II 覇王の大陸 (Namco, 1992, Namco 163)：武將（[EXT] 漢字）、州、君主、道具、頭像（共用整張臉＋5 表情）、大地圖、戰場地圖 30 張、kaodata `haou-fc` |
 
 - ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，其他遊戲直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
