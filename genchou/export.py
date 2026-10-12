@@ -10,8 +10,10 @@ and battle_maps.csv.
 """
 import argparse
 import csv
+import importlib.util
 import os
 
+import export_kaodata
 from PIL import Image
 from rom import (
     BATTLE_COUNT,
@@ -31,6 +33,11 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
+_spec = importlib.util.spec_from_file_location(
+    "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
+parts_sheet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(parts_sheet)
 # Person culture (byte 22 bits 2-4); the names agree with where each person lives in the scenarios
 CULTURES = ["モンゴル", "中央アジア", "インド", "日本", "西欧", "東欧", "イスラム", "中国"]
 STATUS = {3: "王", 1: "家臣", 0: "在野"}
@@ -218,6 +225,8 @@ def main() -> None:
         to_image(px, w, h, args.scale).save(os.path.join(battle, f"{n + 1:02d}_{battle_name(rom, n)}.png"))
     print(f"已匯出 {BATTLE_COUNT} 張戰場地圖 → {battle}（調色盤為推定）")
 
+    meta, blobs = export_kaodata.build(args.rom)
+    parts_sheet.export_mob_parts(meta, blobs, args.out)
 
 if __name__ == "__main__":
     main()

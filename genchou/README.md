@@ -14,8 +14,6 @@ KOEI，1992，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 .venv/bin/python genchou/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰場地圖：47 張圖用模擬器跑遊戲的載入與繪製程式，和靜態解碼比對（需 py65，約 30 秒）
 .venv/bin/python genchou/verify_battle_maps.py
-# 組合臉零件總覽圖（43 個頭 × 基本／上／下／眼／鼻／口）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
 ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).zip`（`--rom` 也接受 .nes 或 .zip）。
@@ -43,6 +41,7 @@ ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).
 | `battle_maps.csv` | 47 張戰場 × 140 格：地形、出入國格（相鄰國） |
 | `genchou.xlsx` | 以上各表（需 openpyxl） |
 | `faces/NNN_姓名.png` | 每個不同人物的頭像（40×48），221 張 |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `portraits/PNN.png` | 80 張專屬頭像 |
 | `map_mongol.png`、`map_world.png` | モンゴル編與世界的大地圖（256×240） |
 | `battle_maps/NN_國名.png` | 47 張戰場地圖（14×10 格，224×168；調色盤為推定） |

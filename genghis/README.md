@@ -14,8 +14,6 @@ KOEI，1988，FC（MMC1，CHR-RAM）。ROM 結構與各表格式見 [docs/ROM_FO
 .venv/bin/python genghis/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰場地圖（41 張）與大地圖（2 張）：模擬器開戰後和靜態解碼比對（需 py65，約 6 分鐘；--maps 0,1 只跑部分）
 .venv/bin/python genghis/verify_battle_maps.py
-# 組合臉零件總覽圖（3 類型 × 框／眼／鼻／口）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
 ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).zip`（`--rom` 也接受 .nes 或 .zip）。
@@ -42,6 +40,7 @@ ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).z
 | `battle_maps.csv` | 41 張戰場 × 160 格：地形（推定名稱）、進入格 |
 | `genghis.xlsx` | 以上各表（需 openpyxl） |
 | `faces/` | 每個君主／將軍／子女／繼承人的頭像（40×48），115 張 |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `portraits/PNN.png` | 83 張專屬頭像 |
 | `map_mongol.png`、`map_world.png` | 兩張大地圖（160×128），`_labeled` 放大 3 倍並標上國號 |
 | `battle_maps/NN_名稱.png`、`terrain.png` | 41 張戰場地圖（16×10 格，512×336）與 8 種地形方塊 |

@@ -9,8 +9,10 @@ world_map.png (31 country maps on their grid) and japan.png (勢力図 backgroun
 """
 import argparse
 import csv
+import importlib.util
 import os
 
+import export_kaodata
 from PIL import Image
 from rom import (
     CHAR_COUNT,
@@ -29,6 +31,11 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
+_spec = importlib.util.spec_from_file_location(
+    "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
+parts_sheet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(parts_sheet)
 
 
 def face_label(code: int) -> tuple[str, str]:
@@ -194,6 +201,8 @@ def main() -> None:
     to_image(px, w, h, args.scale).save(os.path.join(args.out, "japan.png"))
     print("已匯出 → world_map.png（31 張國地圖依位置表排列）、japan.png（勢力図底圖）")
 
+    meta, blobs = export_kaodata.build(args.rom)
+    parts_sheet.export_mob_parts(meta, blobs, args.out)
 
 if __name__ == "__main__":
     main()

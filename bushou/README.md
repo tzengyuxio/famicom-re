@@ -14,8 +14,6 @@ KOEI，1991，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 .venv/bin/python bushou/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰場地圖：97 張圖用模擬器跑遊戲的畫面組裝程式，和靜態解碼比對（需 py65）
 .venv/bin/python bushou/verify_battle_maps.py
-# 組合臉零件總覽圖
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out bushou_parts.png
 ```
 
 ROM 預設直接讀 `roms/Nobunaga no Yabou - Bushou Fuuun Roku (Japan).zip`（`--rom` 也接受 .nes 或 .zip）。
@@ -44,6 +42,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Bushou Fuuun Roku (Japan).zip`（`
 | `battle_maps.csv` | 野戰 48＋城 49 張：戰場名、地形格（城另附第二層） |
 | `bushou.xlsx` | 以上各表（需 openpyxl） |
 | `faces/NNN_姓名.png` | 每個不同人物（姓名＋頭像碼）的頭像（40×48），463 張 |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `portraits/FNNN.png` | 212 張專屬頭像 |
 | `map.png` | 大地圖（240×208） |
 | `battle_maps/{field,castle}/NN_國_戰場名.png` | 戰場畫面（256×240，部隊與文字之前的底圖）；`*_winter/` 為冬季調色盤（推定） |

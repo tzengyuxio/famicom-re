@@ -2,19 +2,23 @@
 """Draw every composite-face part of a kaodata dataset on one sheet (needs Pillow).
 
 One row per variant, one column group per slot, items in dataset order.
-Transparent pixels show as grey. Works for any kaodata/1 dataset with `composite`
-(san1-fc, suikoden-fc).
+Transparent pixels show as grey. Works for any kaodata/1 dataset with `composite`.
+export_mob_parts() also writes every part as its own PNG; the game exporters call it.
 
-Usage: .venv/bin/python sangokushi/tools/parts_sheet.py --dataset <dir> --out parts.png [--scale N]
+Usage: .venv/bin/python sangokushi/tools/parts_sheet.py --dataset <dir> --out <dir> [--scale N]
 """
 import argparse
+import importlib.util
 import os
-import sys
 
 from PIL import Image, ImageDraw
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from export_kaodata import get_image, load_dataset, to_rgba
+# load the spec primitives by path: every game folder has its own export_kaodata module
+_spec = importlib.util.spec_from_file_location(
+    "san1_kaodata", os.path.join(os.path.dirname(os.path.abspath(__file__)), "export_kaodata.py"))
+_san1 = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_san1)
+get_image, load_dataset, to_rgba = _san1.get_image, _san1.load_dataset, _san1.to_rgba
 
 GAP, LABEL_W, LABEL_H = 4, 40, 14
 BG, CELL_BG, TEXT = (255, 255, 255), (160, 160, 160), (0, 0, 0)
@@ -65,15 +69,31 @@ def parts_sheet(meta: dict, blobs: list[bytes], scale: int) -> Image.Image:
     return sheet
 
 
+def export_mob_parts(meta: dict, blobs: list[bytes], out_dir: str, scale: int = 4) -> None:
+    """Write out_dir/mob_parts.png (sheet) and out_dir/mob_parts/<variant>_<slot>_<n>.png (each part, 1x)."""
+    colors = meta["palettes"][0]["colors"]
+    parts_dir = os.path.join(out_dir, "mob_parts")
+    os.makedirs(parts_dir, exist_ok=True)
+    count = 0
+    for v in meta["composite"]["variants"]:
+        for slot, sp in v["parts"].items():
+            for n, it in enumerate(sp["items"]):
+                src = get_image(meta, blobs, it if isinstance(it, int) else it["img"])
+                Image.frombytes("RGBA", src[:2], to_rgba(src, colors)).save(
+                    os.path.join(parts_dir, f"{v['id']}_{slot}_{n}.png"))
+                count += 1
+    parts_sheet(meta, blobs, scale).save(os.path.join(out_dir, "mob_parts.png"))
+    print(f"已匯出大眾臉零件 {count} 張 → {parts_dir}，總覽 → {os.path.join(out_dir, 'mob_parts.png')}")
+
+
 def main() -> None:
-    ap = argparse.ArgumentParser(description="大眾臉零件總覽圖")
+    ap = argparse.ArgumentParser(description="大眾臉零件總覽圖與各零件 PNG")
     ap.add_argument("--dataset", required=True)
-    ap.add_argument("--out", required=True)
-    ap.add_argument("--scale", type=int, default=4)
+    ap.add_argument("--out", required=True, help="輸出目錄（寫入 mob_parts.png 與 mob_parts/）")
+    ap.add_argument("--scale", type=int, default=4, help="總覽圖放大倍率")
     args = ap.parse_args()
     meta, blobs = load_dataset(args.dataset)
-    parts_sheet(meta, blobs, args.scale).save(args.out)
-    print(f"已儲存: {args.out}")
+    export_mob_parts(meta, blobs, args.out, args.scale)
 
 
 if __name__ == "__main__":

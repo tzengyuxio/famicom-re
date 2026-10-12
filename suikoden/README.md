@@ -14,8 +14,6 @@ KOEI, 1989, FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](doc
 .venv/bin/python suikoden/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰鬥地圖：49 州 × 4 季節，模擬器跑遊戲的繪製程式和靜態解碼逐格比對（需 py65，約 2 分鐘）
 .venv/bin/python suikoden/verify_battle_maps.py
-# 大眾臉零件總覽圖（5 類型 × 頭／顎／眼／鼻／口）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
 ROM 預設直接讀 `roms/Suikoden - Tenmei no Chikai (Japan).zip`（也接受 `--rom` 指定 .nes 或 .zip）。
@@ -41,6 +39,7 @@ ROM 預設直接讀 `roms/Suikoden - Tenmei no Chikai (Japan).zip`（也接受 `
 | `characters.csv` | 255 人：姓名、讀音、頭像碼、性別、操舵、忠義／仁愛／勇気，以及劇本 1–4 的年齡、所在州、體力、腕力、技量、知力；未知欄位以 `Unk` 保留原值 |
 | `provinces.csv` | 49 州：名稱、相鄰州 |
 | `faces/NNN_姓名.png` | 每人的頭像（40×48） |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `portraits/PNN.png` | 100 張專屬頭像 |
 | `map.png` | 49 州地圖（色盤為示意） |
 | `battle_maps/{春,夏,秋,冬}/NN_州名.png` | 49 州戰鬥地圖，四季各一套（14×12 六角格，224×200；調色盤為推定） |

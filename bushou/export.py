@@ -10,8 +10,10 @@ daimyo.csv, tea.csv, battle_maps.csv (+ bushou.xlsx when openpyxl is installed),
 """
 import argparse
 import csv
+import importlib.util
 import os
 
+import export_kaodata
 from PIL import Image, ImageDraw
 from rom import (
     BATTLE_H,
@@ -34,6 +36,11 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
+_spec = importlib.util.spec_from_file_location(
+    "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
+parts_sheet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(parts_sheet)
 
 
 def png(px: bytes, w: int, h: int, path: str, scale: int = 1) -> None:
@@ -231,6 +238,8 @@ def main() -> None:
     print(f"頭像 {len(chars)} 人＋專屬 {PORTRAIT_COUNT} 張；戰場 野戰 {FIELD_COUNT}＋城 {CASTLE_COUNT} 張"
           f"（調色盤：{BATTLE_PALETTE_LABELS[0]}、{BATTLE_PALETTE_LABELS[1]}）；地形 {len(FIELD_TERRAIN)} 種")
 
+    meta, blobs = export_kaodata.build(args.rom)
+    parts_sheet.export_mob_parts(meta, blobs, args.out)
 
 if __name__ == "__main__":
     main()

@@ -23,8 +23,8 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 # 驗證：模擬器開戰後逐格比對（需 py65，約 80 秒）
 .venv/bin/python sangokushi/tools/verify_battle_maps.py
 
-# 大眾臉零件總覽圖（任何有 composite 的 kaodata 資料集都可用，水滸傳也用這支）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <資料集目錄> --out mob_parts.png [--scale 4]
+# 大眾臉零件 → sangokushi/output/mob_parts.png（總覽）與 mob_parts/（各零件 PNG）；其他遊戲由各自的 export.py 呼叫
+.venv/bin/python sangokushi/tools/parts_sheet.py --dataset sangokushi/output/san1-fc --out sangokushi/output
 ```
 
 依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（戰爭地圖驗證）。kaodata 格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像（P00–P80）還沒有匯出到資料集，這些武將沒有 `face`。
@@ -41,7 +41,7 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 | `export_battle_maps.py` | 戰爭地圖 PNG 匯出（58 國，`NN_州名.png`＋`terrain.png`） |
 | `tools/export_kaodata.py` | kaodata 資料集 `san1-fc` 與參考渲染器（水滸傳的匯出也共用） |
 | `tools/verify_kaodata_export.py` | 資料集的獨立驗證 |
-| `tools/parts_sheet.py` | 大眾臉零件總覽圖 |
+| `tools/parts_sheet.py` | 大眾臉零件總覽圖與各零件 PNG（各遊戲共用） |
 | `tools/verify_battle_maps.py` | 戰爭地圖的模擬器驗證（需 py65） |
 | `tools/nes_emu.py` | MMC1＋6502＋簡易 PPU 模擬器（py65），可重播按鍵、設 PC 中斷 |
 | `tools/portrait_generator.py`、`tools/portrait_matcher.py` | 單張大眾臉產生、比對 |

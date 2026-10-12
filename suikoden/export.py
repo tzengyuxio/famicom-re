@@ -9,8 +9,10 @@ battle_maps/<season>/NN_<province>.png (all four seasons) and battle_maps.csv.
 """
 import argparse
 import csv
+import importlib.util
 import os
 
+import export_kaodata
 from PIL import Image
 from rom import (
     BATTLE_W,
@@ -25,6 +27,11 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
+_spec = importlib.util.spec_from_file_location(
+    "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
+parts_sheet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(parts_sheet)
 # Map palette is assigned at run time (province colours follow their ruler); this one is only for display.
 MAP_PALETTE = bytes([0x0F, 0x16, 0x07, 0x30, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x26, 0x36, 0x0F])
 
@@ -174,6 +181,8 @@ def main() -> None:
         print(f"已匯出 {len(rom.provinces())} 張戰鬥地圖（{label}）→ {battle}")
     write_csv(battle_rows(rom), os.path.join(args.out, "battle_maps.csv"))
 
+    meta, blobs = export_kaodata.build(args.rom)
+    parts_sheet.export_mob_parts(meta, blobs, args.out)
 
 if __name__ == "__main__":
     main()

@@ -15,8 +15,6 @@ KOEI，1990，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 .venv/bin/python empereur/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰場地圖：46 張圖用模擬器跑遊戲的展開與繪製程式，和靜態解碼比對（需 py65，約 25 秒）
 .venv/bin/python empereur/verify_battle_maps.py
-# 組合臉零件總覽圖（4 類型 × 上半／下半／眼／鼻／口）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
 ROM 預設讀 `roms/Empereur, L' (Japan).zip`（zip 內的 .nes）；`--rom` 也接受 .nes 或 .zip。
@@ -46,11 +44,11 @@ ROM 預設讀 `roms/Empereur, L' (Japan).zip`（zip 內的 .nes）；`--rom` 也
 | `battle_maps.csv` | 46 張戰場 × 156 格（13 × 12）：地形 |
 | `empereur.xlsx` | 以上各表（需 openpyxl） |
 | `faces/NNN_姓名.png` | 255 人的頭像（40×48） |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `portraits/PNN.png` | 90 張專屬頭像 |
 | `map.png` | 大地圖（28×18 tiles，224×144，含都市編號） |
 | `battle_maps/normal/NN_都市.png` | 46 張戰場地圖（13×12 格，208×200） |
 | `battle_maps/winter/NN_都市.png` | 同上，雪地圖塊變體（使用時機未明） |
-| `mob_parts.png` | 組合臉零件總覽（由 `parts_sheet.py` 產生時） |
 
 kaodata 資料集：255 人，88 人用專屬頭像，167 人用組合臉（4 類型，每類 5 個部位 × 4 種）。像素存 NES 色號，色盤是 NES 64 色。
 

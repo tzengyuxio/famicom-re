@@ -14,8 +14,6 @@ KOEI, 1990, FC（MMC5，CHR-ROM 128 KB）。ROM 結構與各表格式見 [docs/R
 .venv/bin/python ishin/verify_kaodata_export.py --dataset <輸出目錄> [--no-emulator]
 # 驗證 HEX 地圖：模擬器把開局地圖換成 47 張的每一張，逐格比對（需 py65，約 7 分鐘）
 .venv/bin/python ishin/verify_maps.py [--maps 0,31,42]
-# 組合臉零件總覽圖（5 類型 × 頭／下半／身體／眼／鼻／口）
-.venv/bin/python sangokushi/tools/parts_sheet.py --dataset <輸出目錄> --out mob_parts.png
 ```
 
 ROM 預設直接讀 `roms/Ishin no Arashi (Japan).zip`（也接受 `--rom` 指定 .nes 或 .zip）。
@@ -43,6 +41,7 @@ ROM 預設直接讀 `roms/Ishin no Arashi (Japan).zip`（也接受 `--rom` 指�
 | `maps.csv` | 47 張地圖：名稱、方格位置、117 格原始值 |
 | `ishin.xlsx` | 以上四表 |
 | `faces/NNN_姓名.png`、`portraits/PNN.png` | 每人頭像、87 張專屬頭像（40×48） |
+| `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `maps/NN_名稱.png` | 47 張 HEX 地圖（31 國＋8 町 × 2；208×152） |
 | `world_map.png` | 31 張國地圖依位置表拼成的全日本大地圖 |
 | `japan.png` | 勢力図底圖（192×144） |

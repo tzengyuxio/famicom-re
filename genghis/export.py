@@ -9,8 +9,10 @@ and battle_maps/terrain.png.
 """
 import argparse
 import csv
+import importlib.util
 import os
 
+import export_kaodata
 from PIL import Image, ImageDraw
 from rom import (
     BATTLE_BLOCKS,
@@ -34,6 +36,11 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
+_spec = importlib.util.spec_from_file_location(
+    "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
+parts_sheet = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(parts_sheet)
 ROLES = {"ruler": "君主", "general": "將軍", "heir": "子女", "extra": "繼承人?", "woman": "女性"}
 
 
@@ -230,6 +237,8 @@ def main() -> None:
     terrain_sheet(rom, max(args.scale, 2)).save(os.path.join(battle, "terrain.png"))
     print(f"已匯出 {BATTLE_COUNT} 張戰場地圖（{BATTLE_W}×{BATTLE_H} 格）→ {battle}")
 
+    meta, blobs = export_kaodata.build(args.rom)
+    parts_sheet.export_mob_parts(meta, blobs, args.out)
 
 if __name__ == "__main__":
     main()

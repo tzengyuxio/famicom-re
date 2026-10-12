@@ -20,7 +20,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 
 - ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，其他遊戲直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
-- 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 可為任一資料集畫大眾臉零件總覽圖
+- 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 輸出大眾臉零件總覽圖與各零件 PNG（有組合臉的遊戲由 `export.py` 呼叫，寫進 `output/`）
 
 ## 常用指令
 
