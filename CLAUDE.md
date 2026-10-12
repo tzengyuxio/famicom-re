@@ -15,6 +15,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
 | `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
 | `empereur/` | ランペルール (KOEI, 1990, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `empereur-fc` |
+| `bushou/` | 信長の野望・武将風雲録 (KOEI, 1991, MMC5)：武將（2 劇本＋登場）、國、大名、茶器、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `bushou-fc` |
 
 - ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，其他遊戲直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
