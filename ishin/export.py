@@ -23,6 +23,7 @@ from rom import (
     FACILITY_TYPES,
     MAP_COUNT,
     MAP_H,
+    MAP_PALETTE,
     MAP_W,
     PORTRAIT_COUNT,
     SCENARIO_COUNT,
@@ -166,23 +167,36 @@ def to_image(pixels: bytes, w: int, h: int, scale: int) -> Image.Image:
 JP_FONT = "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc"
 
 
-def titled(img: Image.Image, legend: bool) -> Image.Image:
-    """Add a title band (and the line legend for the grid map) on top and the credit at the bottom."""
+REGION_LINE = (255, 64, 64)
+LEGEND_TERRAIN = [5, 2, 1, 3, 6, 7, 0, 4, 8, 0x0A, 9]  # 城 町 村 港 鉱山 関所, then the plain terrain
+
+
+def titled(rom: Rom, img: Image.Image, grid: bool) -> Image.Image:
+    """Title and credit in a band on top, legend (lines for the grid map, terrain icons) in the empty north-west."""
     font = lambda size: ImageFont.truetype(JP_FONT, size)
     unit = img.width // 100
-    top, bottom = unit * (9 if legend else 6), unit * 4
-    out = Image.new("RGB", (img.width, img.height + top + bottom), "black")
+    top = unit * 10
+    out = Image.new("RGB", (img.width, img.height + top), "black")
     out.paste(img, (0, top))
     dr = ImageDraw.Draw(out)
     dr.text((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", fill="white", font=font(unit * 3))
-    if legend:
-        x, y, f = unit * 2, unit * 5.5, font(unit * 3 // 2)
-        for text, colour in (("紅色", (255, 64, 64)), ("是地方分隔線，", "white"), ("白色", "white"),
-                             ("是國別線", "white")):
-            dr.text((x, y), text, fill=colour, font=f)
-            x = dr.textbbox((x, y), text, font=f)[2]
-    dr.text((img.width - unit * 2, out.height - unit * 2), "FB: 司馬Game 遊戲存檔", fill="white",
-            font=font(unit * 3 // 2), anchor="rm")
+    dr.text((unit * 2, unit * 6), "FB: 司馬Game 遊戲存檔", fill=(200, 200, 200), font=font(unit * 3 // 2))
+
+    f, icon, row = font(unit * 3 // 2), unit * 3, unit * 4
+    x, y = unit * 2, top + unit * 2
+    dr.text((x, y), "圖例", fill="white", font=font(unit * 2))
+    y += unit * 4
+    if grid:
+        for colour, width, text in ((REGION_LINE, 3, "地方界"), ("white", 1, "國界（每張國地圖）")):
+            dr.line([x, y + icon // 2, x + icon, y + icon // 2], fill=colour, width=width * img.width // 1664)
+            dr.text((x + icon + unit, y + icon // 2), text, fill="white", font=f, anchor="lm")
+            y += row
+    pal = rom.prg[MAP_PALETTE:MAP_PALETTE + 16]
+    for k, v in enumerate(LEGEND_TERRAIN):
+        cx, cy = x + (k // 6) * unit * 14, y + (k % 6) * row
+        out.paste(to_image(rom.render_bg(*rom.cell_quad(v), 2, pal), 16, 16, 1).resize((icon, icon), Image.NEAREST),
+                  (cx, cy))
+        dr.text((cx + icon + unit, cy + icon // 2), TERRAIN[v], fill="white", font=f, anchor="lm")
     return out
 
 
@@ -206,7 +220,7 @@ def world_map_grid(rom: Rom, img: Image.Image, scale: int) -> Image.Image:
                              (0, -1, [x * mw, y * mh, (x + 1) * mw, y * mh])):
             n = pos.get((x + dx, y + dy))
             if n is None or rom.map_region(n) != g:
-                dr.line(line, fill=(255, 64, 64), width=3 * u)
+                dr.line(line, fill=REGION_LINE, width=3 * u)
     for (x, y), m in pos.items():
         label = f"{m:02d} {regions[rom.map_region(m)]}" if font else f"{m:02d}/{rom.map_region(m)}"
         cx, cy = x * mw + mw // 2, y * mh + mh // 2
@@ -256,7 +270,7 @@ def main() -> None:
         world = to_image(px, w, h, scale)
         grid = world_map_grid(rom, world, scale)
         if suffix:  # the 2x versions are the ones to share: title, legend and credit
-            world, grid = titled(world, False), titled(grid, True)
+            world, grid = titled(rom, world, False), titled(rom, grid, True)
         world.save(os.path.join(args.out, f"world_map{suffix}.png"))
         grid.save(os.path.join(args.out, f"world_map_grid{suffix}.png"))
     w, h, px = rom.japan_pixels()
