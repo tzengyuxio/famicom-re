@@ -6,7 +6,7 @@ Extract all Head frameworks and variant components for the web explorer tool.
 import os
 from PIL import Image
 
-ROM_PATH = "../../Sangokushi (Japan).nes"
+ROM_PATH = "../../../Sangokushi (Japan).nes"
 
 # NES palette for mob portraits
 PALETTE = [

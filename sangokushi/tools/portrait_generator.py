@@ -125,7 +125,7 @@ GROUP_FRAMEWORKS = {
     'G': ['standard'],
 }
 
-ROM_PATH = os.path.join(os.path.dirname(__file__), '..', 'Sangokushi (Japan).nes')
+ROM_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'Sangokushi (Japan).nes')
 
 
 def load_rom_tiles(base_addr, num_tiles=800):

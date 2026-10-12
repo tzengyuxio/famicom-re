@@ -2,14 +2,14 @@
 """Check an exported san1-fc dataset against independent renders.
 
 1. All 174 mob component records rendered the "old way" (port of
-   docs/mob-kao-explorer.html: its embedded tile hex + TEMPLATES + mouth layout,
+   mob_portrait/variant_explorer/mob-kao-explorer.html: its embedded tile hex + TEMPLATES + mouth layout,
    not the ROM decode in export_kaodata.py) vs the dataset render (spec §6).
 2. Every ch:<id> in checksums.json vs the sha256 of the old-way render.
 3. Mesen-verified component records (P081 周泰, P085 曹豹, P157 陳登).
 4. Ground truth images: mob_portrait/generated/*.png (8x) and
    mob_portrait/screenshot/*.png (game screenshots, ~4x).
 
-Usage: .venv/bin/python tools/verify_kaodata_export.py --rom "Sangokushi (Japan).nes" --dataset <dir>
+Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "Sangokushi (Japan).nes" --dataset <dir>
 """
 import argparse
 import hashlib
@@ -28,7 +28,7 @@ MESEN = {81: ("周泰", (3, 0, 2, 3, 1)), 85: ("曹豹", (2, 0, 1, 3, 1)), 157: 
 
 
 def explorer_data() -> dict:
-    with open(os.path.join(REPO, "docs", "mob-kao-explorer.html"), encoding="utf-8") as f:
+    with open(os.path.join(REPO, "mob_portrait", "variant_explorer", "mob-kao-explorer.html"), encoding="utf-8") as f:
         html = f.read()
     out = {}
     for name in ["PALETTE", "HEAD_TILES", "TEMPLATES", "EYE_TILES", "NOSE_TILES", "MOUTH_TILES"]:

@@ -5,7 +5,7 @@ Spec: docs/data-format.md of the kaodata website repo. Writes dataset.json,
 pixels.bin (raw deflate) and checksums.json. The checksums come from the
 reference renderer below, which implements spec §6.
 
-Usage: .venv/bin/python tools/export_kaodata.py --rom "Sangokushi (Japan).nes" --out <dir>
+Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --rom "Sangokushi (Japan).nes" --out <dir>
 
 Scope (M1): mob (大眾臉) composite faces only. Generals with a dedicated
 portrait (face index 0-80) are listed without `face`.
@@ -20,7 +20,7 @@ import zlib
 
 FORMAT = "kaodata/1"
 TRANSPARENT = 255
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # sangokushi/
 
 PALETTE = [(0, 0, 0), (247, 216, 165), (234, 158, 34), (255, 255, 255)]
 

@@ -6,7 +6,7 @@ Each tile is stored as 32 hex characters (16 bytes).
 
 import os
 
-ROM_PATH = "../../Sangokushi (Japan).nes"
+ROM_PATH = "../../../Sangokushi (Japan).nes"
 
 # 20 Heads - all have 24 tiles
 HEADS = [

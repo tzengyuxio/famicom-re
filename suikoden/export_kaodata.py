@@ -29,7 +29,7 @@ from rom import (
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Spec §6 primitives shared with the san1-fc exporter (same module name, so load it by path)
-_spec = importlib.util.spec_from_file_location("san1_kaodata", os.path.join(REPO, "tools", "export_kaodata.py"))
+_spec = importlib.util.spec_from_file_location("san1_kaodata", os.path.join(REPO, "sangokushi", "tools", "export_kaodata.py"))
 san1 = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(san1)
 blit, crop, get_image, to_rgba = san1.blit, san1.crop, san1.get_image, san1.to_rgba

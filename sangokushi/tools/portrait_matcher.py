@@ -42,7 +42,7 @@ GROUP_BASES = {
     'H': 0x102A4,  # 韓玄 - 不同 ROM 區域
 }
 
-ROM_PATH = os.path.join(os.path.dirname(__file__), '..', 'Sangokushi (Japan).nes')
+ROM_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'Sangokushi (Japan).nes')
 
 
 def load_rom_tiles(base_addr, num_tiles=800):
