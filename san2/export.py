@@ -5,7 +5,7 @@ Usage: .venv/bin/python san2/export.py [--rom ROM] [--out DIR] [--scale N]
 
 Writes generals.csv (352 generals), general_scenarios.csv (6 scenarios), provinces.csv (6 x 41),
 adjacency.csv (+ san2.xlsx when openpyxl is installed), faces/ (one PNG per general), portraits/
-(F001-F200), map.png, province_hex.png, china_battle_map(_labeled).png, battle_maps/ (41), mob_parts.png and mob_parts/.
+(F001-F200), map.png, province_hex.png, china_battle_map(_labeled, _framed).png, battle_maps/ (41), mob_parts.png and mob_parts/.
 """
 import argparse
 import csv
@@ -148,7 +148,7 @@ def province_hex(rom: Rom, path: str) -> None:
     im.save(path)
 
 
-def china_battle_map(rom: Rom, path: str, labeled_path: str, scale: int) -> None:
+def china_battle_map(rom: Rom, path: str, labeled_path: str, framed_path: str, scale: int) -> None:
     """All 41 battle fields laid out like province_hex.png, sheared into brick columns.
 
     The hex side (-1, +1) becomes straight up (41 -> 40 -> 31), so a province sits in column
@@ -176,12 +176,18 @@ def china_battle_map(rom: Rom, path: str, labeled_path: str, scale: int) -> None
     big.putdata([(0, 0, 0) if c == 255 else nes_rgb(c) for c in px])
     big = big.resize((big.width * scale, big.height * scale), Image.NEAREST)
     big.save(path)
-    dr, u = ImageDraw.Draw(big), 8 * scale
-    for i, (ox, oy) in org.items():
-        cx, cy = (ox + fw / 2) * u, (oy + fh / 2 + 0.5) * u
-        dr.rectangle([cx - 12 * scale, cy - 7 * scale, cx + 12 * scale, cy + 7 * scale], fill="white")
-        dr.text((cx, cy), str(i), fill="black", anchor="mm", font_size=10 * scale)
+    framed, u = big.copy(), 8 * scale
+    for im, frame in ((big, False), (framed, True)):
+        dr = ImageDraw.Draw(im)
+        for i, (ox, oy) in org.items():
+            if frame:  # straight box along the middle of the zigzag seam, rough on purpose
+                dr.rectangle([ox * u, (oy + 0.5) * u, (ox + fw) * u - 1, (oy + fh + 0.5) * u - 1],
+                             outline="white", width=scale)
+            cx, cy = (ox + fw / 2) * u, (oy + fh / 2 + 0.5) * u
+            dr.rectangle([cx - 12 * scale, cy - 7 * scale, cx + 12 * scale, cy + 7 * scale], fill="white")
+            dr.text((cx, cy), str(i), fill="black", anchor="mm", font_size=10 * scale)
     big.save(labeled_path)
+    framed.save(framed_path)
 
 
 def main() -> None:
@@ -213,7 +219,8 @@ def main() -> None:
     png(rom.map_pixels(), MAP_W * 8, MAP_H * 8, os.path.join(args.out, "map.png"), args.scale)
     province_hex(rom, os.path.join(args.out, "province_hex.png"))
     china_battle_map(rom, os.path.join(args.out, "china_battle_map.png"),
-                     os.path.join(args.out, "china_battle_map_labeled.png"), args.scale)
+                     os.path.join(args.out, "china_battle_map_labeled.png"),
+                     os.path.join(args.out, "china_battle_map_framed.png"), args.scale)
     bdir = os.path.join(args.out, "battle_maps")
     os.makedirs(bdir, exist_ok=True)
     for i in range(PROVINCE_COUNT):
