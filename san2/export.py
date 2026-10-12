@@ -15,6 +15,7 @@ import os
 from PIL import Image, ImageDraw
 from rom import (
     BATTLE_COLS,
+    BATTLE_PALETTE,
     BATTLE_ROWS,
     DEFAULT_ROM,
     FACE_COUNT,
@@ -27,6 +28,8 @@ from rom import (
     SCENARIO_TITLES,
     SCENARIO_YEARS,
     TERRAIN,
+    TERRAIN_EXRAM,
+    TERRAIN_TILES,
     Rom,
     decode_face_code,
     is_composite,
@@ -151,23 +154,31 @@ def china_battle_map(rom: Rom, path: str, labeled_path: str, scale: int) -> None
     The hex side (-1, +1) becomes straight up (41 -> 40 -> 31), so a province sits in column
     -(q + r) and row -r, and every other column drops half a field. Rivers and terrain continue
     across the seams in this layout (tools/stitch_test.py); the game itself never joins the fields.
+    Fields stack 24 tiles apart, not 25: odd hex columns stick half a hex out of the bottom of a
+    field, into the slot the even columns of the field below leave free, so the hexes interlock.
     """
-    w, h = BATTLE_COLS * 16, (BATTLE_ROWS * 2 + 1) * 8
+    fw, fh = 2 * BATTLE_COLS, 2 * BATTLE_ROWS  # field pitch in tiles
     cells = {i: (-(q + r), -r) for i, (q, r) in rom.hex_layout().items()}
-    xy = {i: (c * w, round((row - c / 2) * h)) for i, (c, row) in cells.items()}
-    x0, y0 = min(x for x, _ in xy.values()), min(y for _, y in xy.values())
-    big = Image.new("RGB", (max(x for x, _ in xy.values()) - x0 + w, max(y for _, y in xy.values()) - y0 + h), "black")
-    for i, (x, y) in xy.items():
-        im = Image.new("RGB", (w, h))
-        im.putdata([nes_rgb(c) for c in rom.battle_pixels(i - 1)])
-        big.paste(im, (x - x0, y - y0))
+    org = {i: (c * fw, row * fh - c * fh // 2) for i, (c, row) in cells.items()}
+    x0, y0 = min(x for x, _ in org.values()), min(y for _, y in org.values())
+    org = {i: (x - x0, y - y0) for i, (x, y) in org.items()}
+    w = max(x for x, _ in org.values()) + fw
+    h = max(y for _, y in org.values()) + fh + 1
+    tiles, ex, mask = [0] * (w * h), [0] * (w * h), [False] * (w * h)
+    for i, (ox, oy) in org.items():
+        for r, row in enumerate(rom.battle_terrain(i - 1)):
+            for c, t in enumerate(row):
+                for k, tid in enumerate(TERRAIN_TILES[t]):
+                    a = (oy + 2 * r + c % 2 + k // 2) * w + ox + 2 * c + k % 2
+                    tiles[a], ex[a], mask[a] = tid, TERRAIN_EXRAM[t][k], True
+    px = rom.render_cells(tiles, ex, w, rom.palette(BATTLE_PALETTE), mask)
+    big = Image.new("RGB", (w * 8, h * 8))
+    big.putdata([(0, 0, 0) if c == 255 else nes_rgb(c) for c in px])
     big = big.resize((big.width * scale, big.height * scale), Image.NEAREST)
     big.save(path)
-    dr = ImageDraw.Draw(big)
-    for i, (x, y) in xy.items():
-        cx, cy = (x - x0 + w // 2) * scale, (y - y0 + h // 2) * scale
-        dr.rectangle([(x - x0) * scale, (y - y0) * scale, (x - x0 + w) * scale - 1, (y - y0 + h) * scale - 1],
-                     outline="white", width=scale)
+    dr, u = ImageDraw.Draw(big), 8 * scale
+    for i, (ox, oy) in org.items():
+        cx, cy = (ox + fw / 2) * u, (oy + fh / 2 + 0.5) * u
         dr.rectangle([cx - 12 * scale, cy - 7 * scale, cx + 12 * scale, cy + 7 * scale], fill="white")
         dr.text((cx, cy), str(i), fill="black", anchor="mm", font_size=10 * scale)
     big.save(labeled_path)
