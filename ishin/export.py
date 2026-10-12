@@ -163,13 +163,36 @@ def to_image(pixels: bytes, w: int, h: int, scale: int) -> Image.Image:
     return img.resize((w * scale, h * scale), Image.NEAREST) if scale > 1 else img
 
 
+JP_FONT = "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc"
+
+
+def titled(img: Image.Image, legend: bool) -> Image.Image:
+    """Add a title band (and the line legend for the grid map) on top and the credit at the bottom."""
+    font = lambda size: ImageFont.truetype(JP_FONT, size)
+    unit = img.width // 100
+    top, bottom = unit * (9 if legend else 6), unit * 4
+    out = Image.new("RGB", (img.width, img.height + top + bottom), "black")
+    out.paste(img, (0, top))
+    dr = ImageDraw.Draw(out)
+    dr.text((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", fill="white", font=font(unit * 3))
+    if legend:
+        x, y, f = unit * 2, unit * 5.5, font(unit * 3 // 2)
+        for text, colour in (("紅色", (255, 64, 64)), ("是地方分隔線，", "white"), ("白色", "white"),
+                             ("是國別線", "white")):
+            dr.text((x, y), text, fill=colour, font=f)
+            x = dr.textbbox((x, y), text, font=f)[2]
+    dr.text((img.width - unit * 2, out.height - unit * 2), "FB: 司馬Game 遊戲存檔", fill="white",
+            font=font(unit * 3 // 2), anchor="rm")
+    return out
+
+
 def world_map_grid(rom: Rom, img: Image.Image, scale: int) -> Image.Image:
     """world_map.png with thin lines around each country map, thick lines around each region and labels."""
     img, u = img.copy(), scale
     mw, mh = MAP_W * 16 * u, MAP_H * 16 * u
     pos = {rom.map_grid_pos(m): m for m in range(COUNTRY_MAPS)}
     try:
-        font = ImageFont.truetype("/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc", 12 * u)
+        font = ImageFont.truetype(JP_FONT, 12 * u)
     except OSError:  # no Japanese font: labels fall back to numbers
         font = None
     dr, regions = ImageDraw.Draw(img), rom.regions()
@@ -231,8 +254,11 @@ def main() -> None:
     w, h, px = rom.world_pixels()
     for scale, suffix in ((args.scale, ""), (2, "_2x")):
         world = to_image(px, w, h, scale)
+        grid = world_map_grid(rom, world, scale)
+        if suffix:  # the 2x versions are the ones to share: title, legend and credit
+            world, grid = titled(world, False), titled(grid, True)
         world.save(os.path.join(args.out, f"world_map{suffix}.png"))
-        world_map_grid(rom, world, scale).save(os.path.join(args.out, f"world_map_grid{suffix}.png"))
+        grid.save(os.path.join(args.out, f"world_map_grid{suffix}.png"))
     w, h, px = rom.japan_pixels()
     to_image(px, w, h, args.scale).save(os.path.join(args.out, "japan.png"))
     print("已匯出 → world_map(_grid)(_2x).png（31 張國地圖依位置表排列，grid 加國／地方格線）、japan.png（勢力図底圖）")
