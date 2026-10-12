@@ -7,7 +7,7 @@
 
 使用者稍晚提供 ROM（放 `roms/`）。是否有 FC 版是憑記憶，動工前先確認。
 
-- [ ] 三國志II（1991，NES：Romance of the Three Kingdoms II）— 完整解析，與 `sangokushi/` 同系列（2026-10-12）
+- [ ] 三國志II（1991，NES：Romance of the Three Kingdoms II）— 完整解析，與 `sangokushi/` 同系列；使用者記得「各國戰場地圖可依國的六角相鄰關係拼成全中國戰場圖」可能是這款，要驗證並輸出拼合圖（2026-10-12）
 - [ ] 大航海時代（1990，NES：Uncharted Waters）— 完整解析（2026-10-12）
 - [ ] ロイヤルブラッド（1991，NES：Gemfire）— 完整解析（2026-10-12）
 - [ ] 独立戦争 Liberty or Death（1993）— 北美 NES 獨佔、日本無 FC 版，把握度中，先確認 ROM 存在（2026-10-12）
