@@ -24,6 +24,7 @@ AIM_LABELS = (0x2F776, 9, 6)      # 目的 / 藩論
 IDEOLOGY_LABELS = (0x2F7AC, 5, 3)  # 尊王 公議 佐幕
 REGION_LABELS = (0x2F7BC, 7, 8)
 TOWN_LABELS = (0x2F7F4, 7, 8)     # 江戸 京都 大坂 萩 下関 高知 長崎 鹿児島 (town maps 31-46, two each)
+MAP_REGION = 0x2F82C          # 31 bytes: region (index into REGION_LABELS) of each country map
 CASTLES = 0x2E004             # 23 x (map, hex, domain); domain 0x11 = 天領 castles
 TOWN_SITES = 0x2F081          # 8 x (country map, hex): where each town sits on its country map
 FACILITIES = 0x2F091          # (town map, hex, type) until 0; type = study kind / dojo
@@ -256,6 +257,10 @@ class Rom:
         if m < COUNTRY_MAPS:
             return f"国{m:02d}"
         return f"{self.towns()[(m - COUNTRY_MAPS) // 2]}{(m - COUNTRY_MAPS) % 2 + 1}"
+
+    def map_region(self, m: int) -> int:
+        """Region (0 東北 ... 7 九州) of country map m; table right after the region and town names."""
+        return self.prg[MAP_REGION + m]
 
     def map_grid_pos(self, m: int) -> tuple[int, int]:
         """(X, Y) of a map on the 8 x 9 grid of country maps (town maps give their country map's)."""

@@ -44,6 +44,8 @@ ROM 預設直接讀 `roms/Ishin no Arashi (Japan).zip`（也接受 `--rom` 指�
 | `mob_parts.png`、`mob_parts/<類型>_<部位>_<n>.png` | 組合臉零件總覽圖（4 倍）與每個零件的 PNG（原尺寸），`export.py` 一併輸出 |
 | `maps/NN_名稱.png` | 47 張 HEX 地圖（31 國＋8 町 × 2；208×152） |
 | `world_map.png` | 31 張國地圖依位置表拼成的全日本大地圖 |
+| `world_map_grid.png` | 同上，加上國地圖格線（白）、地方邊界（紅）與「編號 地方名」標籤 |
+| `world_map_2x.png`、`world_map_grid_2x.png` | 以上兩張的 2 倍版（固定 2 倍，不受 `--scale` 影響） |
 | `japan.png` | 勢力図底圖（192×144） |
 
 kaodata：86 人用專屬頭像，115 人用組合臉（5 類型 × 6 槽 × 4 種，加一個底色槽）。ROM 沒有讀音，所以沒有 `reading`。

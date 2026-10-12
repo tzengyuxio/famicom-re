@@ -5,7 +5,8 @@ Usage: .venv/bin/python ishin/export.py [--rom ROM] [--out DIR] [--scale N]
 
 Writes characters.csv (both scenarios), domains.csv, facilities.csv, maps.csv
 (+ ishin.xlsx when openpyxl is installed), faces/, portraits/, maps/NN_name.png,
-world_map.png (31 country maps on their grid) and japan.png (勢力図 background).
+world_map.png (31 country maps on their grid), world_map_grid.png (with country map and region lines),
+_2x versions of both, and japan.png (勢力図 background).
 """
 import argparse
 import csv
@@ -13,7 +14,7 @@ import importlib.util
 import os
 
 import export_kaodata
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from rom import (
     CHAR_COUNT,
     COUNTRY_MAPS,
@@ -21,6 +22,8 @@ from rom import (
     DOMAIN_COUNT,
     FACILITY_TYPES,
     MAP_COUNT,
+    MAP_H,
+    MAP_W,
     PORTRAIT_COUNT,
     SCENARIO_COUNT,
     SLOTS,
@@ -160,6 +163,36 @@ def to_image(pixels: bytes, w: int, h: int, scale: int) -> Image.Image:
     return img.resize((w * scale, h * scale), Image.NEAREST) if scale > 1 else img
 
 
+def world_map_grid(rom: Rom, img: Image.Image, scale: int) -> Image.Image:
+    """world_map.png with thin lines around each country map, thick lines around each region and labels."""
+    img, u = img.copy(), scale
+    mw, mh = MAP_W * 16 * u, MAP_H * 16 * u
+    pos = {rom.map_grid_pos(m): m for m in range(COUNTRY_MAPS)}
+    try:
+        font = ImageFont.truetype("/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc", 12 * u)
+    except OSError:  # no Japanese font: labels fall back to numbers
+        font = None
+    dr, regions = ImageDraw.Draw(img), rom.regions()
+    for (x, y), m in pos.items():
+        dr.rectangle([x * mw, y * mh, (x + 1) * mw - 1, (y + 1) * mh - 1], outline="white", width=u)
+    for (x, y), m in pos.items():
+        g = rom.map_region(m)
+        for dx, dy, line in ((1, 0, [(x + 1) * mw, y * mh, (x + 1) * mw, (y + 1) * mh]),
+                             (-1, 0, [x * mw, y * mh, x * mw, (y + 1) * mh]),
+                             (0, 1, [x * mw, (y + 1) * mh, (x + 1) * mw, (y + 1) * mh]),
+                             (0, -1, [x * mw, y * mh, (x + 1) * mw, y * mh])):
+            n = pos.get((x + dx, y + dy))
+            if n is None or rom.map_region(n) != g:
+                dr.line(line, fill=(255, 64, 64), width=3 * u)
+    for (x, y), m in pos.items():
+        label = f"{m:02d} {regions[rom.map_region(m)]}" if font else f"{m:02d}/{rom.map_region(m)}"
+        cx, cy = x * mw + mw // 2, y * mh + mh // 2
+        box = dr.textbbox((cx, cy), label, font=font, anchor="mm")
+        dr.rectangle([box[0] - 2 * u, box[1] - 2 * u, box[2] + 2 * u, box[3] + 2 * u], fill="white")
+        dr.text((cx, cy), label, fill="black", font=font, anchor="mm")
+    return img
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="匯出 FC 維新の嵐 人物／藩／頭像／地圖")
     ap.add_argument("--rom", default=DEFAULT_ROM)
@@ -196,10 +229,13 @@ def main() -> None:
         to_image(px, w, h, args.scale).save(os.path.join(maps, f"{m:02d}_{rom.map_name(m)}.png"))
     print(f"已匯出 {MAP_COUNT} 張 HEX 地圖（國 {COUNTRY_MAPS}、町 {MAP_COUNT - COUNTRY_MAPS}）→ {maps}")
     w, h, px = rom.world_pixels()
-    to_image(px, w, h, args.scale).save(os.path.join(args.out, "world_map.png"))
+    for scale, suffix in ((args.scale, ""), (2, "_2x")):
+        world = to_image(px, w, h, scale)
+        world.save(os.path.join(args.out, f"world_map{suffix}.png"))
+        world_map_grid(rom, world, scale).save(os.path.join(args.out, f"world_map_grid{suffix}.png"))
     w, h, px = rom.japan_pixels()
     to_image(px, w, h, args.scale).save(os.path.join(args.out, "japan.png"))
-    print("已匯出 → world_map.png（31 張國地圖依位置表排列）、japan.png（勢力図底圖）")
+    print("已匯出 → world_map(_grid)(_2x).png（31 張國地圖依位置表排列，grid 加國／地方格線）、japan.png（勢力図底圖）")
 
     meta, blobs = export_kaodata.build(args.rom)
     parts_sheet.export_mob_parts(meta, blobs, args.out)
