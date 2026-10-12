@@ -18,6 +18,8 @@ FC 三國志 漢字字型匯出工具
 import os
 import sys
 
+from romfile import DEFAULT_ROM, read_rom
+
 try:
     from PIL import Image
 except ImportError:
@@ -279,15 +281,14 @@ def export_sample_kanji(rom, output_dir=".", scale=8):
 
 
 def main():
-    rom_path = sys.argv[1] if len(sys.argv) > 1 else "roms/Sangokushi (Japan).nes"
+    rom_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROM
 
     if not os.path.exists(rom_path):
         print(f"錯誤: 找不到 ROM 檔案 '{rom_path}'")
         print(f"用法: python {sys.argv[0]} <rom_file.nes>")
         sys.exit(1)
 
-    with open(rom_path, "rb") as f:
-        rom = f.read()
+    rom = read_rom(rom_path)
 
     if rom[:4] != b"NES\x1a":
         print("錯誤: 非有效的 iNES ROM 檔案")

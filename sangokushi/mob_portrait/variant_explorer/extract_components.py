@@ -4,9 +4,11 @@ Extract all Head frameworks and variant components for the web explorer tool.
 """
 
 import os
+import sys
 from PIL import Image
 
-ROM_PATH = "../../../roms/Sangokushi (Japan).nes"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+from romfile import read_rom
 
 # NES palette for mob portraits
 PALETTE = [
@@ -198,8 +200,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     # Read ROM
-    with open(ROM_PATH, "rb") as f:
-        rom_data = f.read()
+    rom_data = read_rom()
 
     print("Extracting Head frameworks...")
     templates_info = {}

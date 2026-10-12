@@ -16,6 +16,8 @@ import csv
 import os
 import sys
 
+from romfile import DEFAULT_ROM, read_rom
+
 # ─── 常數 ────────────────────────────────────────────────────
 
 # 組件索引表
@@ -35,8 +37,7 @@ CHARACTER_COUNT = 256
 
 
 def load_rom(path):
-    with open(path, 'rb') as f:
-        return f.read()
+    return read_rom(path)
 
 
 def read_character_names(rom):
@@ -104,7 +105,7 @@ def print_summary(records):
 
 
 def main():
-    rom_path = sys.argv[1] if len(sys.argv) > 1 else "roms/Sangokushi (Japan).nes"
+    rom_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROM
 
     if not os.path.exists(rom_path):
         print(f"錯誤: 找不到 ROM 檔案 '{rom_path}'")

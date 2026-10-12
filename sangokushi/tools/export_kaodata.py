@@ -5,7 +5,7 @@ Spec: docs/data-format.md of the kaodata website repo. Writes dataset.json,
 pixels.bin (raw deflate) and checksums.json. The checksums come from the
 reference renderer below, which implements spec §6.
 
-Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --rom "roms/Sangokushi (Japan).nes" --out <dir>
+Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --out <dir> [--rom ROM]
 
 Scope (M1): mob (大眾臉) composite faces only. Generals with a dedicated
 portrait (face index 0-80) are listed without `face`.
@@ -15,8 +15,12 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 import unicodedata
 import zlib
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # sangokushi/ for romfile
+from romfile import DEFAULT_ROM, read_rom
 
 FORMAT = "kaodata/1"
 TRANSPARENT = 255
@@ -209,8 +213,7 @@ def revision() -> str:
 
 
 def build(rom_path: str) -> tuple[dict, list[bytes]]:
-    with open(rom_path, "rb") as f:
-        rom = f.read()
+    rom = read_rom(rom_path)
 
     images, pixels = [], bytearray()
 
@@ -278,7 +281,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 san1-fc")
-    ap.add_argument("--rom", required=True, help="roms/Sangokushi (Japan).nes")
+    ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/ 的 zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
     meta, blobs = build(args.rom)

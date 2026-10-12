@@ -8,7 +8,7 @@
 
 | 項目 | 值 |
 |------|------|
-| 檔名 | `Sangokushi (Japan).nes` |
+| 檔名 | `roms/Sangokushi (Japan).zip` 內的 `Sangokushi (Japan).nes`（SHA-1 `93e760cbc61b748d0375e97147dee3193a153768`） |
 | Mapper | 1 (MMC1) |
 | PRG ROM | 256 KB = 16 banks × 16 KB |
 | PRG 偏移 | 0x00010 – 0x4000F |

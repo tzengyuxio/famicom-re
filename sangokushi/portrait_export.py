@@ -9,6 +9,8 @@ FC 三國志 頭像匯出工具
 import os
 import sys
 
+from romfile import DEFAULT_ROM, read_rom
+
 try:
     from PIL import Image
 except ImportError:
@@ -59,8 +61,7 @@ STANDARD_36_PORTRAITS = {6, 7, 8, 24, 25, 26, 29, 35, 38, 40, 41, 43, 44, 45, 46
 
 
 def load_rom(path):
-    with open(path, 'rb') as f:
-        return f.read()
+    return read_rom(path)
 
 
 def read_portrait_ptr_table(rom):
@@ -252,7 +253,7 @@ def export_portrait_atlas(rom, output_path, scale=2):
 
 
 def main():
-    rom_path = sys.argv[1] if len(sys.argv) > 1 else "roms/Sangokushi (Japan).nes"
+    rom_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROM
 
     if not os.path.exists(rom_path):
         print(f"錯誤: 找不到 ROM 檔案 '{rom_path}'")

@@ -22,7 +22,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `chuugen/` | 三國志 中原の覇者 (Namco, 1988, Namco 163)：武將、州、道路、頭像（共用整張臉 120 張＋表情）、大地圖、戰場地圖、kaodata `chuugen-fc` |
 | `haou/` | 三國志II 覇王の大陸 (Namco, 1992, Namco 163)：武將（[EXT] 漢字）、州、君主、道具、頭像（共用整張臉＋5 表情）、大地圖、戰場地圖 30 張、kaodata `haou-fc` |
 
-- ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，其他遊戲直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
+- ROM 都放 `roms/`（不進版控）：各遊戲（含三國志）的程式都直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
 - 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 輸出大眾臉零件總覽圖與各零件 PNG（有組合臉的遊戲由 `export.py` 呼叫，寫進 `output/`）
 
@@ -32,9 +32,9 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 
 ```bash
 # 三國志
-.venv/bin/python sangokushi/sangokushi_extract_v2.py "roms/Sangokushi (Japan).nes"
-.venv/bin/python sangokushi/tools/export_kaodata.py --rom "roms/Sangokushi (Japan).nes" --out <kaodata>/data-local/san1-fc
-.venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "roms/Sangokushi (Japan).nes" --dataset <輸出目錄>
+.venv/bin/python sangokushi/sangokushi_extract_v2.py
+.venv/bin/python sangokushi/tools/export_kaodata.py --out <kaodata>/data-local/san1-fc
+.venv/bin/python sangokushi/tools/verify_kaodata_export.py --dataset <輸出目錄>
 
 # 水滸伝
 .venv/bin/python suikoden/export.py

@@ -9,7 +9,7 @@
 4. Ground truth images: mob_portrait/generated/*.png (8x) and
    mob_portrait/screenshot/*.png (game screenshots, ~4x).
 
-Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --rom "roms/Sangokushi (Japan).nes" --dataset <dir>
+Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --dataset <dir> [--rom ROM]
 """
 import argparse
 import hashlib
@@ -22,6 +22,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import export_kaodata as ex
+from romfile import DEFAULT_ROM, read_rom
 
 REPO = ex.REPO
 MESEN = {81: ("周泰", (3, 0, 2, 3, 1)), 85: ("曹豹", (2, 0, 1, 3, 1)), 157: ("陳登", (2, 2, 4, 2, 4))}
@@ -88,11 +89,10 @@ def compare_png(path: str, rgba: bytes, scale: int, search: int):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--rom", required=True)
+    ap.add_argument("--rom", default=DEFAULT_ROM)
     ap.add_argument("--dataset", required=True)
     args = ap.parse_args()
-    with open(args.rom, "rb") as f:
-        rom = f.read()
+    rom = read_rom(args.rom)
     meta, blobs = ex.load_dataset(args.dataset)
     with open(os.path.join(args.dataset, "checksums.json"), encoding="utf-8") as f:
         sums = json.load(f)["entries"]

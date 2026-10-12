@@ -5,8 +5,10 @@ Each tile is stored as 32 hex characters (16 bytes).
 """
 
 import os
+import sys
 
-ROM_PATH = "../../../roms/Sangokushi (Japan).nes"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+from romfile import read_rom
 
 # 20 Heads - all have 24 tiles
 HEADS = [
@@ -49,8 +51,7 @@ def read_template(rom_data, template_idx):
 
 
 def main():
-    with open(ROM_PATH, "rb") as f:
-        rom_data = f.read()
+    rom_data = read_rom()
 
     # Extract all tile data
     head_tiles = []

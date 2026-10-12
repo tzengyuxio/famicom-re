@@ -4,7 +4,7 @@
 
 | 項目 | 值 |
 |------|------|
-| 檔名 | `Sangokushi (Japan).nes` |
+| 檔名 | `roms/Sangokushi (Japan).zip` 內的 `Sangokushi (Japan).nes`（SHA-1 `93e760cbc61b748d0375e97147dee3193a153768`） |
 | 檔案大小 | 262,160 bytes (256 KB + 16 bytes header) |
 | 格式 | iNES (.nes) |
 | Mapper | 1 (MMC1) |

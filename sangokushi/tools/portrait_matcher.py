@@ -42,15 +42,14 @@ GROUP_BASES = {
     'H': 0x102A4,  # 韓玄 - 不同 ROM 區域
 }
 
-ROM_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'roms', 'Sangokushi (Japan).nes')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from romfile import read_rom
 
 
 def load_rom_tiles(base_addr, num_tiles=800):
     """從 ROM 載入 tiles"""
     tiles = []
-    with open(ROM_PATH, 'rb') as f:
-        f.seek(base_addr)
-        rom_data = f.read(num_tiles * 16)
+    rom_data = read_rom()[base_addr:base_addr + num_tiles * 16]
 
     for tile_num in range(num_tiles):
         offset = tile_num * 16

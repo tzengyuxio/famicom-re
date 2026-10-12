@@ -13,9 +13,9 @@ import argparse
 import os
 
 from PIL import Image
+from romfile import DEFAULT_ROM, read_rom
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_ROM = os.path.join(REPO, "roms", "Sangokushi (Japan).nes")
 
 # PRG offsets (file offset - 0x10)
 MAPS = 0x259A4           # bank 9 $99A4: 58 maps x 168 bytes, value = terrain << 3 | zone bits
@@ -107,8 +107,7 @@ def main() -> None:
     ap.add_argument("--out", default=os.path.join(REPO, "sangokushi", "output", "battle_maps"))
     ap.add_argument("--scale", type=int, default=2)
     args = ap.parse_args()
-    with open(args.rom, "rb") as f:
-        prg = f.read()[16:]
+    prg = read_rom(args.rom)[16:]
     os.makedirs(args.out, exist_ok=True)
     cells = terrain_cells(prg)
     legend = Image.new("RGB", (TERRAINS * 36, 32), (255, 255, 255))

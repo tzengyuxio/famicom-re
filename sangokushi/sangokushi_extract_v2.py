@@ -95,6 +95,8 @@ import sys
 import os
 import warnings
 
+from romfile import DEFAULT_ROM, read_rom
+
 # ─── 常數 ────────────────────────────────────────────────
 TABLE_DATA_ADDR   = 0x38014
 RECORD_DATA_SIZE  = 12
@@ -430,8 +432,7 @@ def extract_all(rom_path, ext_csv_path=None):
     回傳:
         武將記錄列表
     """
-    with open(rom_path, "rb") as f:
-        rom = f.read()
+    rom = read_rom(rom_path)
     if rom[:4] != b"NES\x1a":
         raise ValueError("非有效的 iNES ROM 檔案")
 
@@ -618,7 +619,7 @@ def export_xlsx(records, output_path):
 
 
 if __name__ == "__main__":
-    rom_path = sys.argv[1] if len(sys.argv) > 1 else "Sangokushi__Japan_.nes"
+    rom_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROM
 
     if not os.path.exists(rom_path):
         print(f"錯誤: 找不到 ROM 檔案 '{rom_path}'")
