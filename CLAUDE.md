@@ -16,7 +16,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
 | `empereur/` | ランペルール (KOEI, 1990, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `empereur-fc` |
 
-- ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，水滸傳直接讀 `roms/` 裡的 zip；其他遊戲的 `.nes` 暫時解在 repo 根目錄
+- ROM 都放 `roms/`（不進版控）：三國志是 `roms/Sangokushi (Japan).nes`，其他遊戲直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
 - 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 可為任一資料集畫大眾臉零件總覽圖
 

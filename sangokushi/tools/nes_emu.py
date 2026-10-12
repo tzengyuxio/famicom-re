@@ -5,6 +5,7 @@ PRG-RAM, a register-level PPU (nametables, CHR-RAM, palette, OAM, scroll latch,
 vblank/NMI, a crude sprite-0 hit) and controller 1. No APU, no rendering timing.
 """
 import copy
+import zipfile
 
 from py65.devices.mpu6502 import MPU
 
@@ -16,8 +17,13 @@ STATE = ("ram", "wram", "chr", "nt", "pal", "oam", "ctrl", "mask", "status", "oa
 
 class Nes:
     def __init__(self, rom_path: str):
-        with open(rom_path, "rb") as f:
-            self.prg = f.read()[16:]
+        if rom_path.lower().endswith(".zip"):  # the single .nes inside a roms/ zip
+            with zipfile.ZipFile(rom_path) as z:
+                (name,) = [n for n in z.namelist() if n.lower().endswith(".nes")]
+                self.prg = z.read(name)[16:]
+        else:
+            with open(rom_path, "rb") as f:
+                self.prg = f.read()[16:]
         self.ram, self.wram = bytearray(0x800), bytearray(0x2000)
         self.chr, self.nt, self.pal, self.oam = bytearray(0x2000), bytearray(0x800), bytearray(32), bytearray(256)
         self.ctrl = self.mask = self.status = self.oamaddr = 0

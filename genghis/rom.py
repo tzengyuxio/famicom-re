@@ -4,9 +4,10 @@ All offsets are PRG offsets (file offset - 0x10). See genghis/docs/ROM_FORMAT.md
 """
 import os
 import unicodedata
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).nes")
+DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "roms", "Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).zip")
 
 # Scenario images: copied to WRAM $63F0 at game start. key -> (PRG base, label)
 SCENARIOS = {"mongol": (0x1C008, "モンゴルへん"), "world": (0x1D6B8, "せかいへん")}
@@ -109,10 +110,19 @@ def u16(b: bytes, o: int) -> int:
     return b[o] | b[o + 1] << 8
 
 
+def read_rom(path: str) -> bytes:
+    """Read a .nes file, or the single .nes inside a .zip (as stored in roms/)."""
+    if path.lower().endswith(".zip"):
+        with zipfile.ZipFile(path) as z:
+            (name,) = [n for n in z.namelist() if n.lower().endswith(".nes")]
+            return z.read(name)
+    with open(path, "rb") as f:
+        return f.read()
+
+
 class Rom:
     def __init__(self, path: str = DEFAULT_ROM):
-        with open(path, "rb") as f:
-            self.data = f.read()
+        self.data = read_rom(path)
         assert self.data[:4] == b"NES\x1a" and self.data[4] == 16 and self.data[5] == 0, "not the expected ROM"
         self.prg = self.data[0x10:0x10 + 0x40000]
 

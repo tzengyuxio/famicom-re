@@ -4,9 +4,10 @@ All offsets are PRG offsets (file offset - 0x10). See genchou/docs/ROM_FORMAT.md
 """
 import os
 import unicodedata
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).nes")
+DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "roms", "Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).zip")
 
 PRG_SIZE = 0x80000
 CHR_START = 0x10 + PRG_SIZE
@@ -117,10 +118,19 @@ def to_hiragana(s: str) -> str:
     return "".join(chr(ord(c) - 0x60) if "ァ" <= c <= "ヶ" else c for c in s)
 
 
+def read_rom(path: str) -> bytes:
+    """Read a .nes file, or the single .nes inside a .zip (as stored in roms/)."""
+    if path.lower().endswith(".zip"):
+        with zipfile.ZipFile(path) as z:
+            (name,) = [n for n in z.namelist() if n.lower().endswith(".nes")]
+            return z.read(name)
+    with open(path, "rb") as f:
+        return f.read()
+
+
 class Rom:
     def __init__(self, path: str = DEFAULT_ROM):
-        with open(path, "rb") as f:
-            self.data = f.read()
+        self.data = read_rom(path)
         assert self.data[:4] == b"NES\x1a" and self.data[4] == 32 and self.data[5] == 32, "not the expected ROM"
         self.prg = self.data[0x10:CHR_START]
         self.chr = self.data[CHR_START:]

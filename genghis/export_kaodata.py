@@ -183,7 +183,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 genghis-fc")
-    ap.add_argument("--rom", default=DEFAULT_ROM, help="Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).nes")
+    ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
     meta, blobs = build(args.rom)

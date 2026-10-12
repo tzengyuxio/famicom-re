@@ -1,6 +1,6 @@
 # FC 蒼き狼と白き牝鹿・元朝秘史 ROM 格式
 
-KOEI，1992，FC。檔案 `Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).nes`。
+KOEI，1992，FC。檔案 `roms/Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).zip` 內的 `.nes`。
 
 本文的偏移一律是 **PRG 偏移**（檔案偏移減 `0x10`），除非另外寫明「檔案偏移」。CPU 位址寫成 `$xxxx`。「bank n」指 8 KB 的 PRG bank，PRG 偏移 = `n × 0x2000`。
 
