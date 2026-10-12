@@ -13,7 +13,6 @@ import csv
 import importlib.util
 import os
 
-import export_kaodata
 from PIL import Image
 from rom import (
     BATTLE_COUNT,
@@ -224,6 +223,8 @@ def main() -> None:
         w, h, px = rom.battle_pixels(n)
         to_image(px, w, h, args.scale).save(os.path.join(battle, f"{n + 1:02d}_{battle_name(rom, n)}.png"))
     print(f"已匯出 {BATTLE_COUNT} 張戰場地圖 → {battle}（調色盤為推定）")
+
+    import export_kaodata  # imports this module, so load it only after it has fully initialised
 
     meta, blobs = export_kaodata.build(args.rom)
     parts_sheet.export_mob_parts(meta, blobs, args.out)

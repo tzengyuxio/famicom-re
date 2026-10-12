@@ -13,7 +13,6 @@ import csv
 import importlib.util
 import os
 
-import export_kaodata
 from PIL import Image, ImageDraw
 from rom import (
     BATTLE_H,
@@ -237,6 +236,8 @@ def main() -> None:
     print(f"已匯出 {n_gen} 筆武將、{len(sheets['國'])} 筆國、{len(sheets['大名'])} 筆大名、{len(sheets['茶器'])} 筆茶器 → {args.out}")
     print(f"頭像 {len(chars)} 人＋專屬 {PORTRAIT_COUNT} 張；戰場 野戰 {FIELD_COUNT}＋城 {CASTLE_COUNT} 張"
           f"（調色盤：{BATTLE_PALETTE_LABELS[0]}、{BATTLE_PALETTE_LABELS[1]}）；地形 {len(FIELD_TERRAIN)} 種")
+
+    import export_kaodata  # imports this module, so load it only after it has fully initialised
 
     meta, blobs = export_kaodata.build(args.rom)
     parts_sheet.export_mob_parts(meta, blobs, args.out)
