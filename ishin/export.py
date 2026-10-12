@@ -181,8 +181,8 @@ def titled(rom: Rom, img: Image.Image, grid: bool) -> Image.Image:
     dr = ImageDraw.Draw(out)
     title = dr.textbbox((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", font=font(unit * 3))
     dr.text((unit * 2, unit * 1.5), "維新の嵐 (FC) 全日本図", fill="white", font=font(unit * 3))
-    bar = [unit, title[3] + unit, title[2] + unit * 3, title[3] + unit * 3.5]
-    dr.rectangle(bar, fill=(160, 32, 32))
+    bar = [0, title[3] + unit, title[2] + unit * 3, title[3] + unit * 3.5]  # bleeds off the left edge
+    dr.rectangle(bar, fill=(32, 80, 176))
     dr.text((unit * 2, (bar[1] + bar[3]) / 2), "FB：司馬Game 遊戲存檔", fill="white", font=font(unit * 6 // 5),
             anchor="lm")
 
