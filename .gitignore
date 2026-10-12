@@ -1,5 +1,6 @@
 # ROM files (勿上傳)
 *.nes
+roms/
 
 # Output files
 *.xlsx
@@ -20,3 +21,4 @@ kanji_output/
 
 # macOS
 .DS_Store
+suikoden/output/

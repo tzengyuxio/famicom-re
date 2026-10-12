@@ -6,6 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 FC/NES 版《三國志》(KOEI, 1988) ROM 逆向工程專案。解析 iNES 格式 ROM 中的武將資料、頭像圖像等遊戲內容。
 
+其他 FC 遊戲各放一個子資料夾，分析結果記在該資料夾的 `README.md` 與 `docs/`：
+
+| 資料夾 | 遊戲 |
+|--------|------|
+| `suikoden/` | 水滸伝・天命の誓い (KOEI, 1989, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、kaodata `suikoden-fc` |
+
+待處理的 ROM 放在 `roms/`（zip，不進版控）。
+
 ## 常用指令
 
 ```bash
