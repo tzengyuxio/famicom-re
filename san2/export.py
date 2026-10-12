@@ -5,7 +5,7 @@ Usage: .venv/bin/python san2/export.py [--rom ROM] [--out DIR] [--scale N]
 
 Writes generals.csv (352 generals), general_scenarios.csv (6 scenarios), provinces.csv (6 x 41),
 adjacency.csv (+ san2.xlsx when openpyxl is installed), faces/ (one PNG per general), portraits/
-(F001-F200), map.png, province_hex(_rot90).png, china_battle_map(_labeled, _framed).png, battle_maps/ (41), mob_parts.png and mob_parts/.
+(F001-F200), map.png, province_hex(_rot30).png, china_battle_map(_labeled, _framed).png, battle_maps/ (41), mob_parts.png and mob_parts/.
 """
 import argparse
 import csv
@@ -139,7 +139,7 @@ def province_hex(rom: Rom, path: str, turn: int = 0) -> None:
 
     Flat-topped hexes: province (q, r) sits in column -(q + r), row -r, every other column half a hex
     lower, so 41 -> 40 -> 31 stack straight up, as the battle fields do. turn rotates the lattice and
-    its hexes clockwise by that many degrees; 90 gives pointy-topped hexes and an outline closer to China.
+    its hexes clockwise by that many degrees; 30 gives pointy-topped hexes and an outline closer to China.
     """
     size = 28
     cells = {i: (-(q + r), -r) for i, (q, r) in rom.hex_layout().items()}
@@ -227,7 +227,7 @@ def main() -> None:
 
     png(rom.map_pixels(), MAP_W * 8, MAP_H * 8, os.path.join(args.out, "map.png"), args.scale)
     province_hex(rom, os.path.join(args.out, "province_hex.png"))
-    province_hex(rom, os.path.join(args.out, "province_hex_rot90.png"), turn=90)
+    province_hex(rom, os.path.join(args.out, "province_hex_rot30.png"), turn=30)
     china_battle_map(rom, os.path.join(args.out, "china_battle_map.png"),
                      os.path.join(args.out, "china_battle_map_labeled.png"),
                      os.path.join(args.out, "china_battle_map_framed.png"), args.scale)
