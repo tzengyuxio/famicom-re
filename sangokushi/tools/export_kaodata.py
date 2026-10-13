@@ -7,8 +7,9 @@ from the reference renderer below, which implements spec §6.
 
 Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --out <dir> [--rom ROM]
 
-Faces 0-80 are dedicated portraits (P00-P80, in portraits.bin so the mob
-explorer need not download them); 81+ are mob (大眾臉) composite faces.
+Face index 0-64 is a dedicated portrait (P00-P64), 65+ a mob (大眾臉) composite
+face; the game draws P65-P80 (female portraits) for no general. All 81 portraits
+go in portraits.bin so the mob explorer need not download them.
 """
 import argparse
 import hashlib
@@ -34,14 +35,16 @@ EYES_START = 0x1DE14       # 20 x 3 tiles
 NOSES_START = 0x1E1D4      # 20 x 3 tiles
 MOUTHS_START = 0x1E594     # 20 x 6 tiles
 TEMPLATE_START = 0x1ED14   # 20 x 36 bytes, 0 = variant cell, else tile = val - 0x64
-COMPONENT_TABLE = 0x1F034  # 174 x [cat, head, eye, nose, mouth]
+COMPONENT_TABLE = 0x1EFE4  # 190 x [cat, head, eye, nose, mouth], right after the templates
 NAME_TABLE = 0x3A314       # 15 bytes per general
 PORTRAIT_PTR_TABLE = 0x1BC38  # 81 x [bank, tile count, addr lo, addr hi] (docs/PORTRAIT_SYSTEM_PSEUDOCODE.md)
 ARRANGEMENT_TABLE = 0x1B0D4   # 81 x 36 bytes, 6x6 cells, tile = val - 0x63 (1-based)
 PORTRAIT_COUNT = 81
 GENERAL_IDS = range(1, 256)  # record 0 is the new-ruler template (duplicate of 曹操)
-MOB_FIRST = 81
-MOB_COUNT = 174
+# The game draws face index < 65 from the portrait table and anything else from COMPONENT_TABLE
+# (tools/verify_face_select.py), so P65-P80 exist in the ROM but no general shows them.
+MOB_FIRST = 65
+MOB_COUNT = 190
 
 # Slot id, label, size, position. Variant cells are rows 2-5, cols 1-3 in every template.
 SLOTS = [("head", "頭", (48, 48), (0, 0)),
@@ -193,7 +196,7 @@ def portrait_image(rom: bytes, n: int) -> bytes:
 
 
 def component_records(rom: bytes) -> list[tuple[int, int, int, int, int]]:
-    """Face index 81+i -> (cat, head, eye, nose, mouth), indices local to the category (0-4)."""
+    """Face index MOB_FIRST+i -> (cat, head, eye, nose, mouth), indices local to the category (0-4)."""
     return [tuple(rom[COMPONENT_TABLE + i * 5:COMPONENT_TABLE + i * 5 + 5]) for i in range(MOB_COUNT)]
 
 
@@ -202,6 +205,15 @@ def component_records(rom: bytes) -> list[tuple[int, int, int, int, int]]:
 def load_tsv(name: str) -> list[list[str]]:
     with open(os.path.join(REPO, "data", name), encoding="utf-8") as f:
         return [line.rstrip("\n").split("\t") for line in f if line.strip() and not line.startswith("#")]
+
+
+# The ROM spells these names with a stand-in character (see the notes in data/kanji_tiles.tsv).
+# The dataset uses the historical spelling; 許攸's reading follows the ROM's 収 and is fixed too.
+NAME_FIXES = {
+    "沙摩可": "沙摩柯", "刑道栄": "邢道栄", "許収": "許攸", "旬攸": "荀攸", "李湛": "李堪", "蔡仲": "蔡中",
+    "雷同": "雷銅", "鮑龍": "鮑隆", "朱雋": "朱儁", "呂廣": "呂曠", "厳晙": "厳畯", "辛毘": "辛毗",
+}
+READING_FIXES = {"許攸": "きょ ゆう"}
 
 
 def kana_to_hiragana(s: str) -> str:
@@ -219,11 +231,12 @@ def general_names(rom: bytes) -> dict[int, tuple[str, str, int]]:
         kana = kana_to_hiragana(bytes(b for b in rec[:8] if b).decode("cp932"))
         # (tile, page) pairs at +8..+13; tile 0 on page 0 means no character
         name = "".join(kanji[(rec[9 + 2 * k], rec[8 + 2 * k])] for k in range(3) if rec[8 + 2 * k] or rec[9 + 2 * k])
-        family = name[:2] if name[:2] in surnames else name[0]
+        family = name[:2] if name[:2] in surnames else name[0]  # surnames.tsv uses the ROM spelling
         reading = surnames.get(family)
         if reading and kana.startswith(reading) and len(kana) > len(reading):
             kana = f"{reading} {kana[len(reading):]}"
-        out[i] = (name, kana, rec[14] - 1)
+        name = NAME_FIXES.get(name, name)
+        out[i] = (name, READING_FIXES.get(name, kana), rec[14] - 1)
     return out
 
 
@@ -316,8 +329,10 @@ def main() -> None:
     write_dataset(args.out, meta, blobs)
     chars = meta["characters"]
     mobs = [c["face"] for c in chars if "variant" in c.get("face", {})]
+    n_pt = sum("portrait" in c.get("face", {}) for c in chars)
     unsplit = [c["name"] for c in chars if " " not in c["reading"]]
-    print(f"san1-fc: {len(chars)} characters ({len(chars) - len(mobs)} portrait, {len(mobs)} composite, "
+    print(f"san1-fc: {len(chars)} characters ({n_pt} portrait, {len(mobs)} composite, "
+          f"{len(chars) - n_pt - len(mobs)} without face, "
           f"{len({f['code'] for f in mobs})} distinct combos), {len(meta['portraits'])} portraits, "
           f"{len(meta['images'])} images")
     print(f"  reading without family/given split: {' '.join(unsplit) or '-'}")

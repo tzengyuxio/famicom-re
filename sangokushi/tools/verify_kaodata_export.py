@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check an exported san1-fc dataset against independent renders.
 
-1. All 174 mob component records rendered the "old way" (port of
+1. All 190 mob component records rendered the "old way" (port of
    mob_portrait/variant_explorer/mob-kao-explorer.html: its embedded tile hex + TEMPLATES + mouth layout,
    not the ROM decode in export_kaodata.py) vs the dataset render (spec §6).
 2. Every ch:<id> in checksums.json vs the sha256 of the old-way render.
@@ -105,7 +105,7 @@ def main() -> None:
     records = ex.component_records(rom)
     failed = False
 
-    # 1. all 174 records
+    # 1. all 190 records
     same = 0
     renders = {}
     for i, rec in enumerate(records):

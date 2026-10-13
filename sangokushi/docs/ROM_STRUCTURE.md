@@ -109,7 +109,7 @@ portrait_index = name_record[+14] - 1
 | 0x1B0D4 - 0x1BC37 | 2,916 | 排列表 (81 筆 × 36 bytes) |
 | 0x1BC38 - 0x1BD7B | 324 | 頭像指標表 (81 筆 × 4 bytes) |
 
-### Bank 7: 大眾臉頭像系統 (P81-P254)
+### Bank 7: 大眾臉頭像系統 (編號 65-254)
 
 | 偏移 | 大小 | 內容 |
 |------|------|------|
@@ -117,8 +117,8 @@ portrait_index = name_record[+14] - 1
 | 0x1DE14 - 0x1E1D3 | 960 | 眼睛變體 (20 組 × 3 tiles × 16 bytes) |
 | 0x1E1D4 - 0x1E593 | 960 | 鼻子變體 (20 組 × 3 tiles × 16 bytes) |
 | 0x1E594 - 0x1ED13 | 1,920 | 嘴巴變體 (20 組 × 6 tiles × 16 bytes) |
-| 0x1ED14 - 0x1EFC3 | 720 | Template 排列表 (20 筆 × 36 bytes) |
-| 0x1F034 - 0x1F389 | 870 | 組件索引表 (174 筆 × 5 bytes [Cat, Head, Eye, Nose, Mouth]，見 MOB_PORTRAIT_SYSTEM_PSEUDOCODE.md) |
+| 0x1ED14 - 0x1EFE3 | 720 | Template 排列表 (20 筆 × 36 bytes) |
+| 0x1EFE4 - 0x1F389 | 950 | 組件索引表 (190 筆 × 5 bytes [Cat, Head, Eye, Nose, Mouth]，編號 65 起，見 MOB_PORTRAIT_SYSTEM_PSEUDOCODE.md) |
 
 **20 個 Head 位置 (2026-02-27 更新):**
 
