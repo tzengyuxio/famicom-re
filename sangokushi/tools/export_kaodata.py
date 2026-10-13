@@ -44,6 +44,8 @@ GENERAL_IDS = range(1, 256)  # record 0 is the new-ruler template (duplicate of 
 # The game draws face index < 65 from the portrait table and anything else from COMPONENT_TABLE
 # (tools/verify_face_select.py), so P65-P80 exist in the ROM but no general shows them.
 MOB_FIRST = 65
+# P65-P80 are the rulers' princesses (姫), picked from the faction (docs/PORTRAIT_SYSTEM_PSEUDOCODE.md)
+PRINCESS_PORTRAITS = range(65, 81)
 MOB_COUNT = 190
 
 # Slot id, label, size, position. Variant cells are rows 2-5, cols 1-3 in every template.
@@ -271,6 +273,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                 for cat in range(4)]
 
     portraits = [{"img": add(48, 48, portrait_image(rom, n), blob=1)} for n in range(PORTRAIT_COUNT)]
+    for n in PRINCESS_PORTRAITS:
+        portraits[n]["group"] = "姫"
 
     records = component_records(rom)
     characters = []

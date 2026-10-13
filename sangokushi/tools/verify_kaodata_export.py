@@ -170,6 +170,10 @@ def main() -> None:
     print(f"[5] dedicated portraits vs portrait_export.py: {ok}/{len(pts)} pixel-identical + checksum; "
           f"{ch_ok}/{len(users)} generals' ch: equal their pt:")
     failed |= ok != len(pts) or len(meta["portraits"]) != len(pts) or ch_ok != len(users)
+    groups = {n for n, p in enumerate(meta["portraits"]) if p.get("group") == "姫"}
+    unused = set(range(len(pts))) - {fi for _, fi in users}
+    print(f"[5] portraits with group 姫: {len(groups)}, equal to the portraits no general uses: {groups == unused}")
+    failed |= groups != set(ex.PRINCESS_PORTRAITS) or groups != unused
 
     print("FAIL" if failed else "OK")
     sys.exit(1 if failed else 0)
