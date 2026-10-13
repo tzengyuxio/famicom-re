@@ -2,7 +2,8 @@
 """Independent checks for the genghis-fc kaodata dataset.
 
 1. Every character and portrait drawn by the spec renderer from the dataset equals the face
-   composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel.
+   composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel, expressions included;
+   every dedicated portrait is used by some face or expression.
 2. checksums.json matches a recomputation.
 3. (needs py65) The game draws every face code: boot the ROM, open the scenario menu, and when
    it picks モンゴルへん the portrait routine (bank 10 $80F7(x, y, face, flag)) gets each code
@@ -26,6 +27,9 @@ def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> int:
     errors = 0
     faces = [(f"ch:{c['id']} {c['name']}", c["face"], p["face_code"])
              for c, p in zip(meta["characters"], people(rom))]
+    faces += [(f"ch:{c['id']}/{k} {c['name']}", e, code)
+              for c, p in zip(meta["characters"], people(rom))
+              for k, (e, code) in enumerate(zip(c.get("expressions", []), p["expressions"]), 1)]
     faces += [(f"pt:{n}", {"portrait": n}, n) for n in range(PORTRAIT_COUNT)]
     for label, face, code in faces:
         w, h, px = compose_display(meta, blobs, face)
@@ -33,7 +37,12 @@ def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> int:
             print(f"  NG {label}")
             errors += 1
     print(f"[pixels] {len(faces) - errors}/{len(faces)} faces match the ROM tile composition")
-    return errors
+    used = {f["portrait"] for c in meta["characters"] for f in [c.get("face", {}), *c.get("expressions", [])]
+            if "portrait" in f}
+    unused = sorted(set(range(PORTRAIT_COUNT)) - used)
+    print(f"[portraits] {PORTRAIT_COUNT - len(unused)}/{PORTRAIT_COUNT} used by a face or expression"
+          + (f" (unused {unused})" if unused else ""))
+    return errors + len(unused)
 
 
 def check_checksums(meta: dict, blobs: list[bytes], path: str) -> int:

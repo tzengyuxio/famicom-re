@@ -63,6 +63,8 @@ def checksums(meta: dict, blobs: list[bytes]) -> dict:
         return hashlib.sha256(to_rgba(compose_display(meta, blobs, face), colors)).hexdigest()
 
     entries = {f"ch:{c['id']}": digest(c["face"]) for c in meta["characters"] if "face" in c}
+    entries.update({f"ch:{c['id']}/{k}": digest(e) for c in meta["characters"]
+                    for k, e in enumerate(c.get("expressions", []), 1)})
     entries.update({f"pt:{n}": digest({"portrait": n}) for n in range(len(meta["portraits"]))})
     return {"algo": "sha256-rgba", "entries": entries}
 
@@ -74,14 +76,18 @@ def to_hiragana(s: str) -> str:
 
 
 def people(rom: Rom) -> list[dict]:
-    """Distinct named people (name + face code) over both scenarios, women with their first portrait."""
+    """Distinct named people (name + face code) over both scenarios.
+
+    A woman's 3 portrait numbers are 3 expressions (docs/ROM_FORMAT.md §2.8): the first is her face,
+    the other distinct ones go in "expressions".
+    """
     seen, out = set(), []
 
-    def add(name: str, code: int, role: str, sc: str) -> None:
+    def add(name: str, code: int, role: str, sc: str, expressions: tuple[int, ...] = ()) -> None:
         if (name, code) in seen:
             return
         seen.add((name, code))
-        out.append({"name": name, "face_code": code, "role": role, "scenario": sc})
+        out.append({"name": name, "face_code": code, "role": role, "scenario": sc, "expressions": expressions})
 
     for sc in SCENARIOS:
         s = rom.scenario(sc)
@@ -92,7 +98,8 @@ def people(rom: Rom) -> list[dict]:
         for p in s["heirs"]:
             add(p["name"], p["face"], "heir", sc)
     for w in rom.women():
-        add(w["name"], w["portraits"][0], "woman", w["scenario"])
+        faces = list(dict.fromkeys(w["portraits"]))
+        add(w["name"], faces[0], "woman", w["scenario"], tuple(faces[1:]))
     return out
 
 
@@ -136,6 +143,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                           "code": f"{code:04X}"}
         else:
             ch["face"] = {"portrait": code}
+        if p["expressions"]:
+            ch["expressions"] = [{"portrait": n} for n in p["expressions"]]
         characters.append(ch)
 
     meta = {
