@@ -131,7 +131,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                            for slot, (sid, *_) in enumerate(MOB_PARTS)}}
                 for cat in range(MOB_CATEGORIES)]
 
-    portraits = [{"img": add(*CANVAS, rom.face_pixels(n), blob=1), "label": f"P{n:02d}"}
+    portraits = [{"img": add(*CANVAS, rom.face_pixels(n), blob=1), "code": f"{n:04X}"}
                  for n in range(PORTRAIT_COUNT)]
 
     characters = []

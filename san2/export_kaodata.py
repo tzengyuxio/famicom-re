@@ -145,7 +145,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
             parts[sid] = {"items": items}
         variants.append({"id": str(group), "label": f"組 {group}", "parts": parts})
 
-    portraits = [{"img": add(rom.face_pixels(f), blob=1), "label": f"F{f:03d}"} for f in range(1, FACE_COUNT + 1)]
+    portraits = [{"img": add(rom.face_pixels(f), blob=1), "code": f"{f:04X}"} for f in range(1, FACE_COUNT + 1)]
 
     sur = surnames()
     characters = []

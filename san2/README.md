@@ -11,7 +11,7 @@ ROM：`roms/Sangokushi II (Japan).zip`（MMC5，PRG 256 KB + CHR 256 KB）。程
 - ✓ 州相鄰表：slot 就是六角方向，41 州、93 條邊可以完整放上六角格
 - ✓ 大地圖（ROM 渲染）
 - ✓ 頭像：專屬 200 張，組合臉（8 組 × 上半／下半／部件 A/B/C 各 4 種）
-- ✓ kaodata 資料集 `san2-fc`（kaodata/1）：16 個代用字／截短的名字改成史書寫法（`export_kaodata.py` 的 `NAME_FIXES`，對照過 SFC 版 san2-sfc 的修正），另把張勳改成日本新字體的張勲（名字一律用新字體）；讀音照 san1-fc 在姓與名之間加空白（姓氏表 `sangokushi/data/surnames.tsv` 加上 `data/surnames.tsv`）。專屬頭像 F028、F178、F191 沒有武將使用，用途未知
+- ✓ kaodata 資料集 `san2-fc`（kaodata/1）：16 個代用字／截短的名字改成史書寫法（`export_kaodata.py` 的 `NAME_FIXES`，對照過 SFC 版 san2-sfc 的修正），另把張勳改成日本新字體的張勲（名字一律用新字體）；讀音照 san1-fc 在姓與名之間加空白（姓氏表 `sangokushi/data/surnames.tsv` 加上 `data/surnames.tsv`）。專屬頭像的 `code` 是頭像碼（= 頭像編號 + 1，4 位十六進位）；專屬頭像 F028、F178、F191 沒有武將使用，用途未知
 - ✓ 41 張戰場地圖（13×12 六角格，7 種地形）
 - ✓ **全中國戰場拼接**：把六角格扭成直欄（41→40→31 垂直疊起，隔欄錯開半張），41 張戰場的河流與地形就跨接縫接起來，輸出 `china_battle_map.png`（另有標州號的 `_labeled` 版，以及加上各州大致外框的 `_framed` 版）。原本的磚牆排法接不起來。證據見 ROM_FORMAT.md〈全中國戰場拼接測試〉
 - … 未解：選單文字編碼、配置表 +1 byte、`0x28BE4` 佈陣 nibble 圖、道具／事件表

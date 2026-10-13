@@ -135,7 +135,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         variants.append({"id": str(head), "label": f"{FACE_CULTURES[culture]} {n}" if culture < len(FACE_CULTURES)
                          else f"頭 {head}", "parts": parts})
 
-    portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"P{n:02d}"} for n in range(PORTRAIT_COUNT)]
+    portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
 
     characters = []
     for c in all_characters(rom):
