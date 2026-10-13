@@ -8,6 +8,9 @@
 3. Mesen-verified component records (P081 周泰, P085 曹豹, P157 陳登).
 4. Ground truth images: mob_portrait/generated/*.png (8x) and
    mob_portrait/screenshot/*.png (game screenshots, ~4x).
+5. Dedicated portraits P00-P80 vs portrait_export.py (its own tile decode, hardcoded
+   standard layout and PIL drawing), plus their pt:/ch: checksums. No game
+   screenshot of a dedicated portrait exists yet.
 
 Usage: .venv/bin/python sangokushi/tools/verify_kaodata_export.py --dataset <dir> [--rom ROM]
 """
@@ -22,6 +25,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import export_kaodata as ex
+import portrait_export as pe  # sangokushi/, on sys.path via export_kaodata
 from romfile import DEFAULT_ROM, read_rom
 
 REPO = ex.REPO
@@ -118,15 +122,16 @@ def main() -> None:
     ok = n = 0
     for gid, (_, _, fi) in names.items():
         if fi < ex.MOB_FIRST:
-            failed |= "face" in chars[gid]
+            failed |= chars[gid].get("face") != {"portrait": fi}
             continue
         n += 1
         rec = records[fi - ex.MOB_FIRST]
         face = chars[gid]["face"]
         ok += ((face["variant"], *face["parts"]) == rec
                and sums[f"ch:{gid}"] == hashlib.sha256(old_way_rgba(d, rec)).hexdigest())
+    n_pt = sum(fi < ex.MOB_FIRST for _, _, fi in names.values())
     print(f"[2] characters with mob face: {ok}/{n} match record + checksum; checksums.json has {len(sums)} entries")
-    failed |= ok != n or len(sums) != n
+    failed |= ok != n or len(sums) != n + n_pt + len(meta["portraits"])
 
     # 3. Mesen-verified records
     by_face = {fi: name for name, _, fi in names.values()}
@@ -150,6 +155,21 @@ def main() -> None:
         fi = face_of[name]
         got, total = compare_png(os.path.join(shot_dir, fn), renders[fi], 4, 2)
         print(f"[4] screenshot {fn} (P{fi:03d}): {got}/{total} sampled pixels match ({got / total:.1%})")
+
+    # 5. dedicated portraits
+    pts = pe.read_portrait_ptr_table(rom)
+    layouts = pe.build_portrait_arrangement_mapping(pts, pe.load_all_arrangements(rom))
+    ok = 0
+    for p in pts:
+        n = p["index"]
+        old = pe.generate_portrait(rom, p, layouts[n]).convert("RGBA").tobytes()
+        new = ex.to_rgba(ex.compose_display(meta, blobs, {"portrait": n}), colors)
+        ok += old == new and sums[f"pt:{n}"] == hashlib.sha256(old).hexdigest()
+    users = [(gid, fi) for gid, (_, _, fi) in names.items() if fi < ex.MOB_FIRST]
+    ch_ok = sum(sums[f"ch:{gid}"] == sums[f"pt:{fi}"] for gid, fi in users)
+    print(f"[5] dedicated portraits vs portrait_export.py: {ok}/{len(pts)} pixel-identical + checksum; "
+          f"{ch_ok}/{len(users)} generals' ch: equal their pt:")
+    failed |= ok != len(pts) or len(meta["portraits"]) != len(pts) or ch_ok != len(users)
 
     print("FAIL" if failed else "OK")
     sys.exit(1 if failed else 0)

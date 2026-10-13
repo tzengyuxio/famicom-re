@@ -2,13 +2,13 @@
 """Export FC 三國志 as a kaodata dataset (san1-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Writes dataset.json,
-pixels.bin (raw deflate) and checksums.json. The checksums come from the
-reference renderer below, which implements spec §6.
+pixels.bin + portraits.bin (raw deflate) and checksums.json. The checksums come
+from the reference renderer below, which implements spec §6.
 
 Usage: .venv/bin/python sangokushi/tools/export_kaodata.py --out <dir> [--rom ROM]
 
-Scope (M1): mob (大眾臉) composite faces only. Generals with a dedicated
-portrait (face index 0-80) are listed without `face`.
+Faces 0-80 are dedicated portraits (P00-P80, in portraits.bin so the mob
+explorer need not download them); 81+ are mob (大眾臉) composite faces.
 """
 import argparse
 import hashlib
@@ -36,6 +36,9 @@ MOUTHS_START = 0x1E594     # 20 x 6 tiles
 TEMPLATE_START = 0x1ED14   # 20 x 36 bytes, 0 = variant cell, else tile = val - 0x64
 COMPONENT_TABLE = 0x1F034  # 174 x [cat, head, eye, nose, mouth]
 NAME_TABLE = 0x3A314       # 15 bytes per general
+PORTRAIT_PTR_TABLE = 0x1BC38  # 81 x [bank, tile count, addr lo, addr hi] (docs/PORTRAIT_SYSTEM_PSEUDOCODE.md)
+ARRANGEMENT_TABLE = 0x1B0D4   # 81 x 36 bytes, 6x6 cells, tile = val - 0x63 (1-based)
+PORTRAIT_COUNT = 81
 GENERAL_IDS = range(1, 256)  # record 0 is the new-ruler template (duplicate of 曹操)
 MOB_FIRST = 81
 MOB_COUNT = 174
@@ -83,7 +86,10 @@ def crop(src: tuple[int, int, bytes], rect) -> tuple[int, int, bytes]:
 
 
 def compose_display(meta: dict, blobs: list[bytes], face: dict) -> tuple[int, int, bytes]:
-    """Indexed display image of a composite face (steps 1-4; this dataset has no backgrounds)."""
+    """Indexed display image of a face (steps 1-4; this dataset has no backgrounds or windows on portraits)."""
+    if "portrait" in face:
+        assert "window" not in meta["portraits"][face["portrait"]] and face.get("bg") is None
+        return get_image(meta, blobs, meta["portraits"][face["portrait"]]["img"])
     comp = meta["composite"]
     variant = comp["variants"][face["variant"]]
     cw, ch = comp["canvas"]
@@ -107,10 +113,13 @@ def to_rgba(src: tuple[int, int, bytes], colors: list[str]) -> bytes:
 
 def checksums(meta: dict, blobs: list[bytes]) -> dict:
     colors = meta["palettes"][0]["colors"]
-    return {"algo": "sha256-rgba",
-            "entries": {f"ch:{ch['id']}": hashlib.sha256(to_rgba(compose_display(meta, blobs, ch["face"]),
-                                                                  colors)).hexdigest()
-                        for ch in meta["characters"] if "face" in ch}}
+
+    def digest(face: dict) -> str:
+        return hashlib.sha256(to_rgba(compose_display(meta, blobs, face), colors)).hexdigest()
+
+    entries = {f"ch:{ch['id']}": digest(ch["face"]) for ch in meta["characters"] if "face" in ch}
+    entries.update({f"pt:{n}": digest({"portrait": n}) for n in range(len(meta.get("portraits", [])))})
+    return {"algo": "sha256-rgba", "entries": entries}
 
 
 def load_dataset(out_dir: str) -> tuple[dict, list[bytes]]:
@@ -170,6 +179,19 @@ def mouth_image(rom: bytes, g: int) -> bytes:
     return tiles_to_image({divmod(i, 3): decode_tile(rom, base + t * 16) for i, t in enumerate(MOUTH_ORDER)}, 3, 2)
 
 
+def portrait_image(rom: bytes, n: int) -> bytes:
+    """Dedicated portrait Pnn: its tiles placed by arrangement n (portrait n uses arrangement n)."""
+    bank, count, lo, hi = rom[PORTRAIT_PTR_TABLE + n * 4:PORTRAIT_PTR_TABLE + n * 4 + 4]
+    base = bank * 0x4000 + ((hi << 8 | lo) - 0x8000) + 0x10
+    cells = rom[ARRANGEMENT_TABLE + n * 36:ARRANGEMENT_TABLE + n * 36 + 36]
+    tiles = {}
+    for i, val in enumerate(cells):
+        t = val - 0x63
+        assert 1 <= t <= count, f"P{n:02d}: cell {i} -> tile {t} of {count}"
+        tiles[divmod(i, 6)] = decode_tile(rom, base + (t - 1) * 16)
+    return tiles_to_image(tiles, 6, 6)
+
+
 def component_records(rom: bytes) -> list[tuple[int, int, int, int, int]]:
     """Face index 81+i -> (cat, head, eye, nose, mouth), indices local to the category (0-4)."""
     return [tuple(rom[COMPONENT_TABLE + i * 5:COMPONENT_TABLE + i * 5 + 5]) for i in range(MOB_COUNT)]
@@ -215,12 +237,12 @@ def revision() -> str:
 def build(rom_path: str) -> tuple[dict, list[bytes]]:
     rom = read_rom(rom_path)
 
-    images, pixels = [], bytearray()
+    images, blobs = [], [bytearray(), bytearray()]  # pixels.bin, portraits.bin
 
-    def add(w: int, h: int, px: bytes) -> int:
+    def add(w: int, h: int, px: bytes, blob: int = 0) -> int:
         assert len(px) == w * h
-        images.append([len(pixels), w, h])
-        pixels.extend(px)
+        images.append([len(blobs[blob]), w, h, blob] if blob else [len(blobs[blob]), w, h])
+        blobs[blob].extend(px)
         return len(images) - 1
 
     # 20 global indices per slot; global = cat * 5 + local
@@ -235,6 +257,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                            for sid, _, _, at in SLOTS}}
                 for cat in range(4)]
 
+    portraits = [{"img": add(48, 48, portrait_image(rom, n), blob=1)} for n in range(PORTRAIT_COUNT)]
+
     records = component_records(rom)
     characters = []
     for gid, (name, reading, face_index) in general_names(rom).items():
@@ -242,6 +266,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         if face_index >= MOB_FIRST:
             cat, *parts = records[face_index - MOB_FIRST]
             ch["face"] = {"variant": cat, "parts": parts, "code": "-".join(map(str, (cat, *parts)))}
+        else:
+            ch["face"] = {"portrait": face_index}
         characters.append(ch)
 
     meta = {
@@ -254,6 +280,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                    "inputs": [{"path": os.path.basename(rom_path),
                                "sha1": hashlib.sha1(rom).hexdigest()}]},
         "display": {"scale": 6},
+        "blobs": ["pixels.bin", "portraits.bin"],
         "palettes": [{"id": "main", "label": "FC 頭像 4 色", "colors": [f"#{r:02x}{g:02x}{b:02x}" for r, g, b in PALETTE]}],
         "images": images,
         "composite": {
@@ -262,9 +289,10 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
             "variants": variants,
             "code": {"kind": "tuple"},
         },
+        "portraits": portraits,
         "characters": characters,
     }
-    return meta, [bytes(pixels)]
+    return meta, [bytes(b) for b in blobs]
 
 
 def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
@@ -287,14 +315,16 @@ def main() -> None:
     meta, blobs = build(args.rom)
     write_dataset(args.out, meta, blobs)
     chars = meta["characters"]
-    faces = [c["face"] for c in chars if "face" in c]
+    mobs = [c["face"] for c in chars if "variant" in c.get("face", {})]
     unsplit = [c["name"] for c in chars if " " not in c["reading"]]
-    print(f"san1-fc: {len(chars)} characters ({len(faces)} composite, "
-          f"{len({f['code'] for f in faces})} distinct combos), {len(meta['images'])} images")
+    print(f"san1-fc: {len(chars)} characters ({len(chars) - len(mobs)} portrait, {len(mobs)} composite, "
+          f"{len({f['code'] for f in mobs})} distinct combos), {len(meta['portraits'])} portraits, "
+          f"{len(meta['images'])} images")
     print(f"  reading without family/given split: {' '.join(unsplit) or '-'}")
-    for name in ["pixels.bin", "dataset.json", "checksums.json"]:
-        raw = f"{len(blobs[0])} px -> " if name == "pixels.bin" else ""
-        print(f"  {name}: {raw}{os.path.getsize(os.path.join(args.out, name))} B")
+    raw = dict(zip(meta["blobs"], blobs))
+    for name in [*meta["blobs"], "dataset.json", "checksums.json"]:
+        size = f"{len(raw[name])} px -> " if name in raw else ""
+        print(f"  {name}: {size}{os.path.getsize(os.path.join(args.out, name))} B")
 
 
 if __name__ == "__main__":

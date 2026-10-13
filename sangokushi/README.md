@@ -13,9 +13,9 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 # 專屬頭像 P00–P80 → kanji_output/
 .venv/bin/python sangokushi/portrait_export.py
 
-# kaodata 統一格式資料集 san1-fc（大眾臉組合臉 + 255 武將姓名／讀音）
+# kaodata 統一格式資料集 san1-fc（專屬頭像 81 張 + 大眾臉組合臉 + 255 武將姓名／讀音）
 .venv/bin/python sangokushi/tools/export_kaodata.py --out <kaodata>/data-local/san1-fc
-# 驗證：和探索器舊算法、截圖、Mesen 紀錄逐 pixel 比對
+# 驗證：和探索器舊算法、截圖、Mesen 紀錄逐 pixel 比對；專屬頭像和 portrait_export.py 比對
 .venv/bin/python sangokushi/tools/verify_kaodata_export.py --dataset <輸出目錄>
 
 # 58 國戰爭地圖 → sangokushi/output/battle_maps/（NN_州名.png + terrain.png）
@@ -27,7 +27,7 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 .venv/bin/python sangokushi/tools/parts_sheet.py --dataset sangokushi/output/san1-fc --out sangokushi/output
 ```
 
-依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（戰爭地圖驗證）。kaodata 格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像（P00–P80）還沒有匯出到資料集，這些武將沒有 `face`。
+依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（戰爭地圖驗證）。kaodata 格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像（P00–P80）放在 `portraits.bin`，探索器不必下載；目前沒有專屬頭像的遊戲截圖，只和 `portrait_export.py` 的另一套解碼比對。
 
 ## 檔案
 
@@ -76,7 +76,7 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 - ✓ 武將資料表（256 筆，含頭像／排列索引）與 CSV／XLSX 匯出
 - ✓ 專屬頭像 P00–P80：指標表 `0x1BC38`（81 × 4 bytes）、排列表 `0x1B0D4`（81 × 36 bytes），武將 → 頭像在姓名表 byte 14
 - ✓ 大眾臉 P81–P254：4 類型 × 頭／眼／鼻／口各 5 種，排列模板 `0x1ED14`，組件索引表 `0x1F034`（174 × 5 bytes）
-- ✓ kaodata `san1-fc` 匯出與驗證；大眾臉零件總覽圖
+- ✓ kaodata `san1-fc` 匯出與驗證（專屬頭像＋大眾臉）；大眾臉零件總覽圖
 - ✓ 戰爭地圖：58 國 × 14×12 格（bank 9 `0x259A4`），地形 6 種＋布陣區；國→州對照（`0x3B201`／`0x3B530`）；模擬器驗證 5 國（涵蓋全部地形）
 
 ## 慣例
