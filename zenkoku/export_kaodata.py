@@ -74,7 +74,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "game": "NOBU2",
         "platform": "FC",
         "title": {"ja": "信長の野望・全国版", "zh": "信長之野望・全國版"},
-        "source": {"producer": "fc-sangokushi", "revision": revision(),
+        "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path), "sha1": hashlib.sha1(rom.data).hexdigest()}]},
         "display": {"scale": 6},
         "palettes": [{"id": "nes", "label": "NES 64 色（色號＝NES 色號）",

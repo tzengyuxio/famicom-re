@@ -250,7 +250,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "game": "SAN1",
         "platform": "FC",
         "title": {"ja": "三國志", "zh": "三國志"},
-        "source": {"producer": "fc-sangokushi", "revision": revision(),
+        "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path),
                                "sha1": hashlib.sha1(rom).hexdigest()}]},
         "display": {"scale": 6},

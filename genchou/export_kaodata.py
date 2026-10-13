@@ -142,7 +142,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "game": "GENCHOU",
         "platform": "FC",
         "title": {"ja": "蒼き狼と白き牝鹿・元朝秘史", "zh": "蒼狼與白鹿・元朝秘史"},
-        "source": {"producer": "fc-sangokushi", "revision": revision(),
+        "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path), "sha1": hashlib.sha1(rom.data).hexdigest()}]},
         "display": {"scale": 6},
         "palettes": [{"id": "nes", "label": "NES 64 色（色號＝NES 色號）",

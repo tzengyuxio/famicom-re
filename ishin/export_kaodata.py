@@ -137,7 +137,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "game": "ISHIN",
         "platform": "FC",
         "title": {"ja": "維新の嵐", "zh": "維新之嵐"},
-        "source": {"producer": "fc-sangokushi", "revision": revision(),
+        "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path), "sha1": hashlib.sha1(rom.data).hexdigest()}]},
         "display": {"scale": 6},
         "palettes": [{"id": "nes", "label": "NES 64 色（色號＝NES 色號）",
