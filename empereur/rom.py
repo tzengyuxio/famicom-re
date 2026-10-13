@@ -1,4 +1,4 @@
-"""FC ランペルール (KOEI, 1990) ROM decoding.
+"""FC ランペルール (KOEI, 1991) ROM decoding.
 
 All offsets are PRG offsets (file offset - 0x10). See empereur/docs/ROM_FORMAT.md.
 """

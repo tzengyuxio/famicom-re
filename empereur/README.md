@@ -1,6 +1,6 @@
 # FC ランペルール 解析
 
-KOEI，1990，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI，1991，FC（MMC5；日本 1991-05-23 發售，ja.wikipedia「ランペルール」；原作 PC-8801 是 1990）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 
@@ -8,8 +8,8 @@ KOEI，1990，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 # 人物（4 劇本）、國家、都市、頭像 PNG、大地圖、戰場地圖 → empereur/output/
 .venv/bin/python empereur/export.py [--rom ROM] [--out DIR] [--scale N]
 
-# kaodata 統一格式資料集 empereur-fc
-.venv/bin/python empereur/export_kaodata.py --out <kaodata>/data-local/empereur-fc
+# kaodata 統一格式資料集 lempe-fc
+.venv/bin/python empereur/export_kaodata.py --out <kaodata>/data-local/lempe-fc
 # 驗證：逐 pixel 比對 ROM 直接組出的臉、重算 checksums；裝了 py65 會再用模擬器跑遊戲的頭像程式
 # 比對 90 個專屬碼＋4096 個組合碼（約 30 秒）
 .venv/bin/python empereur/verify_kaodata_export.py --dataset <輸出目錄>
@@ -26,9 +26,10 @@ ROM 預設讀 `roms/Empereur, L' (Japan).zip`（zip 內的 .nes）；`--rom` 也
 |------|------|
 | `rom.py` | ROM 解碼：文字、國家、都市、人物、劇本資料、頭像、大地圖、戰場地圖 |
 | `export.py` | 匯出 CSV／XLSX／PNG |
-| `export_kaodata.py` | kaodata 資料集 `empereur-fc` 與參考渲染器 |
+| `export_kaodata.py` | kaodata 資料集 `lempe-fc` 與參考渲染器 |
 | `verify_kaodata_export.py` | 資料集的獨立驗證 |
 | `verify_battle_maps.py` | 戰場地圖解碼與遊戲程式的比對 |
+| `data/names_zh.tsv` | [EXT] 人物中文譯名與依據 |
 | `tools/pcode_emu.py` | MMC5＋6502 最小模擬，呼叫遊戲的 p-code 函式（py65） |
 | `tools/nes_emu.py` | 可實際遊玩的 MMC5 NES 模擬（py65，研究用：畫面、存檔點、系統呼叫 trace） |
 
@@ -50,7 +51,7 @@ ROM 預設讀 `roms/Empereur, L' (Japan).zip`（zip 內的 .nes）；`--rom` 也
 | `battle_maps/normal/NN_都市.png` | 46 張戰場地圖（13×12 格，208×200） |
 | `battle_maps/winter/NN_都市.png` | 同上，雪地圖塊變體（使用時機未明） |
 
-kaodata 資料集：255 人，88 人用專屬頭像，167 人用組合臉（4 類型，每類 5 個部位 × 4 種）。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集 `lempe-fc`（資料夾名照舊）：255 人，88 人用專屬頭像，167 人用組合臉（4 類型，每類 5 個部位 × 4 種）。專屬頭像的 `code` 是頭像碼（= 編號，4 位十六進位）。P01、P02 是ナポレオン隨身分換的臉（`$C28D`：身分 6 → P01、7 → P02；劇本 3 是 6、劇本 4 是 7），放在他的 `expressions`。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`，正體字，通行譯名；人物沒確認的依讀音音譯，在 source 欄註明，共 38 人）。像素存 NES 色號，色盤是 NES 64 色。
 
 ## 進度
 
@@ -58,7 +59,7 @@ kaodata 資料集：255 人，88 人用專屬頭像，167 人用組合臉（4 �
 - ✓ 國家、都市（相鄰、地圖座標）、人物主表（性格與外部資料 255/255 一致）
 - ✓ 劇本人物：能力 8 項與外部資料 255 × 4 一致；年齡、兵力、士気／訓練以畫面驗證
 - ✓ 劇本國家（金、食糧）、劇本都市（以マルセーユ、フランクフルト的畫面驗證）
-- ✓ 專屬頭像 90 張、組合臉（模擬器 4186 個碼全部一致）、kaodata `empereur-fc`
+- ✓ 專屬頭像 90 張、組合臉（模擬器 4186 個碼全部一致）、kaodata `lempe-fc`
 - ✓ 大地圖（svc 9 trace 驗證）
 - ✓ 戰場地圖 46 張（實戰畫面緩衝區＋模擬器 46/46 一致）
 - 未解：見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)「未解」一節（戰場變體選擇、布陣區域資料、數個未知欄位）

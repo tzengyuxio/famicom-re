@@ -14,7 +14,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `suikoden/` | 水滸伝・天命の誓い (KOEI, 1990, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、四季戰鬥地圖、kaodata `suikoden-fc` |
 | `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
 | `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
-| `empereur/` | ランペルール (KOEI, 1990, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `empereur-fc` |
+| `empereur/` | ランペルール (KOEI, 1991, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `lempe-fc` |
 | `bushou/` | 信長の野望・武将風雲録 (KOEI, 1991, MMC5)：武將（2 劇本＋登場）、國、大名、茶器、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `bushou-fc` |
 | `ishin/` | 維新の嵐 (KOEI, 1990, MMC5)：人物（2 劇本）、藩、地點、頭像（專屬＋組合臉）、HEX 地圖／全國大地圖、kaodata `ishin-fc` |
 | `gunyuu/` | 信長の野望・戦国群雄伝 (KOEI, 1990, MMC5)：武將（2 劇本）、38 國、大名、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `gunyuu-fc` |

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export FC ランペルール as a kaodata dataset (empereur-fc, format kaodata/1).
+"""Export FC ランペルール as a kaodata dataset (lempe-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
 dataset palette is the 64-colour NES palette.
@@ -35,6 +35,9 @@ CANVAS = (40, 48)
 CATEGORY_LABELS = ["正面", "向右", "向左", "頭巾"]  # by look of the parts
 CATEGORIES = len(CATEGORY_LABELS)
 SLOT_LABELS = {"top": "上半", "bottom": "下半", "eyes": "眼", "nose": "鼻", "mouth": "口"}
+# Napoleon's face follows his rank: the face-code function $C28D gives P01 at rank 6 and P02 at rank 7
+NAPOLEON_EXPRESSIONS = [1, 2]
+NAMES_ZH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "names_zh.tsv")
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -64,6 +67,8 @@ def checksums(meta: dict, blobs: list[bytes]) -> dict:
         return hashlib.sha256(to_rgba(compose_display(meta, blobs, face), colors)).hexdigest()
 
     entries = {f"ch:{c['id']}": digest(c["face"]) for c in meta["characters"] if "face" in c}
+    entries.update({f"ch:{c['id']}/{k}": digest(e) for c in meta["characters"]
+                    for k, e in enumerate(c.get("expressions", []), 1)})
     entries.update({f"pt:{n}": digest({"portrait": n}) for n in range(len(meta["portraits"]))})
     return {"algo": "sha256-rgba", "entries": entries}
 
@@ -110,11 +115,14 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                  "parts": {p: {"items": [add(part_pixels(rom, p, cat, sel)) for sel in range(4)]}
                            for p in COMPOSITE_PARTS}}
                 for cat in range(CATEGORIES)]
-    portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"P{n:02d}"} for n in range(PORTRAIT_COUNT)]
+    portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
 
+    with open(NAMES_ZH, encoding="utf-8") as f:
+        next(f)
+        names_zh = {int(i): zh for i, _, zh, _ in (line.rstrip("\n").split("\t") for line in f)}
     characters = []
     for c in rom.characters():
-        ch = {"id": c["id"], "name": c["name"]}
+        ch = {"id": c["id"], "name": c["name"], "nameZh": names_zh[c["id"]]}
         if (r := reading(c["name"])) is not None:
             ch["reading"] = r
         code = c["face_code"]
@@ -122,12 +130,14 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
             ch["face"] = {"variant": code & 3, "parts": face_parts(code), "code": f"{code:04X}"}
         else:
             ch["face"] = {"portrait": code}
+        if c["id"] == 0:
+            ch["expressions"] = [{"portrait": n} for n in NAPOLEON_EXPRESSIONS]
         characters.append(ch)
 
     meta = {
         "format": FORMAT,
-        "id": "empereur-fc",
-        "game": "EMPEREUR",
+        "id": "lempe-fc",
+        "game": "LEMPE",
         "platform": "FC",
         "title": {"ja": "ランペルール", "zh": "拿破崙（L'Empereur）"},
         "source": {"producer": "famicom-re", "revision": revision(),
@@ -162,7 +172,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 empereur-fc")
+    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 lempe-fc")
     ap.add_argument("--rom", default=DEFAULT_ROM, help="Empereur, L' (Japan).nes 或 roms/ 內的 .zip")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
@@ -170,7 +180,7 @@ def main() -> None:
     write_dataset(args.out, meta, blobs)
     chars = meta["characters"]
     mobs = [c for c in chars if "variant" in c.get("face", {})]
-    print(f"empereur-fc: {len(chars)} characters ({len(chars) - len(mobs)} portrait, {len(mobs)} composite), "
+    print(f"lempe-fc: {len(chars)} characters ({len(chars) - len(mobs)} portrait, {len(mobs)} composite), "
           f"{len(meta['composite']['variants'])} categories, {len(meta['portraits'])} portraits, "
           f"{len(meta['images'])} images")
     for name in [*meta["blobs"], "dataset.json", "checksums.json"]:

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Independent checks for the empereur-fc kaodata dataset.
+"""Independent checks for the lempe-fc kaodata dataset.
 
 1. Every character and portrait drawn by the spec renderer from the dataset equals the face
    composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel.
 2. checksums.json matches a recomputation.
 3. (needs py65) The game's own face routine (bank 0 $A1F6), run in an emulator, hands the image
    service the same tile ids and ExRAM bytes as rom.py, for all 90 portraits and all 4096
-   composite codes (category x 5 two-bit parts).
+   composite codes (category x 5 two-bit parts); and the game's face-code function $C28D gives
+   Napoleon P00/P01/P02 at rank 5/6/7 (his face and expressions).
 
 Usage: .venv/bin/python empereur/verify_kaodata_export.py --dataset <dir> [--rom ROM]
 """
@@ -14,14 +15,19 @@ import argparse
 import json
 import os
 
-from export_kaodata import checksums, compose_display, san1
+from export_kaodata import NAPOLEON_EXPRESSIONS, checksums, compose_display, san1
 from rom import DEFAULT_ROM, PORTRAIT_COUNT, Rom
+
+FACE_CODE_FN = 0xC28D      # fixed bank: face code of a person record
+NAPOLEON_RECORD = 0x6005  # WRAM person record 0
 
 
 def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> int:
     codes = {c["id"]: c["face_code"] for c in rom.characters()}
     errors = 0
     faces = [(f"ch:{c['id']} {c['name']}", c["face"], codes[c["id"]]) for c in meta["characters"] if "face" in c]
+    faces += [(f"ch:{c['id']}/{k}", e, e["portrait"]) for c in meta["characters"]
+              for k, e in enumerate(c.get("expressions", []), 1)]
     faces += [(f"pt:{n}", {"portrait": n}, n) for n in range(PORTRAIT_COUNT)]
     for label, face, code in faces:
         w, h, px = compose_display(meta, blobs, face)
@@ -54,11 +60,26 @@ def check_emulated(rom: Rom) -> int:
             bad.append(f"{code:04X}")
     print(f"[emulator] face routine: {len(codes) - len(bad)}/{len(codes)} codes match"
           + (f" (NG {' '.join(bad[:10])})" if bad else ""))
-    return len(bad)
+    return len(bad) + check_napoleon(rom)
+
+
+def check_napoleon(rom: Rom) -> int:
+    """$C28D (face code of a WRAM person record) on Napoleon's record ($6005) with rank 5/6/7
+    (record +14) must return P00/P01/P02, the face and expressions of ch:0."""
+    from tools.pcode_emu import Mem, call_pcode
+    got = []
+    for rank in (5, 6, 7):
+        mem = Mem(rom.prg)
+        mem[NAPOLEON_RECORD + 14] = rank
+        call_pcode(mem, FACE_CODE_FN, {}, [NAPOLEON_RECORD])
+        got.append(mem.ram[0x08] | mem.ram[0x09] << 8)  # p-code accumulator
+    ok = got == [0, *NAPOLEON_EXPRESSIONS]
+    print(f"[emulator] Napoleon rank 5/6/7 -> P{'/P'.join(f'{g:02d}' for g in got)}: {'OK' if ok else 'NG'}")
+    return 0 if ok else 1
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="驗證 empereur-fc kaodata 資料集")
+    ap = argparse.ArgumentParser(description="驗證 lempe-fc kaodata 資料集")
     ap.add_argument("--rom", default=DEFAULT_ROM)
     ap.add_argument("--dataset", required=True)
     args = ap.parse_args()
