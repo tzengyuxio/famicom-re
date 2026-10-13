@@ -111,7 +111,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     portraits = []
     for n in range(PORTRAIT_COUNT):
-        portraits.append({"img": add(*CANVAS, rom.face_pixels(n), blob=1), "label": f"P{n:02d}"})
+        portraits.append({"img": add(*CANVAS, rom.face_pixels(n), blob=1), "code": f"{n:04X}"})  # = face code
 
     surnames = {s: r.split(",") for s, r in load_tsv("surnames.tsv")}
     characters = []
@@ -120,7 +120,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         code = c["face_code"]
         if code & 0x8000:
             cat, sel = decode_mob_code(code)
-            ch["face"] = {"variant": cat, "parts": [sel[s] for s in SLOT_IDS], "code": f"{code & 0x7FFF:04X}"}
+            ch["face"] = {"variant": cat, "parts": [sel[s] for s in SLOT_IDS], "code": f"{code:04X}"}
         else:
             ch["face"] = {"portrait": code}
         characters.append(ch)

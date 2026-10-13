@@ -45,7 +45,7 @@ ROM 預設直接讀 `roms/Suikoden - Tenmei no Chikai (Japan).zip`（也接受 `
 | `battle_maps/{春,夏,秋,冬}/NN_州名.png` | 49 州戰鬥地圖，四季各一套（14×12 六角格，224×200；調色盤為推定） |
 | `battle_maps.csv` | 每州 168 格：地形（0–7 與推定名稱）、所屬州 |
 
-kaodata 資料集：95 人用專屬頭像（`portraits`），160 人用組合臉（`composite`，5 類型 × 頭／顎／眼／鼻／口各 4 種）。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集：95 人用專屬頭像（`portraits`），160 人用組合臉（`composite`，5 類型 × 頭／顎／眼／鼻／口各 4 種）。像素存 NES 色號，色盤是 NES 64 色。`code` 是人物表 +17 的頭像碼（4 位十六進位；專屬頭像就是編號，組合臉含 bit 15）。P38–P42 沒有人用，用途未知。名字 ROM 裡就是漢字，所以不另加 `nameZh`。
 
 ## 進度
 
