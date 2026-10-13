@@ -6,7 +6,8 @@ dataset palette is the 64-colour NES palette (every face uses BG sub-palette 3E 
 
 Portraits only: the game has no composite faces. Characters are the 53 daimyo of the 50-mode
 name list (the 17-mode daimyo are the same people with the same faces). The ROM only has the
-family name in katakana; `reading` is its hiragana form. Portraits 53-74 (princesses) have
+family name in katakana; `reading` is its hiragana form and `nameZh` the [EXT] full name of
+data/kanji_names.tsv when known. Portraits 53-74 (princesses) have
 no named character and carry group 姫.
 
 Usage: .venv/bin/python zenkoku/export_kaodata.py --out <dir> [--rom ROM]
@@ -19,7 +20,7 @@ import os
 import subprocess
 import zlib
 
-from rom import DAIMYO_FACES, DEFAULT_ROM, NES_PALETTE, PORTRAIT_COUNT, Rom, to_hiragana
+from rom import DAIMYO_FACES, DEFAULT_ROM, NES_PALETTE, PORTRAIT_COUNT, Rom, kanji_names, to_hiragana
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Spec §6 primitives shared with the san1-fc exporter (same module name, so load it by path)
@@ -66,8 +67,12 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         # No code: the game picks a face by daimyo number, it stores no face value
         portraits.append({"img": n} if n < DAIMYO_FACES else {"img": n, "group": "姫"})
 
-    characters = [{"id": d["id"], "name": d["name"], "reading": to_hiragana(d["name"]), "face": {"portrait": d["face"]}}
-                  for d in rom.scenario(50)["daimyo"]]
+    kanji, characters = kanji_names(), []
+    for d in rom.scenario(50)["daimyo"]:
+        ch = {"id": d["id"], "name": d["name"], "reading": to_hiragana(d["name"])}
+        if d["id"] in kanji:
+            ch["nameZh"] = kanji[d["id"]]
+        characters.append({**ch, "face": {"portrait": d["face"]}})
 
     meta = {
         "format": FORMAT,

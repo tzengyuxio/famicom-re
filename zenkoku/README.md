@@ -28,6 +28,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Zenkoku Ban (Japan).zip`（`--rom`
 | `export_kaodata.py` | kaodata 資料集 `nobu2-fc` 與參考渲染器 |
 | `verify_kaodata_export.py` | 資料集的獨立驗證（含模擬器） |
 | `verify_maps.py` | 地方地圖與戰場地圖的模擬器驗證 |
+| `data/kanji_names.tsv` | [EXT] 50 國版大名的漢字全名（正體字）與判讀依據 |
 | `tools/emu.py` | 沿用 `sangokushi/tools/nes_emu.py`（MMC1＋py65），加上按鍵腳本（開新遊戲、選國、開戰）與名稱表讀取 |
 
 ## 輸出
@@ -42,7 +43,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Zenkoku Ban (Japan).zip`（`--rom`
 | `maps/map50_N.png`、`maps/map17_N.png` | 地方地圖（224×128）：50 國版 7 張、17 國版 2 張；`_labeled` 放大 3 倍並在遊戲印國名的位置標國號 |
 | `battle_maps/NN_國名.png`、`terrain.png` | 50 張戰場地圖（11×5 格，352×176）與 6 種地形方塊 |
 
-kaodata 資料集：53 人（50 國版大名表；17 國版大名是同一批人、同一張臉，不重複列），全部用專屬頭像；75 張頭像（含 22 張沒有對應人物的姫，標 `"group": "姫"`）；遊戲依大名編號選臉，沒有另存頭像碼，所以頭像不填 `code`。ROM 只有片假名的姓，`reading` 是平假名。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集：53 人（50 國版大名表；17 國版大名是同一批人、同一張臉，不重複列），全部用專屬頭像；75 張頭像（含 22 張沒有對應人物的姫，標 `"group": "姫"`）；遊戲依大名編號選臉，沒有另存頭像碼，所以頭像不填 `code`。ROM 只有片假名的姓，`reading` 是平假名。`nameZh` 是外部資料的全名（正體字），來自 `data/kanji_names.tsv`（`daimyo.csv` 的 `[EXT]NameZh`）。判讀方式：遊戲開始年是 1560（ja.wikipedia「信長の野望・全国版」），用 50 國版各大名所在的國和生年（1560 − 年齡）對 1560 年該國當主；アケチ、ハシバ、シバタ沒有國，是本能寺之變後三分織田領的明智光秀、羽柴秀吉、柴田勝家。每人的依據寫在 tsv 的 source 欄。對不上的 5 人沒填：ユウキ（磐城）、イッシキ（丹後）、ベッショ（播磨）、ホソカワ（阿波）、アソウ（肥後）。像素存 NES 色號，色盤是 NES 64 色。
 
 本作沒有組合臉，所以不輸出大眾臉零件（`mob_parts`）。
 

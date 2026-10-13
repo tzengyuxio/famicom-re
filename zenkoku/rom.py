@@ -8,6 +8,7 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_ROM = os.path.join(os.path.dirname(HERE), "roms", "Nobunaga no Yabou - Zenkoku Ban (Japan).zip")
+KANJI_TSV = os.path.join(HERE, "data", "kanji_names.tsv")
 
 # ---------------------------------------------------------------- scenario images (bank 3, copied to WRAM $6000)
 # mode -> (PRG base, province count, label, adjacency table)
@@ -79,6 +80,14 @@ def nes_rgb(i: int) -> tuple[int, int, int]:
 def text(b: bytes) -> str:
     """Half-width katakana up to the first 0, as full-width katakana."""
     return unicodedata.normalize("NFKC", b.split(b"\0")[0].decode("cp932"))
+
+
+def kanji_names() -> dict[int, str]:
+    """[EXT] 50-mode daimyo id -> full name in traditional characters (data/kanji_names.tsv), when known."""
+    with open(KANJI_TSV, encoding="utf-8") as f:
+        next(f)
+        rows = [line.rstrip("\n").split("\t") for line in f]
+    return {int(i): kanji for i, _, kanji, _ in rows if kanji}
 
 
 def to_hiragana(s: str) -> str:

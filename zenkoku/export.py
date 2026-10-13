@@ -31,6 +31,7 @@ from rom import (
     STATS,
     TERRAIN,
     Rom,
+    kanji_names,
     nes_rgb,
     to_hiragana,
 )
@@ -43,13 +44,14 @@ def face_label(n: int) -> str:
 
 
 def daimyo_rows(rom: Rom) -> list[dict]:
-    rows = []
+    rows, kanji = [], kanji_names()
     for mode in MODES:
         s = rom.scenario(mode)
         names = [p["name"] for p in s["provinces"]]
         for d in s["daimyo"]:
             owned = [p for p in s["provinces"] if p["owner"] == d["id"]]
             rows.append({"Mode": s["label"], "Id": d["id"], "Name": d["name"], "Reading": to_hiragana(d["name"]),
+                         "[EXT]NameZh": kanji.get(d["face"], ""),
                          "Age": d["age"], "Born": START_YEAR - d["age"],
                          **{f"{key}[{label}]": v for (key, label), v in zip(STATS, d["stats"])},
                          "Face": face_label(d["face"]), "Province": " ".join(names[p["id"]] for p in owned),
