@@ -133,7 +133,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         for sid, *_ in COMPOSITE_SLOTS:
             mask = [i in areas[sid] for i in range(30)]
             parts[sid] = {"items": [add(rom.render_cells(*rec, PORTRAIT_W, pal, mask)) for rec in records]}
-        variants.append({"id": str(head), "label": f"{FACE_CULTURES[culture]}／頭 {n}", "parts": parts})
+        face = f"男 {n}" if n < HEADS_PER_CULTURE - 2 or (culture == 6 and n == 4) else f"女 {n - 4 - (culture == 6)}"
+        variants.append({"id": str(head), "label": f"{FACE_CULTURES[culture]}／{face}", "parts": parts})
 
     portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
 

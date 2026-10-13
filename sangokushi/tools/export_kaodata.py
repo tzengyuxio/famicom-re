@@ -272,7 +272,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                            for sid, _, _, at in SLOTS}}
                 for cat in range(4)]
 
-    portraits = [{"img": add(48, 48, portrait_image(rom, n), blob=1)} for n in range(PORTRAIT_COUNT)]
+    portraits = [{"img": add(48, 48, portrait_image(rom, n), blob=1), "code": f"{n + 1:02X}"}  # code = byte 14
+                 for n in range(PORTRAIT_COUNT)]
     for n in PRINCESS_PORTRAITS:
         portraits[n]["group"] = "姫"
 
@@ -282,7 +283,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         ch = {"id": gid, "name": name, "reading": reading}
         if face_index >= MOB_FIRST:
             cat, *parts = records[face_index - MOB_FIRST]
-            ch["face"] = {"variant": cat, "parts": parts, "code": "-".join(map(str, (cat, *parts)))}
+            ch["face"] = {"variant": cat, "parts": parts, "code": f"{face_index + 1:02X}"}
         else:
             ch["face"] = {"portrait": face_index}
         characters.append(ch)
@@ -337,7 +338,7 @@ def main() -> None:
     unsplit = [c["name"] for c in chars if " " not in c["reading"]]
     print(f"san1-fc: {len(chars)} characters ({n_pt} portrait, {len(mobs)} composite, "
           f"{len(chars) - n_pt - len(mobs)} without face, "
-          f"{len({f['code'] for f in mobs})} distinct combos), {len(meta['portraits'])} portraits, "
+          f"{len({(f['variant'], *f['parts']) for f in mobs})} distinct combos), {len(meta['portraits'])} portraits, "
           f"{len(meta['images'])} images")
     print(f"  reading without family/given split: {' '.join(unsplit) or '-'}")
     raw = dict(zip(meta["blobs"], blobs))

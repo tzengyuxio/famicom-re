@@ -29,7 +29,7 @@ KOEI, 1988, FC（MMC1，CHR-RAM）。ROM 結構見 [docs/ROM_STRUCTURE.md](docs/
 .venv/bin/python sangokushi/tools/parts_sheet.py --dataset sangokushi/output/san1-fc --out sangokushi/output
 ```
 
-依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（戰爭地圖驗證）。kaodata 格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像（P00–P80）放在 `portraits.bin`，探索器不必下載。頭像編號（byte 14 − 1）小於 65 才是專屬頭像，65 以上一律是組合臉（`verify_face_select.py` 在模擬器裡確認，畫面像素和匯出一致），所以 P65–P80 這 16 張女性頭像沒有武將使用，匯出時標 `"group": "姫"`；編號 65–80 的 16 人（曹昂、于禁…蒋欽）是組合臉。
+依賴：Pillow；openpyxl（可選，匯出 .xlsx）；py65（戰爭地圖驗證）。kaodata 格式規格見 kaodata repo 的 `docs/data-format.md`。專屬頭像（P00–P80）放在 `portraits.bin`，探索器不必下載。頭像編號（byte 14 − 1）小於 65 才是專屬頭像，65 以上一律是組合臉（`verify_face_select.py` 在模擬器裡確認，畫面像素和匯出一致），所以 P65–P80 這 16 張女性頭像沒有武將使用，匯出時標 `"group": "姫"`；kaodata 的 `code`（專屬頭像與組合臉）是姓名表 byte 14 的值（2 位十六進位），也就是頭像編號 + 1，例如 P00 是 `01`、編號 80 的組合臉是 `51`；編號 65–80 的 16 人（曹昂、于禁…蒋欽）是組合臉。
 
 ## 檔案
 
