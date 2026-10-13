@@ -40,6 +40,17 @@ san1 = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(san1)
 blit, crop, get_image, to_rgba = san1.blit, san1.crop, san1.get_image, san1.to_rgba
 
+# The ROM writes these names with a stand-in character, or cuts them to its 3-kanji limit.
+# The dataset uses the historical spelling; readings that change with the fix are fixed too.
+NAME_FIXES = {
+    "雷同": "雷銅", "粱剛": "梁剛", "李湛": "李堪", "辛毘": "辛毗", "厳晙": "厳畯", "蔡仲": "蔡中",
+    "鮑龍": "鮑隆", "沙摩可": "沙摩柯", "尚挙": "向挙", "尚寵": "向寵", "金環結": "金環三結", "朶思王": "朶思大王",
+    "張資": "張咨", "韓楷": "桓階", "陳嬉": "陳紀", "毋丘倹": "毌丘倹",
+}
+READING_FIXES = {"李堪": "りかん", "金環三結": "きんかんさんけつ", "朶思大王": "だしだいおう"}
+NO_SPLIT = {"沙摩柯", "金環三結", "朶思大王", "阿会喃", "董荼奴"}  # not Han family + given names
+SURNAMES = [os.path.join(REPO, "sangokushi", "data", "surnames.tsv"), os.path.join(REPO, "san2", "data", "surnames.tsv")]
+
 FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
@@ -84,6 +95,27 @@ def checksums(meta: dict, blobs: list[bytes]) -> dict:
     return {"algo": "sha256-rgba", "entries": entries}
 
 
+# ---------------------------------------------------------------- names
+
+def surnames() -> dict[str, str]:
+    out = {}
+    for path in SURNAMES:
+        with open(path, encoding="utf-8") as f:
+            out.update(line.rstrip("\n").split("\t") for line in f if line.strip() and not line.startswith("#"))
+    return out
+
+
+def name_reading(name: str, kana: str, sur: dict[str, str]) -> tuple[str, str]:
+    """Historical spelling, and the reading with a space between family and given name (as san1-fc)."""
+    name = NAME_FIXES.get(name, name)
+    kana = READING_FIXES.get(name, kana)
+    family = name[:2] if name[:2] in sur else name[0]
+    r = sur.get(family)
+    if name not in NO_SPLIT and r and kana.startswith(r) and len(kana) > len(r):
+        kana = f"{r} {kana[len(r):]}"
+    return name, kana
+
+
 # ---------------------------------------------------------------- dataset
 
 def revision() -> str:
@@ -115,9 +147,11 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     portraits = [{"img": add(rom.face_pixels(f), blob=1), "label": f"F{f:03d}"} for f in range(1, FACE_COUNT + 1)]
 
+    sur = surnames()
     characters = []
     for g in rom.generals():
-        ch = {"id": g["id"], "name": g["name"], "reading": g["reading"]}
+        name, reading = name_reading(g["name"], g["reading"], sur)
+        ch = {"id": g["id"], "name": name, "reading": reading}
         code = g["face"]
         if is_composite(code):
             group, v = decode_face_code(code)

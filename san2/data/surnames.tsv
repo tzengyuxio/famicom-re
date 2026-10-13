@@ -1,0 +1,18 @@
+# 三國志II 補充的姓氏讀音：export_kaodata.py 先查 sangokushi/data/surnames.tsv，再查這張
+# 姓的判定與 san1 相同：先比對複姓 (兩字)，否則取第一個字。
+# surname	reading (hiragana)
+淳于	じゅんう
+毌丘	かんきゅう
+焦	しょう
+逢	ほう
+武	ぶ
+冷	れい
+霍	かく
+杜	と
+譚	たん
+邢	けい
+范	はん
+謝	しゃ
+尹	いん
+向	しょう
+桓	かん
