@@ -1,4 +1,4 @@
-"""FC 水滸伝・天命の誓い (KOEI, 1989) ROM decoding.
+"""FC 水滸伝・天命の誓い (KOEI, 1990) ROM decoding.
 
 All offsets are PRG offsets (file offset - 0x10). See suikoden/docs/ROM_FORMAT.md.
 """

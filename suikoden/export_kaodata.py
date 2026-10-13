@@ -38,6 +38,9 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 SLOT_IDS = [sid for sid, *_ in MOB_SLOTS]  # head, chin, eyes, nose, mouth (= draw order)
+# Portraits no character uses, drawn by fixed face code (docs/ROM_FORMAT.md §5.1): group, name in game spelling
+FIXED_PORTRAITS = {38: ("特殊人物", "徽宗皇帝"), 39: ("特殊人物", "太宗"),
+                   40: ("施設", "ゾウセンジョ"), 41: ("施設", "ザッカヤ"), 42: ("施設", "ブキヤ")}
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -111,7 +114,10 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     portraits = []
     for n in range(PORTRAIT_COUNT):
-        portraits.append({"img": add(*CANVAS, rom.face_pixels(n), blob=1), "code": f"{n:04X}"})  # = face code
+        pt = {"img": add(*CANVAS, rom.face_pixels(n), blob=1), "code": f"{n:04X}"}  # = face code
+        if n in FIXED_PORTRAITS:
+            pt["group"], pt["name"] = FIXED_PORTRAITS[n]
+        portraits.append(pt)
 
     surnames = {s: r.split(",") for s, r in load_tsv("surnames.tsv")}
     characters = []
