@@ -38,9 +38,9 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 SLOT_IDS = [sid for sid, *_ in MOB_SLOTS]  # head, chin, eyes, nose, mouth (= draw order)
-# Portraits no character uses, drawn by fixed face code (docs/ROM_FORMAT.md §5.1): group, name in game spelling
-FIXED_PORTRAITS = {38: ("特殊人物", "徽宗皇帝"), 39: ("特殊人物", "太宗"),
-                   40: ("施設", "ゾウセンジョ"), 41: ("施設", "ザッカヤ"), 42: ("施設", "ブキヤ")}
+# Portraits no character uses, drawn by fixed face code (docs/ROM_FORMAT.md §5.1): group, name
+FIXED_PORTRAITS = {38: ("特殊人物", "徽宗皇帝"), 39: ("特殊人物", "金国太宗"),
+                   40: ("施設", "造船所"), 41: ("施設", "雑貨屋"), 42: ("施設", "武器屋")}
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
