@@ -143,7 +143,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
             items = [add(rom.render_cells(*rom.face_cells(slot_code(group, slot, v)), FACE_W, pal, mask))
                      for v in range(VARIANTS)]
             parts[sid] = {"items": items}
-        variants.append({"id": str(group), "label": f"組 {group}", "parts": parts})
+        variants.append({"id": str(group), "label": f"類型 {group}", "parts": parts})
 
     portraits = [{"img": add(rom.face_pixels(f), blob=1), "code": f"{f:04X}"} for f in range(1, FACE_COUNT + 1)]
 

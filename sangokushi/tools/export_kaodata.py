@@ -267,7 +267,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
               "mouth": lambda g: mouth_image(rom, g)}
     img = {sid: [add(*size, makers[sid](g)) for g in range(20)] for sid, _, size, _ in SLOTS}
 
-    variants = [{"id": str(cat), "label": f"Cat {cat}",
+    variants = [{"id": str(cat), "label": f"類型 {cat}",
                  "parts": {sid: {"at": list(at), "items": img[sid][cat * 5:cat * 5 + 5]}
                            for sid, _, _, at in SLOTS}}
                 for cat in range(4)]

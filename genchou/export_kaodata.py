@@ -125,15 +125,15 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     variants = []
     for head in range(COMPOSITE_HEADS):
-        culture, n = divmod(head, HEADS_PER_CULTURE)
+        culture = min(head // HEADS_PER_CULTURE, len(FACE_CULTURES) - 1)  # head 42 = 欧州 n 6
+        n = head - culture * HEADS_PER_CULTURE
         records = [rom.composite_record(2 * head), rom.composite_record(2 * head + 1)]
         areas = rom.composite_areas(head)
         parts = {"base": {"items": [add(rom.render_cells(*records[0], PORTRAIT_W, pal))]}}
         for sid, *_ in COMPOSITE_SLOTS:
             mask = [i in areas[sid] for i in range(30)]
             parts[sid] = {"items": [add(rom.render_cells(*rec, PORTRAIT_W, pal, mask)) for rec in records]}
-        variants.append({"id": str(head), "label": f"{FACE_CULTURES[culture]} {n}" if culture < len(FACE_CULTURES)
-                         else f"頭 {head}", "parts": parts})
+        variants.append({"id": str(head), "label": f"{FACE_CULTURES[culture]}／頭 {n}", "parts": parts})
 
     portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
 
