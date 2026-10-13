@@ -47,6 +47,7 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 SLOT_IDS = ["base"] + [sid for sid, *_ in COMPOSITE_SLOTS]  # draw order
+WOMEN_ID, CHILDREN_ID = 1000, 2000  # id ranges of the women's and the child tables (README)
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -93,6 +94,18 @@ def reading(name: str) -> str | None:
     return s if all("ぁ" <= c <= "ゖ" or c in "ー " for c in s) else None
 
 
+def all_characters(rom: Rom) -> list[dict]:
+    """People table (ids 0-), then the women (1000-) and children (2000-), each distinct by name + face code."""
+    out = list(distinct_characters(rom))
+    for base, rows in ((WOMEN_ID, [w for s in range(4) for w in rom.women(s)]), (CHILDREN_ID, rom.children())):
+        seen = []
+        for r in rows:
+            if (key := (r["name"], r["face_code"])) not in seen:
+                seen.append(key)
+                out.append({"id": base + len(seen) - 1, "name": r["name"], "face_code": r["face_code"]})
+    return out
+
+
 def revision() -> str:
     return subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True,
                           cwd=REPO).stdout.strip()
@@ -125,7 +138,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
     portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"P{n:02d}"} for n in range(PORTRAIT_COUNT)]
 
     characters = []
-    for c in distinct_characters(rom):
+    for c in all_characters(rom):
         ch = {"id": c["id"], "name": c["name"]}
         if (r := reading(c["name"])) is not None:
             ch["reading"] = r

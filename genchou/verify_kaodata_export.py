@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Independent checks for the genchou-fc kaodata dataset.
 
-1. Every character and portrait drawn by the spec renderer from the dataset equals the face
-   composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel.
+1. Every character (people, women, children) and portrait drawn by the spec renderer from the
+   dataset equals the face composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel;
+   every portrait but P39 is some character's face.
 2. checksums.json matches a recomputation.
 3. (needs py65) The game's own face dispatcher (bank 48 $A684), run in an emulator, hands the
    image service the same tile ids and ExRAM bytes as rom.py, for all 80 portraits and every
@@ -14,13 +15,14 @@ import argparse
 import json
 import os
 
-from export_kaodata import checksums, compose_display, san1
+from export_kaodata import all_characters, checksums, compose_display, san1
 from rom import COMPOSITE_HEADS, DEFAULT_ROM, HEADS_PER_CULTURE, PORTRAIT_COUNT, Rom
+
+UNUSED_PORTRAITS = [39]  # a young man with no user found (docs/ROM_FORMAT.md §3.1)
 
 
 def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> int:
-    from export import distinct_characters
-    codes = {c["id"]: c["face_code"] for c in distinct_characters(rom)}
+    codes = {c["id"]: c["face_code"] for c in all_characters(rom)}
     errors = 0
     faces = [(f"ch:{c['id']} {c['name']}", c["face"], codes[c["id"]]) for c in meta["characters"] if "face" in c]
     faces += [(f"pt:{n}", {"portrait": n}, n) for n in range(PORTRAIT_COUNT)]
@@ -30,7 +32,10 @@ def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> int:
             print(f"  NG {label}")
             errors += 1
     print(f"[pixels] {len(faces) - errors}/{len(faces)} faces match the ROM tile composition")
-    return errors
+    used = {c["face"]["portrait"] for c in meta["characters"] if "portrait" in c.get("face", {})}
+    unused = sorted(set(range(PORTRAIT_COUNT)) - used)
+    print(f"[portraits] {PORTRAIT_COUNT - len(unused)}/{PORTRAIT_COUNT} used; unused {unused}")
+    return errors + (unused != UNUSED_PORTRAITS)
 
 
 def check_checksums(meta: dict, blobs: list[bytes], path: str) -> int:

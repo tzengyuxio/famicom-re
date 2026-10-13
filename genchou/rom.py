@@ -47,6 +47,12 @@ UNIT_CLASSES = ["歩兵", "特殊", "騎兵"]
 GRADES = "EDCBA"
 
 # Faces
+WOMEN_PTR_AT = 0x1082         # in each scenario bank: CPU pointer ($A000 = bank 56) to that scenario's women
+DAUGHTERS_PTR_AT = 0x0653     # in each scenario bank: pointer to the 287-name pool for daughters born in play
+WOMEN_BANK = 56               # 17-byte records: name (15) + LE16 face code; a blank name ends a run
+WOMAN_SIZE = 17
+CHILD_TABLES = [0x149E + 0xD0, 0x1E0D4, 0x1E61C, 0x1F5F4]  # 5 x 22 bytes: name (16), age, ?, ?, ?, LE16 face
+CHILD_SIZE, CHILD_SLOTS = 22, 5
 PORTRAIT_TABLE = 0x5C004      # bank 46: 80 x (30 tile ids + 30 ExRAM bytes), 5x6 tiles
 PORTRAIT_COUNT = 80
 COMPOSITE_TABLE = 0x52004     # bank 41: 86 records x 60 bytes, two per head (base, alternate)
@@ -207,6 +213,27 @@ class Rom:
                 g = self.general(self.prg[o:o + GENERAL_SIZE])
                 if g:
                     out.append({"slot": f"F{i}", "offset": o, **g})
+        return out
+
+    def women(self, s: int) -> list[dict]:
+        """Scenario s (0-3): its named women (docs/ROM_FORMAT.md §2.5)."""
+        return self.women_run(self.u16(s * BANK + WOMEN_PTR_AT))
+
+    def women_run(self, ptr: int) -> list[dict]:
+        out, o = [], WOMEN_BANK * BANK + (ptr - 0xA000)
+        while self.prg[o] not in (0, 0x20):
+            out.append({"name": text(self.prg[o:o + 15]), "face_code": self.u16(o + 15)})
+            o += WOMAN_SIZE
+        return out
+
+    def children(self) -> list[dict]:
+        """Named children in the child tables (ジュチ ...); their scenarios are not decoded."""
+        out = []
+        for t in CHILD_TABLES:
+            for i in range(CHILD_SLOTS):
+                r = self.prg[t + i * CHILD_SIZE:t + (i + 1) * CHILD_SIZE]
+                if r[0]:
+                    out.append({"name": text(r[:16]), "age": r[16], "face_code": r[20] | r[21] << 8})
         return out
 
     def country_names(self, s: int) -> list[str]:
