@@ -8,8 +8,8 @@ KOEI，1988，FC（MMC1，CHR-RAM）。ROM 結構與各表格式見 [docs/ROM_FO
 # 大名、國（50／17 國兩種模式）、頭像 PNG、地方地圖、戰場地圖 → zenkoku/output/
 .venv/bin/python zenkoku/export.py [--rom ROM] [--out DIR] [--scale N]
 
-# kaodata 統一格式資料集 nobunaga1-fc
-.venv/bin/python zenkoku/export_kaodata.py --out <kaodata>/data-local/nobunaga1-fc
+# kaodata 統一格式資料集 nobu2-fc
+.venv/bin/python zenkoku/export_kaodata.py --out <kaodata>/data-local/nobu2-fc
 # 驗證：逐 pixel 比對 ROM 直接組出的臉、重算 checksums；裝了 py65 會再讓遊戲本身畫出全部 75 張頭像來比對（約 4 分鐘，--no-emu 略過）
 .venv/bin/python zenkoku/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證地方地圖（9 張）與戰場地圖（50 張）：模擬器跑遊戲後和靜態解碼比對（需 py65，約 10 分鐘；--maps 0,1 只跑部分戰場）
@@ -25,7 +25,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Zenkoku Ban (Japan).zip`（`--rom`
 |------|------|
 | `rom.py` | ROM 解碼：文字、兩種模式的劇本映像（大名、國、擁有者、地方）、相鄰、頭像、地方地圖、戰場地圖 |
 | `export.py` | 匯出 CSV／XLSX／PNG |
-| `export_kaodata.py` | kaodata 資料集 `nobunaga1-fc` 與參考渲染器 |
+| `export_kaodata.py` | kaodata 資料集 `nobu2-fc` 與參考渲染器 |
 | `verify_kaodata_export.py` | 資料集的獨立驗證（含模擬器） |
 | `verify_maps.py` | 地方地圖與戰場地圖的模擬器驗證 |
 | `tools/emu.py` | 沿用 `sangokushi/tools/nes_emu.py`（MMC1＋py65），加上按鍵腳本（開新遊戲、選國、開戰）與名稱表讀取 |
@@ -42,7 +42,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Zenkoku Ban (Japan).zip`（`--rom`
 | `maps/map50_N.png`、`maps/map17_N.png` | 地方地圖（224×128）：50 國版 7 張、17 國版 2 張；`_labeled` 放大 3 倍並在遊戲印國名的位置標國號 |
 | `battle_maps/NN_國名.png`、`terrain.png` | 50 張戰場地圖（11×5 格，352×176）與 6 種地形方塊 |
 
-kaodata 資料集：53 人（50 國版大名表；17 國版大名是同一批人、同一張臉，不重複列），全部用專屬頭像；75 張頭像（含 22 張沒有對應人物的姫）。ROM 只有片假名的姓，`reading` 是平假名。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集：53 人（50 國版大名表；17 國版大名是同一批人、同一張臉，不重複列），全部用專屬頭像；75 張頭像（含 22 張沒有對應人物的姫，標 `"group": "姫"`）；遊戲依大名編號選臉，沒有另存頭像碼，所以頭像不填 `code`。ROM 只有片假名的姓，`reading` 是平假名。像素存 NES 色號，色盤是 NES 64 色。
 
 本作沒有組合臉，所以不輸出大眾臉零件（`mob_parts`）。
 
@@ -52,7 +52,7 @@ kaodata 資料集：53 人（50 國版大名表；17 國版大名是同一批人
 
 - ✓ MMC1 bank 配置、p-code 函式入口、far copy、文字編碼（半形片假名）
 - ✓ 50／17 國劇本映像：大名（姓、年齡、5 項能力）、國（12 項數值對過遊戲畫面）、擁有者、地方編號、相鄰（對稱）
-- ✓ 頭像 75 張；模擬器 92/92 一致（50＋17 國每個大名畫面、其餘 25 張換進織田的格子）；kaodata `nobunaga1-fc`
+- ✓ 頭像 75 張；模擬器 92/92 一致（50＋17 國每個大名畫面、其餘 25 張換進織田的格子）；kaodata `nobu2-fc`
 - ✓ 地方地圖 9 張（tile、屬性、調色盤、CHR 與遊戲畫面一致；國名標籤位置）
 - ✓ 戰場地圖 50 張：地形、方塊表、錯位配置、3 個捲動畫面的屬性表、tile、調色盤（模擬器逐張比對 3 種位移，初始畫面不固定也照樣比對）；17 國版對應
 - 未完成：見 ROM_FORMAT.md §6（`Unk24` 與數個 50 bytes 表、相場、部隊與合戰規則、事件）

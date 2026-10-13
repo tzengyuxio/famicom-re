@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export FC 信長の野望・全国版 as a kaodata dataset (nobunaga1-fc, format kaodata/1).
+"""Export FC 信長の野望・全国版 as a kaodata dataset (nobu2-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
 dataset palette is the 64-colour NES palette (every face uses BG sub-palette 3E 38 28 30).
@@ -7,7 +7,7 @@ dataset palette is the 64-colour NES palette (every face uses BG sub-palette 3E 
 Portraits only: the game has no composite faces. Characters are the 53 daimyo of the 50-mode
 name list (the 17-mode daimyo are the same people with the same faces). The ROM only has the
 family name in katakana; `reading` is its hiragana form. Portraits 53-74 (princesses) have
-no named character.
+no named character and carry group 姫.
 
 Usage: .venv/bin/python zenkoku/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -63,14 +63,15 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
     for n in range(PORTRAIT_COUNT):
         images.append([len(blob), *CANVAS])
         blob.extend(rom.face_pixels(n))
-        portraits.append({"img": n, "label": f"P{n:02d}" + ("" if n < DAIMYO_FACES else " 姫")})
+        # No code: the game picks a face by daimyo number, it stores no face value
+        portraits.append({"img": n} if n < DAIMYO_FACES else {"img": n, "group": "姫"})
 
     characters = [{"id": d["id"], "name": d["name"], "reading": to_hiragana(d["name"]), "face": {"portrait": d["face"]}}
                   for d in rom.scenario(50)["daimyo"]]
 
     meta = {
         "format": FORMAT,
-        "id": "nobunaga1-fc",
+        "id": "nobu2-fc",
         "game": "NOBU2",
         "platform": "FC",
         "title": {"ja": "信長の野望・全国版", "zh": "信長之野望・全國版"},
@@ -100,13 +101,13 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 nobunaga1-fc")
+    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 nobu2-fc")
     ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/Nobunaga no Yabou - Zenkoku Ban (Japan).zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
     meta, blobs = build(args.rom)
     write_dataset(args.out, meta, blobs)
-    print(f"nobunaga1-fc: {len(meta['characters'])} characters (all portrait), {len(meta['portraits'])} portraits, "
+    print(f"nobu2-fc: {len(meta['characters'])} characters (all portrait), {len(meta['portraits'])} portraits, "
           f"{len(meta['images'])} images")
     for name in [*meta["blobs"], "dataset.json", "checksums.json"]:
         print(f"  {name}: {os.path.getsize(os.path.join(args.out, name))} B")
