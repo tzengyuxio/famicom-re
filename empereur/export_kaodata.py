@@ -36,9 +36,10 @@ CATEGORY_LABELS = ["正面", "向右", "向左", "頭巾"]  # by look of the par
 CATEGORIES = len(CATEGORY_LABELS)
 SLOT_LABELS = {"top": "上半", "bottom": "下半", "eyes": "眼", "nose": "鼻", "mouth": "口"}
 # Napoleon's face follows his rank: the face-code function $C28D gives P01 at rank 6 and P02 at rank 7.
-# Labels are the titles the game prints for his rank 5 / 6 / 7 (bank 2 $A111).
+# Labels: the titles the game prints for his rank 5 / 6 / 7 (bank 2 $A111: シレイカン, ダイ1シッセイ,
+# コウテイ), in kanji as lempe-dos writes them.
 NAPOLEON_EXPRESSIONS = [1, 2]
-NAPOLEON_LABELS = ["シレイカン", "ダイ1シッセイ", "コウテイ"]
+NAPOLEON_LABELS = ["司令官", "第一執政", "皇帝"]
 NAMES_ZH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "names_zh.tsv")
 
 
