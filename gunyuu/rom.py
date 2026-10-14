@@ -153,6 +153,11 @@ class Rom:
         o, e = portrait_location(f), portrait_exram_location(f)
         return list(self.prg[o:o + 30]), list(self.prg[e:e + 30])
 
+    def unread_cells(self, f: int) -> tuple[list[int], list[int]]:
+        """Table A slot f (60-64): a normal-looking face the game never reads (docs/ROM_FORMAT.md §5.1)."""
+        o = FACE_TABLE_A + 30 * f
+        return list(self.prg[o:o + 30]), list(self.prg[o + 65 * 30:o + 65 * 30 + 30])
+
     def composite_part(self, group: int, slot: int, variant: int) -> tuple[list[int], list[int]]:
         """(tile ids, ExRAM bytes) of one part. Head frames are 30 cells; eyes/nose/mouth are runs."""
         k = 20 * group + 5 * slot + variant

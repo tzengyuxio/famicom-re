@@ -8,7 +8,8 @@ Composite faces: one variant per group (6, face code bits 12-14). The code picks
 frames, eyes, noses and mouths of the group; each item is a 40x48 canvas (255 outside its cells):
 the head frame without the part cells, the parts at their cells (rom.COMPOSITE_LAYOUT). Dedicated
 ids 60-64 are unused (the game's formula reads other data) and are left out of `portraits`, so
-portrait n of the dataset is face id PORTRAIT_IDS[n]. The ROM has no readings.
+portrait n of the dataset is face id PORTRAIT_IDS[n]. The five normal-looking faces in table A slots
+60-64, which the game never reads, follow as group 未使用 with no code. The ROM has no readings.
 
 Usage: .venv/bin/python gunyuu/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -47,6 +48,7 @@ TRANSPARENT = 255
 CANVAS = (40, 48)
 VARIANTS = 5
 PORTRAIT_IDS = [f for f in range(PORTRAIT_COUNT) if not 60 <= f < 65]
+UNREAD_SLOTS = range(60, 65)  # table A slots 60-64, appended after PORTRAIT_IDS as group 未使用
 
 
 def part_cells(rom: Rom, group: int) -> dict[str, list[int]]:
@@ -125,6 +127,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         variants.append({"id": str(group), "label": f"類型 {group}", "parts": parts})
 
     portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in PORTRAIT_IDS]  # = face code
+    portraits += [{"img": add(rom.render_cells(*rom.unread_cells(f), PORTRAIT_W, pal), blob=1), "group": "未使用"}
+                  for f in UNREAD_SLOTS]
 
     characters = []
     for c in distinct_characters(rom):

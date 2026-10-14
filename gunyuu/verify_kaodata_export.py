@@ -15,8 +15,8 @@ import argparse
 import json
 import os
 
-from export_kaodata import PORTRAIT_IDS, checksums, compose_display, san1
-from rom import COMPOSITE_GROUPS, DEFAULT_ROM, PORTRAIT_COUNT, Rom
+from export_kaodata import PORTRAIT_IDS, UNREAD_SLOTS, checksums, compose_display, san1
+from rom import COMPOSITE_GROUPS, DEFAULT_ROM, PORTRAIT_COUNT, PORTRAIT_W, Rom
 
 
 def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> tuple[int, set[int]]:
@@ -25,11 +25,14 @@ def check_pixels(rom: Rom, meta: dict, blobs: list[bytes]) -> tuple[int, set[int
     errors = 0
     faces = [(f"ch:{c['id']} {c['name']}", c["face"], codes[c["id"]]) for c in meta["characters"] if "face" in c]
     faces += [(f"pt:{n}", {"portrait": n}, f) for n, f in enumerate(PORTRAIT_IDS)]
-    for label, face, code in faces:
+    unread = [(f"pt:{len(PORTRAIT_IDS) + k} (table A {f})", {"portrait": len(PORTRAIT_IDS) + k},
+               rom.render_cells(*rom.unread_cells(f), PORTRAIT_W, rom.palette())) for k, f in enumerate(UNREAD_SLOTS)]
+    for label, face, code in faces + unread:
         w, h, px = compose_display(meta, blobs, face)
-        if (w, h) != (40, 48) or px != rom.face_pixels(code):
+        if (w, h) != (40, 48) or px != (code if isinstance(code, bytes) else rom.face_pixels(code)):
             print(f"  NG {label}")
             errors += 1
+    faces += unread
     print(f"[pixels] {len(faces) - errors}/{len(faces)} faces match the ROM tile composition")
     return errors, set(codes.values())
 
