@@ -33,7 +33,7 @@ PROVINCE_NAMES = 0x416B0            # 48 x 13 bytes: name (4 SJIS + 0), ?, neigh
 
 # ---------------------------------------------------------------- faces
 PORTRAIT_W, PORTRAIT_H = 5, 6       # tiles
-PORTRAIT_COUNT = 212                # dedicated face ids 0-211 (168 and 169 unused)
+PORTRAIT_COUNT = 212                # dedicated face ids 0-211 (168 沢彦 and 169 Frois: no character)
 COMPOSITE_PAGES = 0x745F6           # bank 58 $A5F6: head h page p at + (4h + p) * 60
 COMPOSITE_HEADS = 5                 # heads 0-4 in the table (characters use 0-3)
 # (slot id, label, code bit): each slot takes 2 bits of the face code = page 0-3

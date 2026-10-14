@@ -1,6 +1,6 @@
 # FC 信長の野望・武将風雲録 解析
 
-KOEI，1991，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI，1991，FC（MMC5）。FC 版 1991-12-21 發售（ja.wikipedia；原作 PC-88SR 1990-12-12，PC-98 1991-03，MSX2 1991-05，FM TOWNS 1991-07，X68000 1991-08，MD 1991-12-20，SFC 與 FC 同日，PCE 1993-02）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 
@@ -8,9 +8,9 @@ KOEI，1991，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 # 武將（2 劇本＋登場武將）、國、茶器、頭像 PNG、大地圖、戰場地圖 → bushou/output/
 .venv/bin/python bushou/export.py [--rom ROM] [--out DIR]
 
-# kaodata 統一格式資料集 bushou-fc
-.venv/bin/python bushou/export_kaodata.py --out <kaodata>/data-local/bushou-fc
-# 驗證：逐 pixel 比對、重算 checksums；裝了 py65 會再用模擬器跑遊戲的頭像程式比對
+# kaodata 統一格式資料集 nobu4-fc
+.venv/bin/python bushou/export_kaodata.py --out <kaodata>/data-local/nobu4-fc
+# 驗證：逐 pixel 比對、重算 checksums、F168／F169 的呼叫點；裝了 py65 會再用模擬器跑遊戲的頭像程式比對
 .venv/bin/python bushou/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證戰場地圖：97 張圖用模擬器跑遊戲的畫面組裝程式，和靜態解碼比對（需 py65）
 .venv/bin/python bushou/verify_battle_maps.py
@@ -25,7 +25,7 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Bushou Fuuun Roku (Japan).zip`（`
 |------|------|
 | `rom.py` | ROM 解碼：文字（含外字）、武將、國、大名、茶器、頭像、大地圖、戰場地圖 |
 | `export.py` | 匯出 CSV／XLSX／PNG |
-| `export_kaodata.py` | kaodata 資料集 `bushou-fc` 與參考渲染器 |
+| `export_kaodata.py` | kaodata 資料集 `nobu4-fc` 與參考渲染器 |
 | `verify_kaodata_export.py` | 資料集的獨立驗證 |
 | `verify_battle_maps.py` | 戰場地圖解碼與遊戲程式的比對 |
 | `tools/nes_emu.py` | 整機模擬（py65），可開機、按鍵、截圖，用來對照畫面 |
@@ -48,14 +48,18 @@ ROM 預設直接讀 `roms/Nobunaga no Yabou - Bushou Fuuun Roku (Japan).zip`（`
 | `battle_maps/{field,castle}/NN_國_戰場名.png` | 戰場畫面（256×240，部隊與文字之前的底圖）；`*_winter/` 為冬季調色盤（推定） |
 | `battle_maps/metatiles.png` | 41 個戰場圖塊與使用它的地形 |
 
-kaodata 資料集：463 人，212 人用專屬頭像，251 人用組合臉（5 個頭，每頭 5 區 × 4 頁）。ROM 沒有讀音，所以沒有 `reading`。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集（`nobu4-fc`，遊戲代碼 NOBU4）：463 人，212 人用專屬頭像，251 人用組合臉（5 個頭，每頭 5 區 × 4 頁）。ROM 沒有讀音，所以沒有 `reading`。像素存 NES 色號，色盤是 NES 64 色。
+
+- 專屬頭像 212 張都帶頭像碼 `code`（＝頭像編號，4 位十六進位，`0000`–`00D3`）。
+- F168、F169 不屬於任何人物，遊戲用常數頭像碼直接叫出：F168 是沢彦（政秀寺開山，新年問候、稲葉山改名岐阜、安土城建築等事件），F169 是ルイス=フロイス（來訪者，也是存檔／結束畫面的主持人）。兩張標 `group: "特殊人物"` 和 `name`，證據見 ROM_FORMAT.md §5.1，驗證腳本會檢查。
+- 組合臉的 5 個頭依畫的樣子命名：0 甲冑、1 武士、2 烏帽子（足利・京極等）、3 僧形（下間・本願寺等）、4 前髪（沒人用）。名稱是看圖與使用者歸納的，遊戲裡沒有這些字。
 
 ## 進度
 
 - ✓ MMC5 bank 配置、p-code 入口與系統呼叫、PRG-RAM 映射到 `$8000`
 - ✓ 劇本 2 個：國（對照畫面）、武將（對照畫面）、姓名表、登場武將、大名（部分）、茶器
 - ✓ 國名、相鄰關係；外字 8 個（長宗我部、香宗我部、鳥屋尾、佐々木）
-- ✓ 專屬頭像 212 個編號、組合臉（每頭的區域表；模擬器 728 個碼全部一致）、kaodata `bushou-fc`
+- ✓ 專屬頭像 212 個編號、組合臉（每頭的區域表；模擬器 728 個碼全部一致）、kaodata `nobu4-fc`
 - ✓ 大地圖
 - ✓ 戰場：野戰 48 張（14×11）、城 49 張（13×11）、戰場名；畫面組裝規則與遊戲程式逐 tile 一致
 - 未解：見 ROM_FORMAT.md §9

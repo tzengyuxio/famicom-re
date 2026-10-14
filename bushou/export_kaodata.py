@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Export FC 信長の野望・武将風雲録 as a kaodata dataset (bushou-fc, format kaodata/1).
+"""Export FC 信長の野望・武将風雲録 as a kaodata dataset (nobu4-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
 dataset palette is the 64-colour NES palette.
 
-Composite faces: one variant per head (5 in the table, characters use heads 0-3). The face
+Composite faces: one variant per head (5 in the table, characters use heads 0-3), labelled by
+what the head draws (armour, topknot, eboshi, shaven monk, forelock; head 4 is never used). The face
 code picks one of 4 pages of the head for each of 5 areas (top, bottom, eyes, nose, mouth;
 the cells differ per head), which together cover all 30 cells, so every slot has four items (40x48 canvases, 255 outside
 the area). The ROM has no readings, so characters carry no `reading`.
+
+Portraits carry the face code (the portrait number, 4 hex digits). 168 and 169 belong to no
+character: the game shows them for 沢彦 (events) and ルイス=フロイス (visitor, save screen), so
+they get group 特殊人物 and a name (docs/ROM_FORMAT.md §5.1).
 
 Usage: .venv/bin/python bushou/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -45,6 +50,8 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 PAGES = 4
+HEAD_LABELS = ["甲冑", "武士", "烏帽子", "僧形", "前髪"]
+SPECIAL_PORTRAITS = {168: "沢彦", 169: "ルイス=フロイス"}  # shown by constant codes, not in the character data
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -104,9 +111,11 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
             mask = [i in areas[sid] for i in range(30)]
             parts[sid] = {"items": [add(rom.render_cells(*rom.composite_page(head, p), PORTRAIT_W, pal, mask))
                                     for p in range(PAGES)]}
-        variants.append({"id": str(head), "label": f"頭 {head}", "parts": parts})
+        variants.append({"id": str(head), "label": HEAD_LABELS[head], "parts": parts})
 
-    portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"F{n:03d}"} for n in range(PORTRAIT_COUNT)]
+    portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
+    for n, name in SPECIAL_PORTRAITS.items():
+        portraits[n].update(group="特殊人物", name=name)
 
     characters = []
     for c in distinct_characters(rom):
@@ -121,7 +130,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     meta = {
         "format": FORMAT,
-        "id": "bushou-fc",
+        "id": "nobu4-fc",
         "game": "NOBU4",
         "platform": "FC",
         "title": {"ja": "信長の野望・武将風雲録", "zh": "信長之野望・武將風雲錄"},
@@ -157,7 +166,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 bushou-fc")
+    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 nobu4-fc")
     ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/Nobunaga no Yabou - Bushou Fuuun Roku (Japan).zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
@@ -166,7 +175,7 @@ def main() -> None:
     chars = meta["characters"]
     faces = [c["face"] for c in chars if "face" in c]
     mobs = [f for f in faces if "variant" in f]
-    print(f"bushou-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
+    print(f"nobu4-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
           f"{len(chars) - len(faces)} without face), {len(meta['composite']['variants'])} heads, "
           f"{len(meta['portraits'])} portraits, {len(meta['images'])} images")
     for name in [*meta["blobs"], "dataset.json", "checksums.json"]:
