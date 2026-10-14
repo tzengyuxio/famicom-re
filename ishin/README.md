@@ -1,6 +1,6 @@
 # FC 維新の嵐 解析
 
-KOEI, 1990, FC（MMC5，CHR-ROM 128 KB）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI, 1990, FC（MMC5，CHR-ROM 128 KB）。FC 版 1990 年 9 月 15 日發售；原作 PC-9801 1988 年 6 月，之後有 PC-8801（1989）、FM-77AV（1989）、MSX2（1989）、X1（1989）、FM TOWNS（1990）、X68000（1990），重製版 SS／PS（1997）（ja.wikipedia）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 
@@ -10,7 +10,7 @@ KOEI, 1990, FC（MMC5，CHR-ROM 128 KB）。ROM 結構與各表格式見 [docs/R
 
 # kaodata 統一格式資料集 ishin-fc
 .venv/bin/python ishin/export_kaodata.py --out <kaodata>/data-local/ishin-fc
-# 驗證：逐 pixel 比對、重算 checksums、模擬器在「じぶん」畫面畫出全部 202 個頭像碼並比對（需 py65，約 4 分鐘）
+# 驗證：逐 pixel 比對、重算 checksums、藩兵頭像規則、模擬器在「じぶん」畫面畫出全部 202 個頭像碼與藩兵頭像並比對（需 py65，約 4 分鐘）
 .venv/bin/python ishin/verify_kaodata_export.py --dataset <輸出目錄> [--no-emulator]
 # 驗證 HEX 地圖：模擬器把開局地圖換成 47 張的每一張，逐格比對（需 py65，約 7 分鐘）
 .venv/bin/python ishin/verify_maps.py [--maps 0,31,42]
@@ -48,13 +48,16 @@ ROM 預設直接讀 `roms/Ishin no Arashi (Japan).zip`（也接受 `--rom` 指�
 | `world_map_2x.png`、`world_map_grid_2x.png` | 以上兩張的 2 倍版（固定 2 倍，不受 `--scale` 影響），加上標題「維新の嵐 (FC) 全日本図」、標題下兼作分隔線的署名色條「FB：司馬Game 遊戲存檔」，以及西北角空白處的地形圖例（城、町、村、港、鉱山、関所等 11 種）；grid 版圖例另有地方界／國界 |
 | `japan.png` | 勢力図底圖（192×144） |
 
-kaodata：86 人用專屬頭像，115 人用組合臉（5 類型 × 6 槽 × 4 種，加一個底色槽）。ROM 沒有讀音，所以沒有 `reading`。
+kaodata：86 人用專屬頭像，115 人用組合臉（5 類型 × 6 槽 × 4 種，加一個底色槽）。ROM 沒有讀音，所以沒有 `reading`；名字是漢字，不另加 `nameZh`。
+- 專屬頭像的 `code` 是遊戲的頭像碼（記錄 n 為 `n + 1`，`0001`–`0057`）。
+- P87（`0057`）沒有人用，是藩兵的頭像（遊戲畫藩兵時直接用常數 `0x57`），標 `group: "藩兵"`（ROM_FORMAT.md §5）。
+- 組合臉類型照 `類型 0`–`類型 4`：類型只是頭像碼 bit 12–14，ROM 裡沒有類型名稱，意義未知。
 
 ## 進度
 
 - ✓ MMC5 配置、p-code 入口、遊戲狀態 bank 映射到 WRAM
 - ✓ 人物 201 人 × 2 劇本（姓名、年齡、能力、思想、身分、所屬、金、特產品、位置、信賴），和遊戲畫面對過
 - ✓ 藩 23 個（金米、石高、共感、武装、藩兵兵力），和遊戲畫面對過
-- ✓ 專屬頭像 87 張、組合臉規則；模擬器畫出的 202 個頭像碼逐 pixel 一致
+- ✓ 專屬頭像 87 張、組合臉規則；模擬器畫出的 202 個頭像碼逐 pixel 一致；頭像 87 是藩兵（模擬器確認）
 - ✓ HEX 地圖 47 張、格子值 → 圖塊、地圖位置表、町／城／設施位置；勢力図底圖
 - 未完成：部分地形與町內建築名稱（推定或未知）、人物與藩兵記錄的未知 bytes、國地圖點位／事件表、劇本 2 的藩資料、特產品相場（見 ROM_FORMAT.md §6）

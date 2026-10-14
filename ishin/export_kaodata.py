@@ -13,6 +13,10 @@ which the base already shows as 0x0F).
 
 The game has no readings for names, so no character has `reading`.
 
+Portrait `code` is the game's face code (record n is code n + 1). Code 0x57 (P87) belongs to no
+person: the face routine (bank 0 $8003) draws it for ids 201-246, the 46 domain troops (藩兵), so
+it has group "藩兵" (docs/ROM_FORMAT.md §5).
+
 Usage: .venv/bin/python ishin/export_kaodata.py --out <dir> [--rom ROM]
 """
 import argparse
@@ -38,6 +42,7 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (FACE_W * 8, FACE_H * 8)
 BACKGROUND = 0x0F
+TROOP_FACE = 0x57  # face code drawn for a domain troop (藩兵)
 CATEGORY_LABELS = ["類型 0", "類型 1", "類型 2", "類型 3", "類型 4"]
 SLOT_IDS = ["base"] + [SLOTS[s][0] for s in SLOT_ORDER]  # draw order
 
@@ -69,6 +74,8 @@ def checksums(meta: dict, blobs: list[bytes]) -> dict:
         return hashlib.sha256(to_rgba(compose_display(meta, blobs, face), colors)).hexdigest()
 
     entries = {f"ch:{c['id']}": digest(c["face"]) for c in meta["characters"] if "face" in c}
+    entries.update({f"ch:{c['id']}/{k}": digest(e) for c in meta["characters"]
+                    for k, e in enumerate(c.get("expressions", []), 1)})
     entries.update({f"pt:{n}": digest({"portrait": n}) for n in range(len(meta["portraits"]))})
     return {"algo": "sha256-rgba", "entries": entries}
 
@@ -118,8 +125,9 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         for s in SLOT_ORDER:
             parts[SLOTS[s][0]] = {"items": [add(part_pixels(rom, cat, s, v)) for v in range(4)]}
         variants.append({"id": str(cat), "label": CATEGORY_LABELS[cat], "parts": parts})
-    portraits = [{"img": add(rom.face_pixels(n + 1), blob=1), "label": f"P{n + 1:02d}"}
+    portraits = [{"img": add(rom.face_pixels(n + 1), blob=1), "code": f"{n + 1:04X}"}
                  for n in range(PORTRAIT_COUNT)]
+    portraits[TROOP_FACE - 1]["group"] = "藩兵"
 
     characters = []
     for c in rom.characters(0):
