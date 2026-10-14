@@ -16,8 +16,8 @@
 
 - [ ] 三國志：姫頭像算式已驗證；W（勢力表 +2，開局 3，0 時不能嫁）是否每嫁一次減 1，還沒在連續聯姻中確認；勢力表 +18 等欄位未解 — 見 `sangokushi/docs/PORTRAIT_SYSTEM_PSEUDOCODE.md`（2026-10-13）
 - [ ] ジンギスカン：女性 3 個表情頭像各在哪個場面出現，還沒確認 — 見 `genghis/docs/ROM_FORMAT.md` §2.8（2026-10-13）
-- [ ] 大航海時代：市場價格與工業值、船隻性能公式（FC 版由船體／木材／帆柱／帆計算）、海戰地圖、專屬頭像 1–12 對應的人物 — 見 `daikoukai/docs/ROM_FORMAT.md`（2026-10-12）
+- [ ] 大航海時代：市場價格與工業值、船隻性能公式（FC 版由船體／木材／帆柱／帆計算）、海戰地圖 — 見 `daikoukai/docs/ROM_FORMAT.md`（2026-10-12）
 
 ## kaodata 資料集
 
-- [ ] 人物中文名 nameZh — kaodata 端提議在 characters 加中文寫法欄位；先記著，不實作（2026-10-13）
+- [x] 人物中文名 nameZh — 已在 nobu2-fc、lempe-fc、koukai-fc 實作（2026-10-14）

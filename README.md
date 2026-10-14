@@ -14,16 +14,16 @@ FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco）的 ROM 逆向�
 | [`gunyuu/`](gunyuu/) | 信長の野望・戦国群雄伝 | KOEI 1990 | MMC5 | `nobu3-fc` |
 | [`suikoden/`](suikoden/) | 水滸伝・天命の誓い | KOEI 1990 | MMC5 | `suikoden-fc` |
 | [`ishin/`](ishin/) | 維新の嵐 | KOEI 1990 | MMC5 | `ishin-fc` |
-| [`daikoukai/`](daikoukai/) | 大航海時代 | KOEI 1990 | MMC5 | `daikoukai-fc` |
 | [`empereur/`](empereur/) | ランペルール | KOEI 1991 | MMC5 | `lempe-fc` |
-| [`bushou/`](bushou/) | 信長の野望・武将風雲録 | KOEI 1991 | MMC5 | `bushou-fc` |
+| [`daikoukai/`](daikoukai/) | 大航海時代 | KOEI 1991 | MMC5 | `koukai-fc` |
+| [`bushou/`](bushou/) | 信長の野望・武将風雲録 | KOEI 1991 | MMC5 | `nobu4-fc` |
 | [`san2/`](san2/) | 三國志II | KOEI 1991 | MMC5 | `san2-fc` |
 | [`royal/`](royal/) | ロイヤルブラッド | KOEI 1991 | MMC5 | `royal-fc` |
 | [`genchou/`](genchou/) | 蒼き狼と白き牝鹿・元朝秘史 | KOEI 1992 | MMC5 | `genchou-fc` |
 | [`chuugen/`](chuugen/) | 三國志 中原の覇者 | Namco 1988 | Namco 163 | `chuugen-fc` |
 | [`haou/`](haou/) | 三國志II 覇王の大陸 | Namco 1992 | Namco 163 | `haou-fc` |
 
-發行年是 FC 版日本發售年。全国版、戦国群雄伝、水滸伝、ランペルール已對照 ja.wikipedia 或 ROM 內的版權字串，見各資料夾 README。
+發行年是 FC 版日本發售年。全国版、戦国群雄伝、維新の嵐、大航海時代、ランペルール、武将風雲録、ロイヤルブラッド已對照 ja.wikipedia，水滸伝對照 ROM 內的版權字串，見各資料夾 README。
 
 ## 環境
 
