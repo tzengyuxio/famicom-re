@@ -2,7 +2,9 @@
 """Independent checks for the royal-fc kaodata dataset.
 
 1. Every character and portrait image in the dataset equals the face composed directly from the ROM
-   tables (rom.Rom.face_pixels), and checksums.json matches a recomputation.
+   tables (rom.Rom.face_pixels), and checksums.json matches a recomputation. Character portraits carry
+   no group/name, P64-P67 are group 相談役 and P68-P90 group 第5部隊 named after the ROM unit table;
+   no portrait has a code or label.
 2. (needs py65) tools/nes_emu.py plays scenario 1 to the house-select screen. When the game calls the
    character face routine $DB3B (bank 30; arguments x, y, character record pointer $60AD + 10 * id)
    for the lord of ブランシェ, the pointer is replaced by each of the 64 characters in turn; the 5x6
@@ -40,13 +42,21 @@ def check_static(rom: Rom, meta: dict, blobs: list[bytes], dataset: str) -> list
     for n, (t, f) in enumerate(FACES):
         if get_image(meta, blobs, meta["portraits"][n]["img"]) != (40, 48, rom.face_pixels(t, f)):
             errors.append(f"portrait {n} differs from the ROM tables")
+    units = rom.units()
+    for n, (t, f) in enumerate(FACES):
+        want = {"img": n} if t == 0 else {"img": n, "group": "相談役"} if t == 1 else \
+            {"img": n, "group": "第5部隊", "name": units[f]["name"]}
+        if meta["portraits"][n] != want:
+            errors.append(f"portrait {n} is {meta['portraits'][n]}, expected {want}")
     for c in meta["characters"]:
+        if "nameZh" in c:
+            errors.append(f"character {c['id']} has a nameZh (no Chinese release)")
         if FACES[c["face"]["portrait"]] != (0, c["id"]):
             errors.append(f"character {c['id']} does not use face {c['id']}")
     with open(os.path.join(dataset, "checksums.json"), encoding="utf-8") as f:
         if json.load(f) != checksums(meta, blobs):
             errors.append("checksums.json differs from the reference renderer")
-    print(f"[static] {len(FACES)} portraits, {len(meta['characters'])} characters, checksums")
+    print(f"[static] {len(FACES)} portraits (pixels, group/name), {len(meta['characters'])} characters, checksums")
     return errors
 
 

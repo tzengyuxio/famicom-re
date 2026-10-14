@@ -1,6 +1,6 @@
 # FC ロイヤルブラッド 解析
 
-KOEI，1991，FC（MMC5，PRG 256 KB、CHR 256 KB、電池）；北美版 *Gemfire*。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI，1991（日本 1991-08-29 發售；PC-8801 1991-09-27、PC-9801 1991-12-21、MSX2 1991-12-26、X68000 1992-03-27、FM TOWNS 1992-05-01、MD 1992-06-25、SFC 1992-10-22、Windows 98 2005-08-05，ja.wikipedia〈ロイヤルブラッド〉），FC（MMC5，PRG 256 KB、CHR 256 KB、電池）；北美版 *Gemfire*。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 
@@ -47,7 +47,7 @@ ROM 預設直接讀 `roms/Royal Blood (Japan).zip`（`--rom` 也接受 .nes 或 
 | `map.png` | 戰略地圖（112×152，領地編號已畫在圖上；不含各家標記） |
 | `battle_maps/NN_領地.png` | 戰場（160×128，部隊之前的底圖） |
 
-沒有組合臉，所以沒有 `mob_parts`。kaodata 資料集：64 人、91 張 portraits（人物 64＋相談役 4＋部隊 23），`reading` 是片假名轉平假名。像素存 NES 色號，色盤是 NES 64 色。
+沒有組合臉，所以沒有 `mob_parts`。kaodata 資料集：64 人、91 張 portraits（人物 64＋相談役 4＋部隊 23），`reading` 是片假名轉平假名。P64–P67 的 `group` 是「相談役」（相談役畫面只有臉、沒有名字，所以不給 `name`）；P68–P90 的 `group` 是「第5部隊」，`name` 是 ROM 部隊名稱表（docs §3.4）的片假名。遊戲不存頭像編號（人物臉＝紀錄序號，相談役／部隊＝表內序號），所以 portraits 沒有 `code`。沒有中文版，所以沒有 `nameZh`。像素存 NES 色號，色盤是 NES 64 色。
 
 ## 進度
 

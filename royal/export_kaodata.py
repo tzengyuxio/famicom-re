@@ -5,9 +5,12 @@ Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour num
 dataset palette is the 64-colour NES palette.
 
 Faces: every face is a whole 5x6-tile picture (no composite faces), so the dataset has `portraits`
-only: P00-P63 the 64 characters (face = character index), P64-P67 the 4 advisers (相談役) and
-P68-P90 the 23 hired units (傭兵隊, wizards, パスハ, ドラゴン; label = unit name). `characters` are the 64
-people; `name` is the katakana the game shows and `reading` the same in hiragana.
+only: P00-P63 the 64 characters (face = character index), P64-P67 the 4 advisers (group 相談役; the
+adviser screen shows no names) and P68-P90 the 23 units of the 5th troop (group 第5部隊: 傭兵隊, wizards,
+パスハ, ドラゴン; name = the unit name in the ROM, docs/ROM_FORMAT.md §3.4). The game keeps no face code
+(a character's face is its record index, advisers and units are table indices), so portraits have no
+`code`. `characters` are the 64 people; `name` is the katakana the game shows and `reading` the same in
+hiragana. There is no Chinese release, so there is no nameZh.
 
 Usage: .venv/bin/python royal/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -70,8 +73,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
     for n, (t, f) in enumerate(FACES):
         images.append([len(blob), FACE_W, FACE_H])
         blob.extend(rom.face_pixels(t, f))
-        label = f"P{n:02d}" if t == 0 else f"相談役 {f + 1}" if t == 1 else units[f]["name"]
-        portraits.append({"img": n, "label": label})
+        portraits.append({"img": n} if t == 0 else {"img": n, "group": "相談役"} if t == 1
+                         else {"img": n, "group": "第5部隊", "name": units[f]["name"]})
 
     characters = []
     for i in range(CHAR_COUNT):
