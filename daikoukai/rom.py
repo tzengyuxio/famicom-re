@@ -1,4 +1,4 @@
-"""FC 大航海時代 (KOEI, 1990) ROM decoding.
+"""FC 大航海時代 (KOEI, 1991) ROM decoding.
 
 All offsets are PRG offsets (file offset - 0x10). See daikoukai/docs/ROM_FORMAT.md.
 """
@@ -68,7 +68,7 @@ INIT = 57 * BANK                    # bank 57 is copied to WRAM $6000 on a new g
 NAMES = 58 * BANK                   # bank 58, mapped at $A000: name strings
 PERSON_START, PERSON_SIZE, PERSON_COUNT = 0x542, 7, 41   # $6542: player + 40 persons
 STAT_START, STAT_SIZE, STAT_COUNT = 0xBBE, 10, 21         # $6BBE: player + 20 mates
-NATIONS = ["ポルトガル", "スペイン", "トルコ", "イギリス"]
+NATIONS = ["ポルトガル", "イスパニア", "イスラム", "かいぞく"]  # the game's list, PRG 0x75E36
 GIRL_NAMES = 0x7400C                # bank 58 $A00C: 20 LE16 pointers
 GIRL_COUNT = 20
 GIRL_FACE = 13                      # face of girl k = k + 13 (bank 1 $A620)

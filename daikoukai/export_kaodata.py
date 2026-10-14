@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Export FC 大航海時代 as a kaodata dataset (daikoukai-fc, format kaodata/1).
+"""Export FC 大航海時代 as a kaodata dataset (koukai-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
 dataset palette is the 64-colour NES palette.
 
 Characters: the player, 20 mates, 20 admirals and 20 girls (ids 0-60). Faces are 5 x 6 sprites.
-Composite faces: one variant per head (4). The face code picks one of 4 pages for each of 5
+Composite faces: one variant per head (4, labelled 類型 N: the game never names them). The face code picks one of 4 pages for each of 5
 slots (top, bottom, eyes, nose, mouth), drawn in that order. Each item is a 40x48 canvas: the
 part's cells opaque, 255 elsewhere; blank cells (tile 1) are transparent except in the first
 slot, which also fills the backdrop, matching the game's rule that a blank keeps the earlier
-cell. The ROM has no readings, so characters carry no `reading`.
+cell. The ROM has no readings, so characters carry no `reading`; nameZh comes from data/names_zh.tsv.
+Portraits carry `code` = the face code (= portrait number); F01-F12, which no character uses, carry
+the group and name of whoever the game draws with them (docs/ROM_FORMAT.md §5.3).
 
 Usage: .venv/bin/python daikoukai/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -24,6 +26,7 @@ import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from export import characters as all_characters
+from export import names_zh
 from rom import (
     COMPOSITE_HEADS,
     COMPOSITE_SLOTS,
@@ -46,6 +49,11 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 PAGES = 4
+# Portraits no character uses, drawn by fixed face codes (docs/ROM_FORMAT.md §5.3): group, name
+FIXED_PORTRAITS = {1: ("国王", "ポルトガル国王"), 2: ("国王", "イスパニア国王"), 3: ("国王", "イスラム国王"),
+                   4: ("施設", "道具屋"), 5: ("施設", "造船所"), 6: ("施設", "交易所"), 7: ("施設", "酒場"),
+                   8: ("特殊人物", "老航海士"), 9: ("施設", "港"), 10: ("施設", "王宮"), 11: ("施設", "宿屋"),
+                   12: ("特殊人物", "クリス王女")}
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -101,13 +109,18 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
     for head in range(COMPOSITE_HEADS):
         parts = {sid: {"items": [add(rom.part_pixels(head, sid, p, TRANSPARENT)) for p in range(PAGES)]}
                  for sid, _, _ in COMPOSITE_SLOTS}
-        variants.append({"id": str(head), "label": f"頭 {head}", "parts": parts})
+        variants.append({"id": str(head), "label": f"類型 {head}", "parts": parts})
 
-    portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"F{n:02d}"} for n in range(PORTRAIT_COUNT)]
+    portraits = []
+    for n in range(PORTRAIT_COUNT):
+        pt = {"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"}  # = face code
+        if n in FIXED_PORTRAITS:
+            pt["group"], pt["name"] = FIXED_PORTRAITS[n]
+        portraits.append(pt)
 
-    characters = []
+    characters, zh = [], names_zh()
     for c in all_characters(rom):
-        ch = {"id": c["id"], "name": c["name"]}
+        ch = {"id": c["id"], "name": c["name"], "nameZh": zh[c["id"]]}
         code = c["face_code"]
         if is_composite(code):
             head, pages = decode_face_code(code)
@@ -118,7 +131,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     meta = {
         "format": FORMAT,
-        "id": "daikoukai-fc",
+        "id": "koukai-fc",
         "game": "KOUKAI",
         "platform": "FC",
         "title": {"ja": "大航海時代", "zh": "大航海時代"},
@@ -154,7 +167,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 daikoukai-fc")
+    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 koukai-fc")
     ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/Daikoukai Jidai (Japan).zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
@@ -163,7 +176,7 @@ def main() -> None:
     chars = meta["characters"]
     faces = [c["face"] for c in chars if "face" in c]
     mobs = [f for f in faces if "variant" in f]
-    print(f"daikoukai-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
+    print(f"koukai-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
           f"{len(chars) - len(faces)} without face), {len(meta['composite']['variants'])} heads, "
           f"{len(meta['portraits'])} portraits, {len(meta['images'])} images")
     for name in [*meta["blobs"], "dataset.json", "checksums.json"]:

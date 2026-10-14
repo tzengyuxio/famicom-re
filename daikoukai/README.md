@@ -1,6 +1,6 @@
 # FC 大航海時代 解析
 
-KOEI，1990，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI，FC 版 1991 年 3 月 15 日發售（MMC5）。原作是 PC-8801（1990 年 5 月），同年有 PC-98、X1、MSX2、FM TOWNS、X68000 版；FC 之後有 MD（1992 年 4 月）、SFC（1992 年 8 月）（[ja.wikipedia](https://ja.wikipedia.org/wiki/大航海時代_(ゲーム))）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 
@@ -8,8 +8,8 @@ KOEI，1990，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](d
 # 人物、航海士能力、港口、名稱表、頭像 PNG、世界地圖、港町圖 → daikoukai/output/
 .venv/bin/python daikoukai/export.py [--rom ROM] [--out DIR]
 
-# kaodata 統一格式資料集 daikoukai-fc
-.venv/bin/python daikoukai/export_kaodata.py --out <kaodata>/data-local/daikoukai-fc
+# kaodata 統一格式資料集 koukai-fc
+.venv/bin/python daikoukai/export_kaodata.py --out <kaodata>/data-local/koukai-fc
 # 驗證：逐 pixel 比對、重算 checksums；裝了 py65 會再用模擬器跑遊戲的頭像程式比對
 .venv/bin/python daikoukai/verify_kaodata_export.py --dataset <輸出目錄>
 # 驗證地圖：港町圖用模擬器跑遊戲的選圖程式；世界地圖從開機重放到出港、航行中比對重畫畫面（需 py65）
@@ -25,7 +25,8 @@ ROM 預設直接讀 `roms/Daikoukai Jidai (Japan).zip`（`--rom` 也接受 .nes 
 |------|------|
 | `rom.py` | ROM 解碼：文字、人物、能力、女性、港口、名稱表、頭像、世界地圖、港町圖 |
 | `export.py` | 匯出 CSV／XLSX／PNG（含 `mob_parts`） |
-| `export_kaodata.py` | kaodata 資料集 `daikoukai-fc` 與參考渲染器 |
+| `export_kaodata.py` | kaodata 資料集 `koukai-fc` 與參考渲染器 |
+| `data/names_zh.tsv` | 61 人的中文名（外部資料：id、假名、中文、來源；「待查」是沒把握的音譯） |
 | `verify_kaodata_export.py` | 資料集的獨立驗證（含模擬器跑遊戲的頭像程式） |
 | `verify_maps.py` | 港町圖與世界地圖解碼和遊戲的比對 |
 | `tools/nes_emu.py` | 整機模擬（py65），可開機、按鍵、截圖 |
@@ -35,8 +36,8 @@ ROM 預設直接讀 `roms/Daikoukai Jidai (Japan).zip`（`--rom` 也接受 .nes 
 
 | 檔案 | 內容 |
 |------|------|
-| `persons.csv` | 41 筆：主角、航海士 20（含年齡（推定）、統率、判断、知力、勇気、強さ）、提督 20（4 國 × 5）；國、戰鬥／航海等級、頭像碼 |
-| `girls.csv` | 女性 20 人與頭像 |
+| `persons.csv` | 41 筆（含 `[EXT]NameZh`）：主角、航海士 20（含年齡（推定）、統率、判断、知力、勇気、強さ）、提督 20（ポルトガル、イスパニア、イスラム、かいぞく 各 5）；國、戰鬥／航海等級、頭像碼 |
+| `girls.csv` | 女性 20 人（含 `[EXT]NameZh`）與頭像 |
 | `ports.csv` | 70 港：名稱、交易港／補給港、座標（chunk、metatile、像素）、經濟圈、特產品、港町圖類型、建物旗標 |
 | `names.csv` | 交易品 26、大砲 3、船首像 6、船種 6、木材 4、桅數 3、帆 2 |
 | `daikoukai.xlsx` | 以上各表（需 openpyxl） |
@@ -47,7 +48,7 @@ ROM 預設直接讀 `roms/Daikoukai Jidai (Japan).zip`（`--rom` 也接受 .nes 
 | `map_small.png` | 1/4 縮圖，紅點＝交易港、黃點＝補給港，標港口編號 |
 | `towns/typeN.png`、`towns/NN_港名.png` | 港町圖 8 類型的底圖，以及各港實際畫面（依新遊戲時的建物旗標疊零件），224×112 |
 
-kaodata 資料集：61 人，36 人用專屬頭像，25 人用組合臉。ROM 沒有讀音，所以沒有 `reading`。像素存 NES 色號。
+kaodata 資料集：61 人，36 人用專屬頭像，25 人用組合臉；`nameZh` 來自 `data/names_zh.tsv`（FC 版沒有中文版，全部是音譯，11 人標「待查」）。ROM 沒有讀音，所以沒有 `reading`。像素存 NES 色號。頭像帶 `code`（＝頭像碼＝頭像編號）；沒有人物使用的 F01–F12 依遊戲實際畫它們的場面標 `group`／`name`（國王 3、施設 7、老航海士、クリス王女，見 ROM_FORMAT.md §5.3）。組合臉 4 種頭型標「類型 0–3」：遊戲沒有名稱；提督的頭型剛好依國別（0 ポルトガル、1 イスパニア、2 イスラム、3 かいぞく），但隨機路人與航海士不受此限。
 
 ## 外部對照
 
@@ -60,7 +61,8 @@ kaodata 資料集：61 人，36 人用專屬頭像，25 人用組合臉。ROM �
 - ✓ MMC5 bank 配置、p-code 入口與系統呼叫、新遊戲初始狀態（bank 57 → WRAM）
 - ✓ 人物 41 筆（主角、航海士 20、提督 20）、航海士能力（對照 SNES 版外部資料）、女性 20 人
 - ✓ 頭像：專屬 48 張、組合臉（4 頭 × 5 區 × 4 頁），靜態解碼與模擬器一致
+- ✓ 專屬頭像 F01–F12 的用途：國王（依港 0–2）、各設施的主人、老航海士、クリス王女（片頭／結尾腳本與實機畫面確認）
 - ✓ 港口 70 個：名稱、座標、經濟圈、特產品、文化圈
 - ✓ 世界地圖 72 × 36 chunk（16128 × 8064 px），航行中重畫畫面逐 tile 一致
 - ✓ 港町圖 8 類型與各港對應（模擬器跑選圖與畫面組裝函式 70 港一致；里斯本實機畫面 392/392 tile 一致）
-- 未解：市場行情、船的能力公式、海戰地圖、專屬頭像 1–12 對應的人物（國王等）、港口屬性 byte 2／4、建物旗標 bit 0／1／3
+- 未解：市場行情、船的能力公式、海戰地圖、港口屬性 byte 2／4、建物旗標 bit 0／1／3

@@ -37,6 +37,7 @@ from rom import (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+NAMES_ZH = os.path.join(HERE, "data", "names_zh.tsv")  # id, kana, zh, source (external)
 # mob face parts sheet, shared with the other games (load by path: sangokushi/tools is not a package)
 _spec = importlib.util.spec_from_file_location(
     "parts_sheet", os.path.join(os.path.dirname(HERE), "sangokushi", "tools", "parts_sheet.py"))
@@ -60,6 +61,12 @@ def face_label(code: int) -> str:
     return f"組合 頭{head} " + "".join(str(p) for p in pages)
 
 
+def names_zh() -> dict[int, str]:
+    with open(NAMES_ZH, encoding="utf-8") as f:
+        next(f)
+        return {int(i): zh for i, _, zh, _ in (line.rstrip("\n").split("\t") for line in f)}
+
+
 def characters(rom: Rom) -> list[dict]:
     """Everyone with a face: 41 persons (id 0-40), then 20 girls (id 41-60)."""
     out = [{"id": p["id"], "name": p["name"], "role": p["role"], "face_code": p["face"]} for p in rom.persons()]
@@ -68,9 +75,9 @@ def characters(rom: Rom) -> list[dict]:
 
 
 def person_rows(rom: Rom) -> list[dict]:
-    rows = []
+    rows, zh = [], names_zh()
     for p in rom.persons():
-        r = {"ID": p["id"], "姓名": p["name"], "身分": p["role"], "國": p["nation"], "戰鬥等級": p["battle"],
+        r = {"ID": p["id"], "姓名": p["name"], "[EXT]NameZh": zh[p["id"]], "身分": p["role"], "國": p["nation"], "戰鬥等級": p["battle"],
              "航海等級": p["sailing"]}
         if "age" in p:
             r.update({"年齡(推定)": p["age"], "統率": p["leadership"], "判断": p["judgment"],
@@ -81,7 +88,9 @@ def person_rows(rom: Rom) -> list[dict]:
 
 
 def girl_rows(rom: Rom) -> list[dict]:
-    return [{"ID": g["id"], "姓名": g["name"], "頭像": face_label(g["face"])} for g in rom.girls()]
+    zh = names_zh()
+    return [{"ID": g["id"], "姓名": g["name"], "[EXT]NameZh": zh[41 + g["id"]], "頭像": face_label(g["face"])}
+            for g in rom.girls()]
 
 
 def port_rows(rom: Rom) -> list[dict]:

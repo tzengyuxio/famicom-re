@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent checks for the daikoukai-fc kaodata dataset.
+"""Independent checks for the koukai-fc kaodata dataset.
 
 1. Every character and portrait drawn by the spec renderer from the dataset equals the face
    composed directly from ROM tiles (rom.Rom.face_pixels), pixel by pixel.
@@ -67,7 +67,7 @@ def check_emulated(rom: Rom, used: set[int]) -> int:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="驗證 daikoukai-fc kaodata 資料集")
+    ap = argparse.ArgumentParser(description="驗證 koukai-fc kaodata 資料集")
     ap.add_argument("--rom", default=DEFAULT_ROM)
     ap.add_argument("--dataset", required=True)
     args = ap.parse_args()
