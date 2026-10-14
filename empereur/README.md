@@ -51,7 +51,7 @@ ROM 預設讀 `roms/Empereur, L' (Japan).zip`（zip 內的 .nes）；`--rom` 也
 | `battle_maps/normal/NN_都市.png` | 46 張戰場地圖（13×12 格，208×200） |
 | `battle_maps/winter/NN_都市.png` | 同上，雪地圖塊變體（使用時機未明） |
 
-kaodata 資料集 `lempe-fc`（資料夾名照舊）：255 人，88 人用專屬頭像，167 人用組合臉（4 類型，每類 5 個部位 × 4 種）。專屬頭像的 `code` 是頭像碼（= 編號，4 位十六進位）。P01、P02 是ナポレオン隨身分換的臉（`$C28D`：身分 6 → P01、7 → P02；劇本 3 是 6、劇本 4 是 7），放在他的 `expressions`。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`，正體字，通行譯名；人物沒確認的依讀音音譯，在 source 欄註明，共 38 人）。像素存 NES 色號，色盤是 NES 64 色。
+kaodata 資料集 `lempe-fc`（資料夾名照舊）：255 人，88 人用專屬頭像，167 人用組合臉（4 類型，每類 5 個部位 × 4 種）。專屬頭像的 `code` 是頭像碼（= 編號，4 位十六進位）。P01、P02 是ナポレオン隨身分換的臉（`$C28D`：身分 6 → P01、7 → P02；劇本 3 是 6、劇本 4 是 7），放在他的 `expressions`；三張臉的 `label` 是遊戲對他身分 5／6／7 印的稱號シレイカン／ダイ1シッセイ／コウテイ（bank 2 `$A111`）。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`）：以 DOS 中文版（kaodata `lempe-dos`）的寫法為準，DOS 用錯人名的 7 人取它的 `nameHistorical`，DOS 沒有世號的 5 位君主補上世號；和本專案判讀不同的 10 人在 source 欄標「待定」。像素存 NES 色號，色盤是 NES 64 色。
 
 ## 進度
 

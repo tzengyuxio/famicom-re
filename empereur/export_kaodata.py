@@ -35,8 +35,10 @@ CANVAS = (40, 48)
 CATEGORY_LABELS = ["正面", "向右", "向左", "頭巾"]  # by look of the parts
 CATEGORIES = len(CATEGORY_LABELS)
 SLOT_LABELS = {"top": "上半", "bottom": "下半", "eyes": "眼", "nose": "鼻", "mouth": "口"}
-# Napoleon's face follows his rank: the face-code function $C28D gives P01 at rank 6 and P02 at rank 7
+# Napoleon's face follows his rank: the face-code function $C28D gives P01 at rank 6 and P02 at rank 7.
+# Labels are the titles the game prints for his rank 5 / 6 / 7 (bank 2 $A111).
 NAPOLEON_EXPRESSIONS = [1, 2]
+NAPOLEON_LABELS = ["シレイカン", "ダイ1シッセイ", "コウテイ"]
 NAMES_ZH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "names_zh.tsv")
 
 
@@ -131,7 +133,8 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         else:
             ch["face"] = {"portrait": code}
         if c["id"] == 0:
-            ch["expressions"] = [{"portrait": n} for n in NAPOLEON_EXPRESSIONS]
+            ch["face"]["label"] = NAPOLEON_LABELS[0]
+            ch["expressions"] = [{"portrait": n, "label": t} for n, t in zip(NAPOLEON_EXPRESSIONS, NAPOLEON_LABELS[1:])]
         characters.append(ch)
 
     meta = {
@@ -139,7 +142,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "id": "lempe-fc",
         "game": "LEMPE",
         "platform": "FC",
-        "title": {"ja": "ランペルール", "zh": "拿破崙（L'Empereur）"},
+        "title": {"ja": "ランペルール", "zh": "拿破崙"},
         "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path), "sha1": hashlib.sha1(rom.data).hexdigest()}]},
         "display": {"scale": 6},
