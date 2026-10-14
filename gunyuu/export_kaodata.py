@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export FC 信長の野望・戦国群雄伝 as a kaodata dataset (gunyuu-fc, format kaodata/1).
+"""Export FC 信長の野望・戦国群雄伝 as a kaodata dataset (nobu3-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
 dataset palette is the 64-colour NES palette.
@@ -122,9 +122,9 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
                 code = 0x8000 | group << 12 | v << COMPOSITE_SLOTS[slot][2]  # other slots 0: covered by mask
                 items.append(add(rom.render_cells(*rom.composite_cells(code), PORTRAIT_W, pal, mask)))
             parts[sid] = {"items": items}
-        variants.append({"id": str(group), "label": f"組 {group}", "parts": parts})
+        variants.append({"id": str(group), "label": f"類型 {group}", "parts": parts})
 
-    portraits = [{"img": add(rom.face_pixels(n), blob=1), "label": f"F{n:03d}"} for n in PORTRAIT_IDS]
+    portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in PORTRAIT_IDS]  # = face code
 
     characters = []
     for c in distinct_characters(rom):
@@ -139,7 +139,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     meta = {
         "format": FORMAT,
-        "id": "gunyuu-fc",
+        "id": "nobu3-fc",
         "game": "NOBU3",
         "platform": "FC",
         "title": {"ja": "信長の野望・戦国群雄伝", "zh": "信長之野望・戰國群雄傳"},
@@ -175,7 +175,7 @@ def write_dataset(out_dir: str, meta: dict, blobs: list[bytes]) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 gunyuu-fc")
+    ap = argparse.ArgumentParser(description="匯出 kaodata 統一格式資料集 nobu3-fc")
     ap.add_argument("--rom", default=DEFAULT_ROM, help="roms/Nobunaga no Yabou - Sengoku Gunyuu Den (Japan).zip 或 .nes")
     ap.add_argument("--out", required=True, help="輸出目錄")
     args = ap.parse_args()
@@ -184,7 +184,7 @@ def main() -> None:
     chars = meta["characters"]
     faces = [c["face"] for c in chars if "face" in c]
     mobs = [f for f in faces if "variant" in f]
-    print(f"gunyuu-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
+    print(f"nobu3-fc: {len(chars)} characters ({len(faces) - len(mobs)} portrait, {len(mobs)} composite, "
           f"{len(chars) - len(faces)} without face), {len(meta['composite']['variants'])} groups, "
           f"{len(meta['portraits'])} portraits, {len(meta['images'])} images")
     for name in [*meta["blobs"], "dataset.json", "checksums.json"]:
