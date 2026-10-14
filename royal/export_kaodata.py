@@ -86,7 +86,7 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
         "id": "royal-fc",
         "game": "ROYAL",
         "platform": "FC",
-        "title": {"ja": "ロイヤルブラッド", "zh": "皇家之血"},
+        "title": {"ja": "ロイヤルブラッド", "zh": "魔法皇冠"},
         "source": {"producer": "famicom-re", "revision": revision(),
                    "inputs": [{"path": os.path.basename(rom_path), "sha1": hashlib.sha1(rom.data).hexdigest()}]},
         "display": {"scale": 6},
