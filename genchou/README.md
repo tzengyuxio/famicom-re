@@ -47,7 +47,7 @@ ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genchou Hishi (Japan).
 | `map_mongol.png`、`map_world.png` | モンゴル編與世界的大地圖（256×240） |
 | `battle_maps/NN_國名.png` | 47 張戰場地圖（14×10 格，224×168；調色盤為推定） |
 
-kaodata 資料集：299 人，79 人用專屬頭像，219 人用組合臉（43 個頭，每頭 5 個可替換區域），ベルグタイ的頭像碼超出表格，所以沒有臉。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`）：取自 DOS 中文版人名，依 id 從 kaodata `genchou-pc98` 的 `nameZh` 取用（含 kaodata-re 1e23305 改正的錯字），299 人全部同 id 同名。像素存 NES 色號，色盤是 NES 64 色。專屬頭像的 `code` 是頭像碼（bit 15 = 0 時就是編號，4 位十六進位）。P39 沒有人用。
+kaodata 資料集：299 人，79 人用專屬頭像，219 人用組合臉（43 個頭，每頭 5 個可替換區域），ベルグタイ的頭像碼超出表格，所以沒有臉。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`）：取自 DOS 中文版人名，依 id 從 kaodata `genchou-pc98` 的 `nameZh` 取用（含 kaodata-re ce9ec5f 改正的錯字），299 人全部同 id 同名。像素存 NES 色號，色盤是 NES 64 色。專屬頭像的 `code` 是頭像碼（bit 15 = 0 時就是編號，4 位十六進位）。P39 沒有人用。
 
 人物 id 分三段，各段內依 ROM 順序、以姓名＋頭像碼去重：
 
