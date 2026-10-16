@@ -26,6 +26,7 @@ ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).z
 | `rom.py` | ROM 解碼：文字、劇本（君主、將軍、子女、國、相鄰）、女性、頭像、大地圖、戰場地圖 |
 | `export.py` | 匯出 CSV／XLSX／PNG |
 | `export_kaodata.py` | kaodata 資料集 `genghis-fc` 與參考渲染器 |
+| `data/names_zh.tsv` | [EXT] 人物中文譯名與依據 |
 | `verify_kaodata_export.py` | 資料集的獨立驗證（含模擬器） |
 | `verify_battle_maps.py` | 戰場地圖與大地圖的模擬器驗證 |
 | `tools/emu.py` | 沿用 `sangokushi/tools/nes_emu.py`（MMC1＋py65），加上讀取 hook、按鍵腳本、名稱表讀取 |
@@ -45,7 +46,7 @@ ROM 預設直接讀 `roms/Aoki Ookami to Shiroki Mejika - Genghis Khan (Japan).z
 | `map_mongol.png`、`map_world.png` | 兩張大地圖（160×128），`_labeled` 放大 3 倍並標上國號 |
 | `battle_maps/NN_名稱.png`、`terrain.png` | 41 張戰場地圖（16×10 格，512×336）與 8 種地形方塊 |
 
-kaodata 資料集：115 人（兩劇本去重；女性的 3 個頭像碼是 3 種表情，第一張當 face，其餘不重複的放 expressions，checksum 鍵 `ch:<id>/<k>`），61 人用專屬頭像，54 人用組合臉（3 類型；類型 0 各零件 8 種，類型 1、2 各 4 種）。像素存 NES 色號，色盤是 NES 64 色。專屬頭像的 `code` 是頭像碼（bit 15 = 0 時就是編號，4 位十六進位）。
+kaodata 資料集：115 人（兩劇本去重；女性的 3 個頭像碼是 3 種表情，第一張當 face，其餘不重複的放 expressions，checksum 鍵 `ch:<id>/<k>`），61 人用專屬頭像，54 人用組合臉（3 類型；類型 0 各零件 8 種，類型 1、2 各 4 種）。`nameZh` 是外部資料的中文譯名（`data/names_zh.tsv`）：取自 DOS 中文版人名，依 id 從 kaodata `genghis-pc98` 的 `nameZh` 取用（含 kaodata-re 1e23305 改正的錯字）；FC 版有些名字寫平假名（例如源頼朝、宣宗），仍是同一人。像素存 NES 色號，色盤是 NES 64 色。專屬頭像的 `code` 是頭像碼（bit 15 = 0 時就是編號，4 位十六進位）。
 
 注意：玩家可選的君主（テムジン、ジンギスカン）在 ROM 裡的能力是佔位值（100／400），遊戲開始時會亂數決定；將軍與子女在選「自動決定」時也會重算。
 

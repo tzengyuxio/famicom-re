@@ -2,7 +2,7 @@
 """Export FC 蒼き狼と白き牝鹿・ジンギスカン as a kaodata dataset (genghis-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
-dataset palette is the 64-colour NES palette (every face uses BG sub-palette 3E 27 38 30).
+dataset palette is the 64-colour NES palette (every face uses BG sub-palette 3E 27 38 30). nameZh comes from data/names_zh.tsv.
 
 Usage: .venv/bin/python genghis/export_kaodata.py --out <dir> [--rom ROM]
 """
@@ -37,6 +37,7 @@ FORMAT = "kaodata/1"
 TRANSPARENT = 255
 CANVAS = (40, 48)
 # Part rectangle on the canvas (x, y, w, h); the frame keeps the full canvas with a transparent hole
+NAMES_ZH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "names_zh.tsv")
 PART_RECT = {"head": (0, 0, 40, 48), "eyes": (8, 16, 24, 8), "nose": (8, 24, 24, 8), "mouth": (8, 32, 24, 16)}
 
 
@@ -134,9 +135,12 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
     portraits = [{"img": add(*CANVAS, rom.face_pixels(n), blob=1), "code": f"{n:04X}"}
                  for n in range(PORTRAIT_COUNT)]
 
+    with open(NAMES_ZH, encoding="utf-8") as f:
+        next(f)
+        names_zh = {int(i): zh for i, _, zh, _ in (line.rstrip("\n").split("\t") for line in f)}
     characters = []
     for i, p in enumerate(people(rom)):
-        ch = {"id": i, "name": p["name"], "reading": to_hiragana(p["name"]).replace("　", " ")}
+        ch = {"id": i, "name": p["name"], "nameZh": names_zh[i], "reading": to_hiragana(p["name"]).replace("　", " ")}
         code = p["face_code"]
         if code & 0x8000:
             ch["face"] = {"variant": (code >> 12) & 3, "parts": [(code >> shift) & 7 for *_, shift in MOB_PARTS],
