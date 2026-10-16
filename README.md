@@ -1,6 +1,6 @@
 # famicom-re
 
-FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco）的 ROM 逆向工程：解析人物、頭像（專屬＋組合臉）、地圖、攻略數值，並匯出 [kaodata](https://kaodata.simagame.me) 統一格式資料集（kaodata/1）。
+FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco、1 款台灣非授權）的 ROM 逆向工程：解析人物、頭像（專屬＋組合臉）、地圖、攻略數值，並匯出 [kaodata](https://kaodata.simagame.me) 統一格式資料集（kaodata/1）。
 
 每款遊戲一個資料夾，指令、輸出檔、進度寫在該資料夾的 `README.md`，ROM 格式（含未解部分）寫在 `docs/`。
 
@@ -10,10 +10,12 @@ FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco）的 ROM 逆向�
 |--------|------|------|--------|---------|
 | [`sangokushi/`](sangokushi/) | 三國志 | KOEI 1988 | MMC1 | `san1-fc` |
 | [`genghis/`](genghis/) | 蒼き狼と白き牝鹿・ジンギスカン | KOEI 1988 | MMC1 | `genghis-fc` |
+| [`mahjong/`](mahjong/) | 麻雀大会 | KOEI 1989 | MMC1 | `mahjong-fc` |
 | [`zenkoku/`](zenkoku/) | 信長の野望・全国版 | KOEI 1988 | MMC1 | `nobu2-fc` |
 | [`gunyuu/`](gunyuu/) | 信長の野望・戦国群雄伝 | KOEI 1990 | MMC5 | `nobu3-fc` |
 | [`suikoden/`](suikoden/) | 水滸伝・天命の誓い | KOEI 1990 | MMC5 | `suikoden-fc` |
 | [`ishin/`](ishin/) | 維新の嵐 | KOEI 1990 | MMC5 | `ishin-fc` |
+| [`topman/`](topman/) | ファミコントップマネジメント | KOEI 1990 | MMC1 | —（無頭像） |
 | [`empereur/`](empereur/) | ランペルール | KOEI 1991 | MMC5 | `lempe-fc` |
 | [`daikoukai/`](daikoukai/) | 大航海時代 | KOEI 1991 | MMC5 | `koukai-fc` |
 | [`bushou/`](bushou/) | 信長の野望・武将風雲録 | KOEI 1991 | MMC5 | `nobu4-fc` |
@@ -22,6 +24,7 @@ FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco）的 ROM 逆向�
 | [`genchou/`](genchou/) | 蒼き狼と白き牝鹿・元朝秘史 | KOEI 1992 | MMC5 | `genchou-fc` |
 | [`chuugen/`](chuugen/) | 三國志 中原の覇者 | Namco 1988 | Namco 163 | `chuugen-fc` |
 | [`haou/`](haou/) | 三國志II 覇王の大陸 | Namco 1992 | Namco 163 | `haou-fc` |
+| [`shenghuo/`](shenghuo/) | 聖火列傳 | C&E 1991（台灣非授權） | Mapper 240 | —（非光榮） |
 
 發行年是 FC 版日本發售年。全国版、戦国群雄伝、維新の嵐、大航海時代、ランペルール、武将風雲録、ロイヤルブラッド已對照 ja.wikipedia，水滸伝對照 ROM 內的版權字串，見各資料夾 README。
 

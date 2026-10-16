@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案概述
 
-KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像、地圖等遊戲內容，並輸出 kaodata 統一格式資料集。
+KOEI 等 FC/NES 遊戲（另有 Namco 2 款、台灣非授權 1 款）的 ROM 逆向工程專案：解析人物資料、頭像、地圖等遊戲內容，並輸出 kaodata 統一格式資料集。
 
 每款遊戲各放一個子資料夾，分析結果記在該資料夾的 `README.md` 與 `docs/`：
 
@@ -14,9 +14,11 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `suikoden/` | 水滸伝・天命の誓い (KOEI, 1990, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、四季戰鬥地圖、kaodata `suikoden-fc` |
 | `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
 | `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
+| `mahjong/` | 麻雀大会 (KOEI, 1989, MMC1)：雀士 16 人（名牌）、頭像（15 人 × 7 表情＋玩家）、台詞 1320 句（42 場面）、AI 參數、麻將牌 34 種、kaodata `mahjong-fc` |
 | `empereur/` | ランペルール (KOEI, 1991, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `lempe-fc` |
 | `bushou/` | 信長の野望・武将風雲録 (KOEI, 1991, MMC5)：武將（2 劇本＋登場）、國、大名、茶器、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `nobu4-fc` |
 | `ishin/` | 維新の嵐 (KOEI, 1990, MMC5)：人物（2 劇本）、藩、地點、頭像（專屬＋組合臉）、HEX 地圖／全國大地圖、kaodata `ishin-fc` |
+| `topman/` | ファミコントップマネジメント (KOEI, 1990, MMC1)：5 社（社長、部門人數、能力、製品性能、價格）、需要曲線、廣告費曲線、部門人物插圖、新聞圖、訊息文字（無頭像，不做 kaodata） |
 | `gunyuu/` | 信長の野望・戦国群雄伝 (KOEI, 1990, MMC5)：武將（2 劇本）、38 國、大名、頭像（專屬＋組合臉）、大地圖、野戰／城戰場地圖、kaodata `nobu3-fc` |
 | `zenkoku/` | 信長の野望・全国版 (KOEI, 1988, MMC1)：大名（50／17 國）、國、相鄰、頭像（大名＋姫 75 張）、地方地圖、戰場地圖、kaodata `nobu2-fc` |
 | `royal/` | ロイヤルブラッド (KOEI, 1991, MMC5)：人物（4 劇本）、家、領地、第 5 部隊、頭像（人物 64＋相談役 4＋部隊 23）、戰略地圖、戰場 30 張、kaodata `royal-fc` |
@@ -24,6 +26,7 @@ KOEI 等 FC/NES 遊戲的 ROM 逆向工程專案：解析人物資料、頭像�
 | `san2/` | 三國志II (KOEI, 1991, MMC5)：武將 352 人（6 劇本）、41 州（六角相鄰）、頭像（專屬＋組合臉）、大地圖、41 張戰場（可依直欄六角排法拼成全中國戰場圖）、kaodata `san2-fc` |
 | `chuugen/` | 三國志 中原の覇者 (Namco, 1988, Namco 163)：武將、州、道路、頭像（共用整張臉 120 張＋表情）、大地圖、戰場地圖、kaodata `chuugen-fc` |
 | `haou/` | 三國志II 覇王の大陸 (Namco, 1992, Namco 163)：武將（[EXT] 漢字）、州、君主、道具、頭像（共用整張臉＋5 表情）、大地圖、戰場地圖 30 張、kaodata `haou-fc` |
+| `shenghuo/` | 聖火列傳 (C&E, 1991, mapper 240, 台灣非授權)：人物 13（5 章能力、武功）、道具、武功、敵人 30、遇敵表、頭像 36、字型對照、大地圖（標註 27 入口）＋23 張地圖；非光榮作品，不做 kaodata |
 
 - ROM 都放 `roms/`（不進版控）：各遊戲（含三國志）的程式都直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
