@@ -2,7 +2,7 @@
 """Export FC 蒼き狼と白き牝鹿・元朝秘史 as a kaodata dataset (genchou-fc, format kaodata/1).
 
 Spec: docs/data-format.md of the kaodata website repo. Pixels are NES colour numbers and the
-dataset palette is the 64-colour NES palette.
+dataset palette is the 64-colour NES palette. nameZh comes from data/names_zh.tsv.
 
 Composite faces: one variant per head (43). The game draws the head's base record and then,
 for each set bit of the face code, copies one area from the head's alternate record, so every
@@ -48,6 +48,7 @@ TRANSPARENT = 255
 CANVAS = (40, 48)
 SLOT_IDS = ["base"] + [sid for sid, *_ in COMPOSITE_SLOTS]  # draw order
 WOMEN_ID, CHILDREN_ID = 1000, 2000  # id ranges of the women's and the child tables (README)
+NAMES_ZH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "names_zh.tsv")
 
 
 # ---------------------------------------------------------------- reference renderer (spec §6)
@@ -138,9 +139,12 @@ def build(rom_path: str) -> tuple[dict, list[bytes]]:
 
     portraits = [{"img": add(rom.face_pixels(n), blob=1), "code": f"{n:04X}"} for n in range(PORTRAIT_COUNT)]
 
+    with open(NAMES_ZH, encoding="utf-8") as f:
+        next(f)
+        names_zh = {int(i): zh for i, _, zh, _ in (line.rstrip("\n").split("\t") for line in f)}
     characters = []
     for c in all_characters(rom):
-        ch = {"id": c["id"], "name": c["name"]}
+        ch = {"id": c["id"], "name": c["name"], "nameZh": names_zh[c["id"]]}
         if (r := reading(c["name"])) is not None:
             ch["reading"] = r
         code = c["face_code"]
