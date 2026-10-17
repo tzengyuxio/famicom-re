@@ -16,8 +16,6 @@ from rom import (
     BLOCK_H,
     DEFAULT_ROM,
     GENERIC,
-    GRID_COLS,
-    GRID_ROWS,
     N_GENERALS,
     PORTRAIT_COLOR,
     PORTRAIT_FIXED,
@@ -28,7 +26,7 @@ from rom import (
 
 TACTIC_GROUP = {0: "火", 1: "水", 2: "回復", 3: "補助（防御）", 4: "補助（妨害）", 5: "攻撃（特殊）"}
 ELEMENT = {0: "", 1: "火", 2: "水"}
-WORLD_ROWS, WORLD_COLS = range(4, 24), range(4, 24)  # the overworld (China) part of the block grid
+WORLD_ROWS, WORLD_COLS = range(4, 24), range(3, 24)  # blocks of the field that come on screen (reach(0))
 FONT_PATHS = ["/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc", "/System/Library/Fonts/Hiragino Sans GB.ttc",
               "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"]
 
@@ -178,7 +176,7 @@ def place_rows(r: GameRom) -> list[dict]:
 
 
 def zone_rows(r: GameRom) -> list[dict]:
-    return [{"block_row": br, **{f"c{bc}": r.zone(br, bc) for bc in WORLD_COLS}} for br in range(4, 24)]
+    return [{"block_row": br, **{f"c{bc}": r.zone(br, bc) for bc in WORLD_COLS}} for br in WORLD_ROWS]
 
 
 # ---------------------------------------------------------------- images
@@ -226,25 +224,75 @@ def strip_data(r: GameRom) -> dict:
             "strips": strips, "labels": [f"{v:02X}" for v in range(256)], "generals": gens}
 
 
-def area_blocks(r: GameRom) -> dict[tuple[int, int], int]:
-    """Heuristic owner area of each grid block: nearest arrival point (entrance / teleport destination,
-    or the field next to a town gate) within 40 metatiles. The ROM has no such table; see ROM_FORMAT.md."""
-    seeds = set()
-    for e in r.entrances():
-        if e["area"] or e["dest_row"]:
-            seeds.add((e["dest_row"], e["dest_col"], e["area"]))
-        if r.area_type(e["area"]) >= 4:
-            seeds.add((e["row"], e["col"], 0))
-    for t in r.teleports():
-        if t["row"] or t["dest_row"]:
-            seeds.add((t["dest_row"], t["dest_col"], t["area"]))
-    lab = {}
-    for by in range(GRID_ROWS):
-        for bx in range(GRID_COLS):
-            d, a = min((abs(by * BLOCK_H + 7 - s[0]) + abs(bx * 16 + 8 - s[1]), s[2]) for s in seeds)
-            if d < 40:
-                lab[by, bx] = a
-    return lab
+def area_views(r: GameRom) -> list[tuple[list[int], set]]:
+    """Areas with the cells that come on screen there (MapRom.reach + visible). Areas that show exactly
+    the same cells (one house interior used by several villages) are merged."""
+    views = {}
+    for a in range(1, 0x80):
+        if r.arrivals(a):
+            views.setdefault(frozenset(r.visible(r.reach(a))), []).append(a)
+    return sorted(((ids, set(cells)) for cells, ids in views.items()), key=lambda v: v[0])
+
+
+def clusters(cells) -> list[tuple[range, range]]:
+    """Block bounding boxes of the 8-connected groups of blocks that hold `cells`."""
+    left = {(row // BLOCK_H, col // 16) for row, col in cells}
+    out = []
+    while left:
+        todo = [left.pop()]
+        group = set(todo)
+        while todo:
+            by, bx = todo.pop()
+            for nb in ((by + i, bx + j) for i in (-1, 0, 1) for j in (-1, 0, 1)):
+                if nb in left:
+                    left.remove(nb)
+                    group.add(nb)
+                    todo.append(nb)
+        out.append((range(min(b[0] for b in group), max(b[0] for b in group) + 1),
+                    range(min(b[1] for b in group), max(b[1] for b in group) + 1)))
+    return sorted(out, key=lambda c: (c[0].start, c[1].start))
+
+
+def fill_holes(cells, rows: range, cols: range) -> set:
+    """`cells` plus the cells it encloses within blocks rows x cols (lake middles, mountain cores)."""
+    box = {(row, col) for row in range(rows.start * BLOCK_H, rows.stop * BLOCK_H)
+           for col in range(cols.start * 16, cols.stop * 16)}
+    todo = [c for c in box - set(cells) if c[0] in (rows.start * BLOCK_H, rows.stop * BLOCK_H - 1)
+            or c[1] in (cols.start * 16, cols.stop * 16 - 1)]
+    outside = set(todo)
+    while todo:
+        row, col = todo.pop()
+        for nxt in ((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)):
+            if nxt in box and nxt not in cells and nxt not in outside:
+                outside.add(nxt)
+                todo.append(nxt)
+    return box - outside
+
+
+def render_cells(r: GameRom, cells, typ: int, marks, f) -> Image.Image:
+    """Map image of `cells`: each block group drawn as area type `typ` and cropped to its cells, metatiles
+    outside `cells` black, marks on `cells` labelled; several groups are put side by side."""
+    ims = []
+    for rows, cols in clusters(cells):
+        im = r.render_blocks(rows, cols, typ)
+        dr = ImageDraw.Draw(im)
+        for row in range(rows.start * BLOCK_H, rows.stop * BLOCK_H):
+            for col in range(cols.start * 16, cols.stop * 16):
+                if (row, col) not in cells:
+                    x, y = (col - cols.start * 16) * 16, (row - rows.start * BLOCK_H) * 16
+                    dr.rectangle((x, y, x + 15, y + 15), fill=(0, 0, 0))
+        label_map(r, im, rows, cols, [m for m in marks if m[:2] in cells], f)
+        mine = [(row - rows.start * BLOCK_H, col - cols.start * 16) for row, col in cells
+                if row // BLOCK_H in rows and col // 16 in cols]
+        ims.append(im.crop((min(c for _, c in mine) * 16, min(r_ for r_, _ in mine) * 16,
+                            max(c for _, c in mine) * 16 + 16, max(r_ for r_, _ in mine) * 16 + 16)))
+    out = Image.new("RGB", (sum(im.width for im in ims) + 16 * (len(ims) - 1), max(im.height for im in ims)),
+                    (40, 40, 40))
+    x = 0
+    for im in ims:
+        out.paste(im, (x, 0))
+        x += im.width + 16
+    return out
 
 
 def label_map(r: GameRom, im: Image.Image, rows: range, cols: range, items, f) -> None:
@@ -259,7 +307,6 @@ def label_map(r: GameRom, im: Image.Image, rows: range, cols: range, items, f) -
 def maps(r: GameRom, out: str) -> int:
     d = os.path.join(out, "maps")
     os.makedirs(d, exist_ok=True)
-    lab = area_blocks(r)
     f = font(12)
     items = r.items()
     marks = [(e["row"], e["col"], f"{e['area']:02X} {area_name(r, e['area'])}", (255, 255, 0))
@@ -270,40 +317,30 @@ def maps(r: GameRom, out: str) -> int:
         chest_marks.setdefault(c["area"], []).append((c["row"], c["col"], items[c["item"] & 0x7F]["name"],
                                                       (255, 128, 255)))
 
-    def dim(im, rows, cols, keep):
-        dr = ImageDraw.Draw(im, "RGBA")
-        for i, by in enumerate(rows):
-            for j, bx in enumerate(cols):
-                if lab.get((by, bx), -1) not in keep:
-                    dr.rectangle((j * 256, i * 240, j * 256 + 255, i * 240 + 239), fill=(0, 0, 0, 170))
-
-    world = r.render_blocks(WORLD_ROWS, WORLD_COLS, 0)
-    plain = world.copy()
-    label_map(r, world, WORLD_ROWS, WORLD_COLS, marks + chest_marks.get(0, []), f)
-    world.save(os.path.join(out, "world.png"))
+    field = r.visible(r.reach(0))
+    assert clusters(field) == [(WORLD_ROWS, WORLD_COLS)]
+    field = fill_holes(field, WORLD_ROWS, WORLD_COLS)
+    render_cells(r, field, 0, marks + chest_marks.get(0, []), f).save(os.path.join(out, "world.png"))
+    plain = render_cells(r, field, 0, [], f)
     zones = plain.resize((plain.width // 4, plain.height // 4), Image.BOX)
     dz, fz = ImageDraw.Draw(zones, "RGBA"), font(20)
     tint = [(0, 0, 0, 0), (255, 0, 0, 70), (255, 160, 0, 70), (255, 255, 0, 70), (0, 200, 0, 70), (0, 200, 255, 70),
             (0, 80, 255, 70), (160, 0, 255, 70), (255, 0, 160, 70)]
-    for by in range(4, 24):
+    for by in WORLD_ROWS:
         for bx in WORLD_COLS:
             z = r.zone(by, bx)
-            if z:
-                x, y = (bx - WORLD_COLS.start) * 64, (by - WORLD_ROWS.start) * 60
+            if z and any((by * BLOCK_H + y, bx * 16 + x) in field for y in range(BLOCK_H) for x in range(16)):
+                x, y = (bx * 16 - min(c for _, c in field)) * 4, (by * BLOCK_H - min(r_ for r_, _ in field)) * 4
                 dz.rectangle((x, y, x + 63, y + 59), fill=tint[z])
                 dz.text((x + 24, y + 18), str(z), fill=(255, 255, 255), font=fz, stroke_width=2, stroke_fill=(0, 0, 0))
     zones.save(os.path.join(out, "world_zones.png"))
-    n = 0
-    for a in sorted(set(lab.values()) - {0}):
-        blocks = [k for k, v in lab.items() if v == a]
-        rows = range(min(b[0] for b in blocks), max(b[0] for b in blocks) + 1)
-        cols = range(min(b[1] for b in blocks), max(b[1] for b in blocks) + 1)
-        im = r.render_blocks(rows, cols, r.area_type(a))
-        dim(im, rows, cols, (a,))
-        label_map(r, im, rows, cols, marks + chest_marks.get(a, []), f)
-        im.save(os.path.join(d, f"area_{a:02X}_{area_name(r, a) or f'type{r.area_type(a)}'}.png"))
-        n += 1
-    return n
+    views = area_views(r)
+    for ids, cells in views:
+        name = "・".join(dict.fromkeys(area_name(r, a) for a in ids if area_name(r, a))) or f"type{r.area_type(ids[0])}"
+        marks_a = marks + [m for a in ids for m in chest_marks.get(a, [])]
+        im = render_cells(r, cells, r.area_type(ids[0]), marks_a, f)
+        im.save(os.path.join(d, f"area_{'+'.join(f'{a:02X}' for a in ids)}_{name}.png"))
+    return len(views)
 
 
 def main() -> None:

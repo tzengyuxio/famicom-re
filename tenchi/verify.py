@@ -1,11 +1,13 @@
-"""Emulator verification of the 天地を喰らう decoder (needs py65; about 2 minutes).
+"""Emulator verification of the 天地を喰らう decoder (needs py65; about 5 minutes, --quick about 1).
 
 Plays a new game from power-on until the party can walk, then checks rom.py against the game's own code:
   0. screen: the room on screen against rom.py's map render, pixel by pixel
   1. map: the game's cell lookup ($D83E) on random cells of the 50x32-block grid, all 3 tilesets
   2. party: ぶりょく / ちりょく / すばやさ / 兵士数 in WRAM against the general records
   3. encounters: the game's random-formation routine (bank 14 $B324) per zone 1-8
-  4. portraits and kanji names: every general put in the 大将 slot, status screen compared pixel by pixel
+  4. world: the party warped onto every block of the field that comes on screen, screen against rom.py
+  5. areas: the party warped onto every arrival point of the towns, castles and caves, likewise
+  6. portraits and kanji names: every general put in the 大将 slot, status screen compared pixel by pixel
 
   .venv/bin/python tenchi/verify.py [--rom ROM] [--quick]
 """
@@ -47,20 +49,85 @@ def check_map(n: Nes, r: GameRom, cells: int) -> bool:
     return bad == 0
 
 
-def check_screen(n: Nes, r: GameRom) -> bool:
-    """Background on screen (sprites off) against rom.py's render of the 16x15 metatiles around the party."""
+def screen_diff(n: Nes, r: GameRom) -> tuple[int, int, int]:
+    """Background on screen (sprites off) against rom.py's render of the 16x15 metatiles around the party.
+    Pixels of BG tiles whose CHR-RAM differs from the area's CHR in the ROM (the water animation) are skipped.
+    Returns (differing pixels, party row, party col)."""
     from rom import nes_rgb
     row, col = n[0x61] * BLOCK_H + n[0x60], n[0x63] * 16 + n[0x62]
     top, left = row - 7, col - 8
     rows, cols = range(top // BLOCK_H, (top + 14) // BLOCK_H + 1), range(left // 16, (left + 15) // 16 + 1)
     x0, y0 = (left - cols.start * 16) * 16, (top - rows.start * BLOCK_H) * 16
-    mine = list(r.render_blocks(rows, cols, r.area_type(n[0x47])).crop((x0, y0, x0 + 256, y0 + 240)).getdata())
+    typ = r.area_type(n[0x47])
+    mine = list(r.render_blocks(rows, cols, typ).crop((x0, y0, x0 + 256, y0 + 240)).getdata())
     mask, n.mask = n.mask, n.mask & ~0x10
-    game = [nes_rgb(c) for c in n.screen()]
+    game = n.screen()
     n.mask = mask
-    bad = sum(a != b for a, b in zip(mine, game))
+    base, chr_ = 0x1000 if n.ctrl & 0x10 else 0, r.bg_chr(typ)
+    anim = {t for t in range(0x80, 0x100)
+            if bytes(n.chr[base + t * 16:base + t * 16 + 16]) != chr_[(t - 0x80) * 16:(t - 0x7F) * 16]}
+    t, fx = n.frame_scroll
+    sx = ((t & 0x1F) << 3 | fx) + (256 if t & 0x400 else 0)
+    sy = ((t >> 5) & 0x1F) * 8 + ((t >> 12) & 7) + (240 if t & 0x800 else 0)
+    bad = 0
+    for y in range(240):
+        yy = (sy + y) % 480
+        nt = 0x2000 + (yy // 240) * 0x800 + ((yy % 240) // 8) * 32
+        for x in range(256):
+            xx = (sx + x) % 512
+            if anim and n.nt[n.nt_index(nt + (xx // 256) * 0x400 + (xx % 256) // 8)] in anim:
+                continue
+            bad += nes_rgb(game[y * 256 + x]) != mine[y * 256 + x]
+    return bad, row, col
+
+
+def check_screen(n: Nes, r: GameRom) -> bool:
+    bad, row, col = screen_diff(n, r)
     print(f"screen: area {n[0x47]:02X} at ({row}, {col}), {bad} of {256 * 240} background pixels differ from rom.py")
     return bad == 0
+
+
+def warp(n: Nes, st, area: int, row: int, col: int) -> None:
+    """Put the party on (row, col) of `area` and let the game redraw: bank 14 $BEFF reloads the area's tileset,
+    graphics and palette and draws the map around the party ($D97C), then the main loop runs."""
+    n.restore(st)
+    n[0x47], n[0x6011], n[0x6012] = area, 0, area  # current area, area-stack depth 0
+    n[0x60], n[0x61], n[0x62], n[0x63] = row % BLOCK_H, row // BLOCK_H, col & 15, col >> 4
+    n[0x87] = 0
+    n.call(0xC482, 14)
+    c = n.cpu
+    n[0x100 + c.sp], n[0x100 + ((c.sp - 1) & 0xFF)] = 0xFF, 0xEF
+    c.sp, c.pc = (c.sp - 2) & 0xFF, 0xBEFF
+    n.run(40)
+
+
+def check_warps(n: Nes, st, r: GameRom, spots, what: str) -> bool:
+    """Warp to each (area, row, col) and compare the screen; a few more frames on a mismatch."""
+    bad = []
+    for area, row, col in spots:
+        warp(n, st, area, row, col)
+        d = screen_diff(n, r)[0]
+        if d:
+            n.run(40)
+            d = screen_diff(n, r)[0]
+        if d:
+            bad.append((f"{area:02X}", row, col, d))
+    print(f"{what}: {len(spots) - len(bad)}/{len(spots)} warps pixel-exact (water animation masked)")
+    for b in bad:
+        print("  mismatch", b)
+    return not bad
+
+
+def world_spots(r: GameRom, step: int) -> list[tuple[int, int, int]]:
+    """The centre of every block of the field that comes on screen (the camera then shows just that block)."""
+    blocks = sorted({(row // BLOCK_H, col // 16) for row, col in r.visible(r.reach(0))})
+    return [(0, by * BLOCK_H + 7, bx * 16 + 8) for by, bx in blocks[::step]]
+
+
+def area_spots(r: GameRom, step: int) -> list[tuple[int, int, int]]:
+    """Every arrival point of every area except the field."""
+    spots = [(a, row, col) for a in range(1, 0x80) for row, col in r.arrivals(a)]
+    return spots[::step]
 
 
 def check_party(n: Nes, r: GameRom) -> bool:
@@ -145,6 +212,8 @@ def main() -> None:
     ok &= check_party(n, r)
     ok &= check_map(n, r, 100 if a.quick else 1000)
     ok &= check_encounters(n, r, 30 if a.quick else 150)
+    ok &= check_warps(n, st, r, world_spots(r, 10 if a.quick else 1), "world blocks")
+    ok &= check_warps(n, st, r, area_spots(r, 10 if a.quick else 1), "area arrivals")
     n.restore(st)
     ids = [g["id"] for g in r.generals() if g["color"]]  # colour 0 = no portrait (palette all black)
     ok &= check_portraits(n, r, ids[::10] if a.quick else ids)

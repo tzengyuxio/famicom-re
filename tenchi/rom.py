@@ -208,6 +208,58 @@ class MapRom(Rom):
                                 px[ox + (i & 7), oy + (i >> 3)] = rgb[pb + c] if c else rgb[0]
         return im
 
+    # ------------------------------------------------------------ reachability
+    def terrain(self, row: int, col: int, ts: int, alt: bool = False) -> int:
+        """Terrain of world metatile (row, col) in tileset `ts`: bank 9 page $B7 + ts ($D743)."""
+        cache = self.__dict__.setdefault("_blocks", {})
+        k = (row // BLOCK_H, col // 16, ts, alt)
+        if k not in cache:
+            cache[k] = self.block_metatiles(*k)
+        return self.byte(9, 0xB700 + ts * 256 + cache[k][row % BLOCK_H][col % 16])
+
+    def passable(self, row: int, col: int, ts: int) -> bool:
+        """The walk routine ($F315) refuses terrain >= $10. A bank-$0C block counts as passable when either
+        version is, since an event ($6570) can swap in the bank-$0D one (bridges and the like)."""
+        if not (0 <= row < GRID_ROWS * BLOCK_H and 0 <= col < GRID_COLS * 16):
+            return False
+        if self.terrain(row, col, ts) < 0x10:
+            return True
+        return self.block_ref(row // BLOCK_H, col // 16)[1] == 0x0C and self.terrain(row, col, ts, True) < 0x10
+
+    def arrivals(self, area: int) -> list[tuple[int, int]]:
+        """Where the game puts the party in `area`: entrance destinations, and teleport destinations
+        (area 0 = the field: the cave and castle exits that lead out onto the world map)."""
+        cells = [(e["dest_row"], e["dest_col"]) for e in self.entrances() if e["area"] == area]
+        cells += [(t["dest_row"], t["dest_col"]) for t in self.teleports() if t["area"] == area and (t["row"] or t["col"])]
+        return sorted(set(cells))
+
+    def reach(self, area: int) -> set[tuple[int, int]]:
+        """Cells the party can stand on in `area`, walking from its arrival points. Stepping on terrain $0E
+        runs the entrance check ($BC79; a record covers its cell and the one to the right) and $0F the teleport
+        check ($BD77); without a match either one leaves the area ($BE2F). Leaving an entrance puts the party
+        back on the entrance cell, so the walk goes on from there; teleports and exits lead elsewhere.
+        On the field the record-less $0E cells are the pass gates (metatiles $3C / $64): at the start they turn
+        the party back, and the story opens them later, so the walk goes through them there."""
+        ts = self.area_tileset(area)
+        doors = {(e["row"], e["col"] + d) for e in self.entrances() for d in (0, 1)}
+        seeds = self.arrivals(area)
+        seen, todo = set(seeds), list(seeds)
+        while todo:
+            row, col = cell = todo.pop()
+            t = self.terrain(row, col, ts)
+            if cell not in seeds and (t == 0x0F or t == 0x0E and area and cell not in doors):
+                continue
+            for nxt in ((row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)):
+                if nxt not in seen and self.passable(*nxt, ts):
+                    seen.add(nxt)
+                    todo.append(nxt)
+        return seen
+
+    @staticmethod
+    def visible(cells) -> set[tuple[int, int]]:
+        """Cells that come on screen: the camera shows rows -7..+7 and columns -8..+7 around the party."""
+        return {(row + dr, col + dc) for row, col in cells for dr in range(-7, 8) for dc in range(-8, 8)}
+
 
 # ---------------------------------------------------------------- people, items, tactics
 N_GENERALS = 217  # pointers $A800/$A900 (bank 12); ids 217-255 point into padding
