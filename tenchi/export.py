@@ -208,26 +208,21 @@ def portraits(r: GameRom, out: str) -> int:
 
 
 def strip_data(r: GameRom) -> dict:
-    """Data for strips_page: strip index = strip code 00-FF, palette id = +16 & $0F (1-9)."""
-    gens, rows = [], [set() for _ in range(6)]
-    for g in r.generals():
-        if g["color"]:
-            for k, v in enumerate(g["portrait"]):
-                rows[k].add(v)
-            gens.append({"id": g["id"], "name": g["name"], "p": g["portrait"], "c": g["color"],
-                         "k": [strips_page.glyph_hex(r.kanji_glyph(c, b)) for c, b in g["kanji"]]})
+    """Data for strips_page: strip index = strip code 00-FF, palette id = +16 & $0F (1-9).
+    179 (10マメ) is left out: its pointer lands inside 180's record, so its "portrait" is 180's bytes."""
+    gens = [{"id": g["id"], "name": g["name"], "p": g["portrait"], "c": g["color"],
+             "k": [strips_page.glyph_hex(r.kanji_glyph(c, b)) for c, b in g["kanji"]]}
+            for g in r.generals() if g["color"] and g["id"] != 179]
     strips = []
     for v in range(256):
         tiles = r.portrait_tiles([v])
         strips.append("".join(str(tiles[i // 8 % 6][(i // 48) * 8 + i % 8]) for i in range(384)))
+
     def hexrgb(c: int) -> str:
         return "#" + "".join(f"{x:02x}" for x in nes_rgb(c))
-    return {"title": "天地を喰らう 頭像拼貼",
-            "note": "每張頭像是 6 條 48×8 的橫條，加上第 4 色的配色（9 種）。每列從遊戲在該位置用過的橫條中挑一條；"
-                    "勾選「不限位置」可改從全部 256 條挑。資料與圖形都直接取自 ROM。",
+    return {"game": "tenchi", "title": "天地を喰らう", "group_names": ["兜", "官帽"],
             "fixed": [hexrgb(c) for c in PORTRAIT_FIXED], "colors": [hexrgb(c) for c in PORTRAIT_COLOR],
-            "strips": strips, "labels": [f"{v:02X}" for v in range(256)], "rows": [sorted(x) for x in rows],
-            "generals": gens}
+            "strips": strips, "labels": [f"{v:02X}" for v in range(256)], "generals": gens}
 
 
 def area_blocks(r: GameRom) -> dict[tuple[int, int], int]:

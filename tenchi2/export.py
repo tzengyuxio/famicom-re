@@ -131,17 +131,12 @@ def strip_data(r: R.Rom) -> dict:
                 for x in range(8):
                     px[y][t * 8 + x] = ((lo[y] >> (7 - x)) & 1) | (((hi[y] >> (7 - x)) & 1) << 1)
         strips.append("".join(str(c) for row in px for c in row[::-1]))
-    rows = [set() for _ in range(6)]
     for g in gens:
         g["p"] = [index[v] for v in g.pop("rows")]
-        for k, v in enumerate(g["p"]):
-            rows[k].add(v)
     hexrgb = ["#" + "".join(f"{x:02x}" for x in R.nes_rgb(c)) for c in R.STATUS_PALETTE]
-    return {"title": "天地を喰らうII 頭像拼貼",
-            "note": "每張頭像是 6 條 48×8 的橫條（bank:列號），調色盤固定，照ぶしょう畫面左右鏡像。"
-                    f"每列從遊戲在該位置用過的橫條中挑一條；勾選「不限位置」可改從全部 {len(keys)} 條挑。資料與圖形都直接取自 ROM。",
+    return {"game": "tenchi2", "title": "天地を喰らうII", "group_names": ["兜", "官帽"],
             "fixed": hexrgb[:3], "colors": hexrgb[3:], "strips": strips,
-            "labels": [f"{b:X}:{i:02X}" for b, i in keys], "rows": [sorted(x) for x in rows], "generals": gens}
+            "labels": [f"{b:X}:{i:02X}" for b, i in keys], "generals": gens}
 
 
 def kanji_sheets(r: R.Rom, out: str) -> None:
