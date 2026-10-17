@@ -22,6 +22,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau (Japan) (Rev A).zip`（`--rom` 也接�
 |------|------|
 | `rom.py` | ROM 解碼：文字與台詞控制碼、武將紀錄、頭像、漢字名字型、道具／商店、策略、兵士數表與成長、戰鬥編成、遇敵區域與名單、地點名、地圖（區塊格、2x2 chunk、metatile、地形）、出入口、傳送點、寶箱 |
 | `export.py` | 匯出 CSV（UTF-8-BOM）／XLSX／PNG |
+| `strips_page.py` | 產生頭像拼貼頁 `strips.html`（由 `export.py` 呼叫） |
 | `verify.py` | 模擬器驗證 |
 | `tools/emu.py` | 沿用 `sangokushi/tools/nes_emu.py`（MMC1＋py65），加上按鍵腳本、fine-x 捲動、背景＋sprite 畫面、直接呼叫遊戲副程式（`call`／`call_frames`） |
 
@@ -46,6 +47,9 @@ ROM 預設直接讀 `roms/Tenchi o Kurau (Japan) (Rev A).zip`（`--rom` 也接�
 | `tenchi.xlsx` | 以上各表 |
 | `portraits/NNN_名前.png`、`NNN_名前_name.png` | 208 張頭像（2 倍）與漢字名（配色 0 的 9 人沒有頭像） |
 | `portraits_sheet.png` | 頭像＋漢字名總覽（相同的合併） |
+| `portrait_strips.csv` | 頭像橫條：位置（第 1–6 條）、橫條碼、用到的臉數與武將數、武將名單（同名合併） |
+| `strips_sheet.png`、`strips/<位置>_<碼>.png` | 橫條零件總覽：6 個位置各列出用過的橫條（2 倍）、幾張臉用到、哪些武將。橫條以多數使用者的配色畫 |
+| `strips.html` | 頭像拼貼頁（瀏覽器直接開）：每個位置挑一條、選配色，看拼出的臉與哪些武將用同樣的組合；可載入武將、隨機拼、或不限位置從 256 條挑。圖形從 ROM 內嵌，所以只放 output/ |
 | `world.png` | 大地圖（中國全圖，20×20 區塊），黃框＝出入口（目的區域 id＋名稱）、青框＝傳送點、粉紅＝寶箱 |
 | `world_zones.png` | 大地圖縮圖疊上遇敵區域編號 |
 | `maps/area_XX_名稱.png` | 66 個城鎮／城／洞窟／建築內部地圖，同樣標出出入口與寶箱。不屬於該區域的區塊調暗 |
@@ -59,6 +63,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau (Japan) (Rev A).zip`（`--rom` 也接�
 - **隊伍**：劉備、関羽、張飛的ぶりょく、ちりょく、すばやさ、兵士數（314／100／100）與 WRAM 相同
 - **遇敵**：用遊戲的隨機編成副程式（bank 14 `$B324`）在 1–8 區各抽 150 次，出現的武將全部在 `encounter_pools.csv` 該區名單內，雜兵只有カイゾク／サンゾク／トウゾク／へイシ；第 6 區在呂布（id 183）的旗標還在時，約一半會改成固定戰鬥 79（呂布＋へイシ 4）
 - **頭像＋漢字名**：208 個有頭像的 id 逐一放進「大将」欄位、開狀態畫面，頭像 48×48 與漢字名都和畫面逐 pixel 相同（208/208）
+- 拼貼頁：在瀏覽器逐一載入 208 個武將，頁面 canvas 上的頭像與漢字名和 `rom.py` 畫的逐 pixel 相同（208/208，Playwright 比對 SHA-256；不在 `verify.py` 裡）
 - 另手動比對：村子畫面 0 pixel 不同；大地圖畫面只有水面動畫 tile 不同
 
 ## 進度

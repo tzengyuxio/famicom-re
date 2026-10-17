@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import strips_page
 from rom import BLOCK_H, DEFAULT_ROM, GENERIC, GRID_COLS, GRID_ROWS, N_GENERALS, GameRom, decode
 
 TACTIC_GROUP = {0: "火", 1: "水", 2: "回復", 3: "補助（防御）", 4: "補助（妨害）", 5: "攻撃（特殊）"}
@@ -194,6 +195,74 @@ def portraits(r: GameRom, out: str) -> int:
     return len(gs)
 
 
+def strip_users(r: GameRom) -> dict[tuple[int, int], list[dict]]:
+    """(row 0-5, strip code) -> generals whose portrait uses that 48x8 strip in that row."""
+    users = {}
+    for g in r.generals():
+        if g["color"]:
+            for row, v in enumerate(g["portrait"]):
+                users.setdefault((row, v), []).append(g)
+    return users
+
+
+def user_names(gs: list[dict]) -> str:
+    """Same-name ids merged: シュウチョウ(1,2,3)."""
+    by = {}
+    for g in gs:
+        by.setdefault(g["name"], []).append(str(g["id"]))
+    return "、".join(f"{n}({','.join(ids)})" for n, ids in by.items())
+
+
+def strip_rows(r: GameRom) -> list[dict]:
+    return [{"row": row + 1, "strip": f"{v:02X}", "faces": len({tuple(g["portrait"]) for g in gs}),
+             "generals": len(gs), "users": user_names(gs)}
+            for (row, v), gs in sorted(strip_users(r).items())]
+
+
+def wrap(dr: ImageDraw.ImageDraw, text: str, f, width: int) -> list[str]:
+    lines, cur = [], ""
+    for part in text.split("、"):
+        nxt = f"{cur}、{part}" if cur else part
+        if cur and dr.textlength(nxt, font=f) > width:
+            lines.append(cur + "、")
+            nxt = part
+        cur = nxt
+    return lines + [cur]
+
+
+def strips(r: GameRom, out: str) -> int:
+    """Parts sheet of the 48x8 portrait strips, one section per row, each strip with the generals using it.
+    A strip is drawn in the colour 3 most of its users have; strips/ holds each strip at 2x."""
+    d = os.path.join(out, "strips")
+    os.makedirs(d, exist_ok=True)
+    users = strip_users(r)
+    f, fb = font(11), font(14)
+    sw, lh, width = 96, 15, 1400
+    dr = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    blocks = []  # (row, strip, image, faces, name lines)
+    for (k, v), gs in sorted(users.items()):
+        colors = [g["color"] for g in gs]
+        im = r.portrait_image({"portrait": [v] * 6, "color": max(set(colors), key=colors.count)})
+        im = im.crop((0, 0, 48, 8)).resize((sw, 16), Image.NEAREST)
+        im.save(os.path.join(d, f"{k + 1}_{v:02X}.png"))
+        blocks.append((k, v, im, len({tuple(g["portrait"]) for g in gs}), wrap(dr, user_names(gs), f, width - sw - 70)))
+    height = sum(max(20, len(b[4]) * lh + 5) for b in blocks) + 6 * 30
+    sheet = Image.new("RGB", (width, height), (40, 40, 40))
+    dr, y = ImageDraw.Draw(sheet), 0
+    for k in range(6):
+        sec = [b for b in blocks if b[0] == k]
+        dr.text((6, y + 8), f"第 {k + 1} 條（y {k * 8}–{k * 8 + 7}）：{len(sec)} 種", fill=(255, 220, 120), font=fb)
+        y += 30
+        for _, v, im, faces, lines in sec:
+            sheet.paste(im, (6, y + 2))
+            dr.text((sw + 12, y + 3), f"{v:02X} ×{faces}", fill=(255, 255, 255), font=f)
+            for n, t in enumerate(lines):
+                dr.text((sw + 70, y + 3 + n * lh), t, fill=(190, 190, 190), font=f)
+            y += max(20, len(lines) * lh + 5)
+    sheet.save(os.path.join(out, "strips_sheet.png"))
+    return len(users)
+
+
 def area_blocks(r: GameRom) -> dict[tuple[int, int], int]:
     """Heuristic owner area of each grid block: nearest arrival point (entrance / teleport destination,
     or the field next to a town gate) within 40 metatiles. The ROM has no such table; see ROM_FORMAT.md."""
@@ -291,6 +360,7 @@ def main() -> None:
         "messages": [{"bank": m["bank"], "id": m["id"], "ptr": f"{m['ptr']:04X}", "text": m["text"]}
                      for m in r.messages()],
         "soldier_table": [{"rank": k, "兵士数": v} for k, v in enumerate(r.soldier_table())],
+        "portrait_strips": strip_rows(r),
     }
     for name, rows in tables.items():
         write_csv(os.path.join(a.out, f"{name}.csv"), rows)
@@ -304,7 +374,9 @@ def main() -> None:
             ws.append([v if isinstance(v, (int, float)) else str(v) for v in row.values()])
     wb.save(os.path.join(a.out, "tenchi.xlsx"))
     n = portraits(r, a.out)
-    print(f"{len(tables['generals'])} generals ({N_GENERALS} ids), {n} portraits, {len(tables['messages'])} messages")
+    print(f"{len(tables['generals'])} generals ({N_GENERALS} ids), {n} portraits, {strips(r, a.out)} strips, "
+          f"{len(tables['messages'])} messages")
+    print(strips_page.write(r, a.out))
     if not a.no_maps:
         print(f"world.png, world_zones.png, {maps(r, a.out)} area maps")
 
