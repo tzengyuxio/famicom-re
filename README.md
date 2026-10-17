@@ -8,25 +8,25 @@ FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco、1 款台灣非�
 
 | 資料夾 | 遊戲 | 發行 | Mapper | kaodata |
 |--------|------|------|--------|---------|
+| [`zenkoku/`](zenkoku/) | 信長の野望・全国版 | KOEI 1988 | MMC1 | `nobu2-fc` |
 | [`sangokushi/`](sangokushi/) | 三國志 | KOEI 1988 | MMC1 | `san1-fc` |
 | [`genghis/`](genghis/) | 蒼き狼と白き牝鹿・ジンギスカン | KOEI 1988 | MMC1 | `genghis-fc` |
 | [`mahjong/`](mahjong/) | 麻雀大会 | KOEI 1989 | MMC1 | `mahjong-fc` |
-| [`zenkoku/`](zenkoku/) | 信長の野望・全国版 | KOEI 1988 | MMC1 | `nobu2-fc` |
 | [`gunyuu/`](gunyuu/) | 信長の野望・戦国群雄伝 | KOEI 1990 | MMC5 | `nobu3-fc` |
 | [`suikoden/`](suikoden/) | 水滸伝・天命の誓い | KOEI 1990 | MMC5 | `suikoden-fc` |
 | [`ishin/`](ishin/) | 維新の嵐 | KOEI 1990 | MMC5 | `ishin-fc` |
+| [`san2/`](san2/) | 三國志II | KOEI 1990 | MMC5 | `san2-fc` |
 | [`topman/`](topman/) | ファミコントップマネジメント | KOEI 1990 | MMC1 | —（無頭像） |
-| [`empereur/`](empereur/) | ランペルール | KOEI 1991 | MMC5 | `lempe-fc` |
 | [`daikoukai/`](daikoukai/) | 大航海時代 | KOEI 1991 | MMC5 | `koukai-fc` |
-| [`bushou/`](bushou/) | 信長の野望・武将風雲録 | KOEI 1991 | MMC5 | `nobu4-fc` |
-| [`san2/`](san2/) | 三國志II | KOEI 1991 | MMC5 | `san2-fc` |
+| [`empereur/`](empereur/) | ランペルール | KOEI 1991 | MMC5 | `lempe-fc` |
 | [`royal/`](royal/) | ロイヤルブラッド | KOEI 1991 | MMC5 | `royal-fc` |
-| [`genchou/`](genchou/) | 蒼き狼と白き牝鹿・元朝秘史 | KOEI 1992 | MMC5 | `genchou-fc` |
+| [`bushou/`](bushou/) | 信長の野望・武将風雲録 | KOEI 1991 | MMC5 | `nobu4-fc` |
+| [`genchou/`](genchou/) | 蒼き狼と白き牝鹿・元朝秘史 | KOEI 1993 | MMC5 | `genchou-fc` |
 | [`chuugen/`](chuugen/) | 三國志 中原の覇者 | Namco 1988 | Namco 163 | `chuugen-fc` |
 | [`haou/`](haou/) | 三國志II 覇王の大陸 | Namco 1992 | Namco 163 | `haou-fc` |
 | [`shenghuo/`](shenghuo/) | 聖火列傳 | C&E 1991（台灣非授權） | Mapper 240 | —（非光榮） |
 
-發行年是 FC 版日本發售年。全国版、戦国群雄伝、維新の嵐、大航海時代、ランペルール、武将風雲録、ロイヤルブラッド已對照 ja.wikipedia，水滸伝對照 ROM 內的版權字串，見各資料夾 README。
+發行年是 FC 版日本發售年，依發售順序排列（Namco 與非授權作品放最後）。光榮 FC 共 14 款，已全部解析；發售日對照 ja.wikipedia 與 [fc.game-kit.net 光榮 FC 一覧](https://fc.game-kit.net/fc-db/fc-s/?fc-maker=%E5%85%89%E6%A0%84)，水滸伝另對照 ROM 內的版權字串，見各資料夾 README。
 
 ## 環境
 

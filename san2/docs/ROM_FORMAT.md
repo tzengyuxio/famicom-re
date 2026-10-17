@@ -1,4 +1,4 @@
-# FC 三國志II（KOEI, 1991）ROM 格式
+# FC 三國志II（KOEI, 1990）ROM 格式
 
 ROM：`roms/Sangokushi II (Japan).zip`。iNES：PRG 256 KB（32 × 8 KB bank）、CHR-ROM 256 KB（header byte 5 = 0x20），mapper 5（MMC5，PRG mode 3），有電池。
 

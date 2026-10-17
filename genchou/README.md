@@ -1,6 +1,6 @@
 # FC 蒼き狼と白き牝鹿・元朝秘史 解析
 
-KOEI，1992，FC（MMC5）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
+KOEI，1993，FC（MMC5）。FC 版 1993 年 3 月 25 日發售（ja.wikipedia）。ROM 結構與各表格式見 [docs/ROM_FORMAT.md](docs/ROM_FORMAT.md)。
 
 ## 指令
 

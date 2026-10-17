@@ -12,7 +12,7 @@ KOEI 等 FC/NES 遊戲（另有 Namco 2 款、台灣非授權 1 款）的 ROM �
 |--------|------|
 | `sangokushi/` | 三國志 (KOEI, 1988, MMC1)：武將表、專屬頭像、大眾臉、漢字對照、58 國戰爭地圖、kaodata `san1-fc` |
 | `suikoden/` | 水滸伝・天命の誓い (KOEI, 1990, MMC5)：人物、劇本、頭像（專屬＋組合臉）、州地圖、四季戰鬥地圖、kaodata `suikoden-fc` |
-| `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1992, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
+| `genchou/` | 蒼き狼と白き牝鹿・元朝秘史 (KOEI, 1993, MMC5)：人物（4 劇本）、國、兵科、交易品、頭像（專屬＋組合臉）、大地圖、47 張戰場地圖、kaodata `genchou-fc` |
 | `genghis/` | 蒼き狼と白き牝鹿・ジンギスカン (KOEI, 1988, MMC1)：人物、后妃、頭像（專屬＋組合臉）、國、大地圖、41 張戰場地圖、kaodata `genghis-fc` |
 | `mahjong/` | 麻雀大会 (KOEI, 1989, MMC1)：雀士 16 人（名牌）、頭像（15 人 × 7 表情＋玩家）、台詞 1320 句（42 場面）、AI 參數、麻將牌 34 種、kaodata `mahjong-fc` |
 | `empereur/` | ランペルール (KOEI, 1991, MMC5)：人物（4 劇本，含性格）、國、46 都市、頭像（專屬＋組合臉）、大地圖、46 張戰場地圖、kaodata `lempe-fc` |
@@ -23,7 +23,7 @@ KOEI 等 FC/NES 遊戲（另有 Namco 2 款、台灣非授權 1 款）的 ROM �
 | `zenkoku/` | 信長の野望・全国版 (KOEI, 1988, MMC1)：大名（50／17 國）、國、相鄰、頭像（大名＋姫 75 張）、地方地圖、戰場地圖、kaodata `nobu2-fc` |
 | `royal/` | ロイヤルブラッド (KOEI, 1991, MMC5)：人物（4 劇本）、家、領地、第 5 部隊、頭像（人物 64＋相談役 4＋部隊 23）、戰略地圖、戰場 30 張、kaodata `royal-fc` |
 | `daikoukai/` | 大航海時代 (KOEI, 1991, MMC5)：人物、航海士能力、頭像（專屬＋組合臉）、70 港口、世界地圖、港町圖、kaodata `koukai-fc` |
-| `san2/` | 三國志II (KOEI, 1991, MMC5)：武將 352 人（6 劇本）、41 州（六角相鄰）、頭像（專屬＋組合臉）、大地圖、41 張戰場（可依直欄六角排法拼成全中國戰場圖）、kaodata `san2-fc` |
+| `san2/` | 三國志II (KOEI, 1990, MMC5)：武將 352 人（6 劇本）、41 州（六角相鄰）、頭像（專屬＋組合臉）、大地圖、41 張戰場（可依直欄六角排法拼成全中國戰場圖）、kaodata `san2-fc` |
 | `chuugen/` | 三國志 中原の覇者 (Namco, 1988, Namco 163)：武將、州、道路、頭像（共用整張臉 120 張＋表情）、大地圖、戰場地圖、kaodata `chuugen-fc` |
 | `haou/` | 三國志II 覇王の大陸 (Namco, 1992, Namco 163)：武將（[EXT] 漢字）、州、君主、道具、頭像（共用整張臉＋5 表情）、大地圖、戰場地圖 30 張、kaodata `haou-fc` |
 | `shenghuo/` | 聖火列傳 (C&E, 1991, mapper 240, 台灣非授權)：人物 13（5 章能力、武功）、道具、武功、敵人 30、遇敵表、頭像 36、字型對照、大地圖（標註 27 入口）＋23 張地圖；非光榮作品，不做 kaodata |
@@ -62,3 +62,11 @@ uvx ruff check --line-length 120 <檔案或資料夾>
 - 最上層與 `tools/` 的分工兩款不一致，刻意保留、不要統一：
   - `suikoden/`：最上層是執行入口與解碼核心 `rom.py`，`tools/` 只放輔助模組（模擬器）
   - `sangokushi/`：最上層是早期工具；`tools/` 混放正式入口（kaodata 匯出／驗證、`parts_sheet.py`）與研究用小工具
+
+## 上下游
+
+依 `~/.claude/repos.md` 的跨 repo 協作規範（用 `handoff` skill）。
+
+- **kaodata**（A 類）：光榮作品的頭像依 kaodata 的 `docs/data-format.md` 匯出；交接時附 revision 與驗證結果
+- **素材站**（A 類，規劃中）：非光榮作品（中原の覇者、覇王の大陸、聖火列傳）的素材
+- **simagame**（B 類）：研究成果要做成推文或配圖時，交接單寫到 simagame 的 `inbox/`

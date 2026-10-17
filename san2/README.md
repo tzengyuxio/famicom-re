@@ -1,4 +1,6 @@
-# 三國志II（FC, KOEI, 1991）
+# 三國志II（FC, KOEI, 1990）
+
+FC 版 1990 年 11 月 2 日發售（ja.wikipedia）。
 
 ROM：`roms/Sangokushi II (Japan).zip`（MMC5，PRG 256 KB + CHR 256 KB）。程式直接從 zip 讀取，`--rom` 也接受 `.nes`。
 
