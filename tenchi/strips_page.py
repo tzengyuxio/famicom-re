@@ -10,7 +10,8 @@ its strips and generals as a dict; write() then
 
 Data dict: game, title, group_names (by lowest strip index), fixed (hex colours 0-2), colors (hex colour 3 per
 palette id; one entry = no choice), strips (384 chars '0'-'3' per strip, 48x8 row-major, as shown on screen),
-labels (strip code text), generals [{id, name, p: 6 strip indexes, c: palette id, k: kanji glyph hex}].
+labels (strip code text), generals [{id, name (shown in lists), zh (kanji name), kana, p: 6 strip indexes,
+c: palette id, k: kanji glyph hex}].
 The page embeds ROM graphics, so it only goes to the git-ignored output/.
 
   .venv/bin/python tenchi/strips_page.py     # rebuild only the editor from the existing strips_data.json files
@@ -343,7 +344,7 @@ function useGame(n) {
     + `正好分成 ${D.groups.length} 組（${gs}），不同組的橫條從來沒有拼在一起過，所以每組只能在組內混搭；`
     + `專屬臉用到的橫條不在任何一組的選項裡。「不分組」可以把各組的橫條混著試。資料與圖形都直接取自 ROM。`;
   $("gen").innerHTML = "";
-  for (const g of D.generals) $("gen").add(new Option(`${g.id} ${g.name}`, g.id));
+  for (const g of D.generals) $("gen").add(new Option([g.id, g.zh, g.kana].filter(x => x).join(" "), g.id));
   $("modes").innerHTML = "";
   [[-1, `專屬臉（${nOwn}）`], ...D.groups.map((g, i) => [i, `${g.name}組（${g.faces}）`]), [-2, "不分組"]].forEach(([m, t]) => {
     const b = document.createElement("button"); b.textContent = t; b.dataset.m = m; b.onclick = () => setMode(m);

@@ -59,7 +59,7 @@ def general_rows(r: GameRom) -> list[dict]:
         raw = g["raw"]
         rank = g["ally_rank"]
         rows.append({
-            "id": g["id"], "name": g["name"], "kanji_codes": " ".join(f"{c:02X}/b{b}" for c, b in g["kanji"]),
+            "id": g["id"], "name": g["name"], "kanji": g["kanji_text"], "kanji_codes": " ".join(f"{c:02X}/b{b}" for c, b in g["kanji"]),
             "ぶりょく": g["buryoku"], "ちりょく": g["chiryoku"], "すばやさ": g["speed"],
             "兵士数": r.soldiers(rank), "兵士数成長": "yes" if rank & 0x80 else "", "soldier_rank(+7)": f"{rank:02X}",
             "enemy_level(+8)": g["level"], "zone(+2)": g["region"], "weapon_class(+4)": g["weapon"],
@@ -210,7 +210,8 @@ def portraits(r: GameRom, out: str) -> int:
 def strip_data(r: GameRom) -> dict:
     """Data for strips_page: strip index = strip code 00-FF, palette id = +16 & $0F (1-9).
     179 (10マメ) is left out: its pointer lands inside 180's record, so its "portrait" is 180's bytes."""
-    gens = [{"id": g["id"], "name": g["name"], "p": g["portrait"], "c": g["color"],
+    gens = [{"id": g["id"], "name": g["kanji_text"] or g["name"], "zh": g["kanji_text"], "kana": g["name"],
+             "p": g["portrait"], "c": g["color"],
              "k": [strips_page.glyph_hex(r.kanji_glyph(c, b)) for c, b in g["kanji"]]}
             for g in r.generals() if g["color"] and g["id"] != 179]
     strips = []

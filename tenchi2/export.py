@@ -117,7 +117,8 @@ def strip_data(r: R.Rom) -> dict:
         if g != 231 and any(c for row in r.portrait(g) for c in row):
             kanji = [strips_page.glyph_hex([v for row in r.kanji_glyph(s, i) for v in row])
                      for s, i in r.general_kanji_codes(g)]
-            gens.append({"id": g, "name": r.general_kanji(g).strip("\u3000") or r.general_name(g),
+            zh = r.general_kanji(g).strip("\u3000")
+            gens.append({"id": g, "name": zh or r.general_name(g), "zh": zh, "kana": r.general_name(g),
                          "rows": r.portrait_rows(g), "c": 0, "k": kanji})
     keys = sorted({v for g in gens for v in g["rows"]})
     index = {v: n for n, v in enumerate(keys)}

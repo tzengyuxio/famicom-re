@@ -8,6 +8,14 @@ import zipfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_ROM = os.path.join(REPO, "roms", "Tenchi o Kurau (Japan) (Rev A).zip")
+KANJI_TSV = os.path.join(REPO, "tenchi", "data", "kanji.tsv")  # name glyph (code, bank) -> character, read by eye
+
+
+def kanji_table() -> dict[tuple[int, int], str]:
+    """Transcribed glyphs used in general names; "" for the two picture tiles of ザントウ (D6, D7)."""
+    with open(KANJI_TSV, encoding="utf-8") as f:
+        rows = [line.rstrip("\n").split("\t") for line in f][1:]
+    return {(int(c, 16), int(b)): ch for c, b, ch in rows}
 
 # ---------------------------------------------------------------- text
 # Font tiles $00-$7F (pattern table $1000 of the menu screens). $80-$E1 = tile (code & $7F) with a
@@ -68,6 +76,7 @@ class Rom:
             with open(path, "rb") as f:
                 data = f.read()
         self.prg = data[16:]
+        self.kanji_chars = kanji_table()
 
     def bank(self, b: int) -> bytes:
         return self.prg[b * 0x4000:(b + 1) * 0x4000]
@@ -242,7 +251,8 @@ class GameRom(MapRom):
         return {"id": i, "ptr": p, "name": decode(name), "raw": r,
                 "buryoku": r[0], "chiryoku": r[1], "region": r[2], "b3": r[3], "weapon": r[4] & 0x1F, "b4_hi": r[4] >> 5,
                 "armor": r[5], "enemy_rank": r[6], "ally_rank": r[7], "level": r[8], "speed": r[9],
-                "portrait": list(r[10:16]), "color": r[16] & 0x0F, "kanji": list(zip(kanji, banks))}
+                "portrait": list(r[10:16]), "color": r[16] & 0x0F, "kanji": list(zip(kanji, banks)),
+                "kanji_text": "".join(self.kanji_chars.get(k, "?") for k in zip(kanji, banks))}
 
     def generals(self) -> list[dict]:
         return [self.general(i) for i in range(N_GENERALS)]
