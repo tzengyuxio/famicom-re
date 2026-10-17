@@ -21,7 +21,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau II - Shokatsu Koumei Den (Japan) (Rev A
 | 檔案 | 用途 |
 |------|------|
 | `rom.py` | ROM 解碼：文字與訊息（含詞典字、控制碼）、武將、漢字、頭像、道具、經驗值、商店、策略、遇敵表、地圖（螢幕格、tileset、調色盤、門／傳送） |
-| `export.py` | 匯出 CSV（UTF-8-BOM）／XLSX／PNG；推定各地圖在螢幕格中的範圍 |
+| `export.py` | 匯出 CSV（UTF-8-BOM）／XLSX／PNG；推定各地圖在螢幕格中的範圍。頭像橫條的總覽圖與拼貼頁借用 `tenchi/strips_page.py` |
 | `verify.py` | 模擬器驗證 |
 | `data/kanji1.txt`、`data/kanji2.txt` | 漢字字表（第 1 組 256 字、第 2 組 64 字），照 ROM 字形抄寫 |
 | `tools/emu.py` | MMC3 模擬：沿用 `chuugen/tools/nes_emu.py`（py65＋暫存器層級 PPU），加上 MMC3 bank、CHR-RAM、mirroring、掃描線 IRQ |
@@ -33,6 +33,9 @@ ROM 預設直接讀 `roms/Tenchi o Kurau II - Shokatsu Koumei Den (Japan) (Rev A
 |------|------|
 | `generals.csv` | 256 筆武將：假名名、漢字名、ちりょく／ぶりょく／すばやさ、ぶき、ちけい、策略群、遇敵章節、未解欄位原值、頭像列位置 |
 | `portraits/NNN.png`、`portraits_sheet.png` | 頭像 48×48（照ぶしょう畫面的鏡像與調色盤） |
+| `portrait_strips.csv` | 頭像橫條：位置（第 1–6 條）、橫條（bank:列號）、用到的臉數與武將數、武將名單（同名合併） |
+| `strips_sheet.png`、`strips/<位置>_<bank>-<列號>.png` | 橫條零件總覽：6 個位置各列出用過的橫條（2 倍、已鏡像）、幾張臉用到、哪些武將 |
+| `strips.html` | 頭像拼貼頁（瀏覽器直接開）：每個位置挑一條，看拼出的臉與哪些武將用同樣的組合；可載入武將、隨機拼、或不限位置從 366 條挑。不含 231 與全空白的臉（0、109、249–255）。圖形從 ROM 內嵌，所以只放 output/ |
 | `kanji1.png`、`kanji2.png` | 漢字字形總覽 |
 | `items.csv` | 道具 120 種：價格、種類（武器類別／鎧／兜／盾／其他）、攻擊力或防禦力 |
 | `shops.csv` | 各城鎮（地圖編號）的武器屋、道具屋商品 |
@@ -54,6 +57,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau II - Shokatsu Koumei Den (Japan) (Rev A
 | 頭像與漢字 | 在ぶしょう清單把顯示的武將 id（`$6627`）依序設成 0–255，打開狀態畫面，比對 48×48 頭像與漢字名 | 256/256 逐 pixel 一致 |
 
 另外手動看過的部分：
+- 拼貼頁：在瀏覽器逐一載入 245 個武將，頁面上的頭像與 `portraits/NNN.png`、漢字名與 `rom.py` 的字形逐 pixel 相同（245/245，Playwright 比對 SHA-256）。
 - 大地圖：洛陽城外的畫面與 `world.png` 對得上（地圖 0）。
 - 洛陽城鎮：與 `maps/map_002.png` 對得上。
 - 開場訊息：解碼結果和畫面一致。

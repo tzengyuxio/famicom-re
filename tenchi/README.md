@@ -22,7 +22,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau (Japan) (Rev A).zip`（`--rom` 也接�
 |------|------|
 | `rom.py` | ROM 解碼：文字與台詞控制碼、武將紀錄、頭像、漢字名字型、道具／商店、策略、兵士數表與成長、戰鬥編成、遇敵區域與名單、地點名、地圖（區塊格、2x2 chunk、metatile、地形）、出入口、傳送點、寶箱 |
 | `export.py` | 匯出 CSV（UTF-8-BOM）／XLSX／PNG |
-| `strips_page.py` | 產生頭像拼貼頁 `strips.html`（由 `export.py` 呼叫） |
+| `strips_page.py` | 頭像橫條的總覽圖、單條 PNG、拼貼頁 `strips.html` 與 CSV 列（由 `export.py` 呼叫；`tenchi2/` 也共用） |
 | `verify.py` | 模擬器驗證 |
 | `tools/emu.py` | 沿用 `sangokushi/tools/nes_emu.py`（MMC1＋py65），加上按鍵腳本、fine-x 捲動、背景＋sprite 畫面、直接呼叫遊戲副程式（`call`／`call_frames`） |
 

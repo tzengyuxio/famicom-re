@@ -2,6 +2,7 @@
 import argparse
 import csv
 import os
+import sys
 from collections import deque
 
 import rom as R
@@ -9,6 +10,9 @@ from openpyxl import Workbook
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(HERE, "..", "tenchi"))  # appended, so `rom` stays tenchi2/rom.py
+import strips_page
+
 KIND_NAMES = {0x80: "よろい", 0x81: "かぶと", 0x82: "たて", 0x88: "そうび"}
 
 
@@ -103,6 +107,41 @@ def portraits(r: R.Rom, out: str) -> None:
         im.save(os.path.join(d, f"{g:03d}.png"))
         sheet.paste(im, ((g % 16) * 52 + 2, (g // 16) * 52 + 2))
     sheet.save(os.path.join(out, "portraits_sheet.png"))
+
+
+def strip_data(r: R.Rom) -> dict:
+    """Data for strips_page: strips are the (bank, row index) pairs in use, mirrored like the ぶしょう screen.
+    231 (junk record) and the all-blank faces (0, 109, 249-255) are left out; there is no palette choice."""
+    gens = []
+    for g in range(R.GENERAL_COUNT):
+        if g != 231 and any(c for row in r.portrait(g) for c in row):
+            kanji = [strips_page.glyph_hex([v for row in r.kanji_glyph(s, i) for v in row])
+                     for s, i in r.general_kanji_codes(g)]
+            gens.append({"id": g, "name": r.general_kanji(g).strip("\u3000") or r.general_name(g),
+                         "rows": r.portrait_rows(g), "c": 0, "k": kanji})
+    keys = sorted({v for g in gens for v in g["rows"]})
+    index = {v: n for n, v in enumerate(keys)}
+    strips = []
+    for b, idx in keys:
+        o = b * 0x2000 + idx * R.PORTRAIT_ROW_BYTES
+        px = [[0] * 48 for _ in range(8)]
+        for t in range(6):
+            lo, hi = r.prg[o + t * 16:o + t * 16 + 8], r.prg[o + t * 16 + 8:o + t * 16 + 16]
+            for y in range(8):
+                for x in range(8):
+                    px[y][t * 8 + x] = ((lo[y] >> (7 - x)) & 1) | (((hi[y] >> (7 - x)) & 1) << 1)
+        strips.append("".join(str(c) for row in px for c in row[::-1]))
+    rows = [set() for _ in range(6)]
+    for g in gens:
+        g["p"] = [index[v] for v in g.pop("rows")]
+        for k, v in enumerate(g["p"]):
+            rows[k].add(v)
+    hexrgb = ["#" + "".join(f"{x:02x}" for x in R.nes_rgb(c)) for c in R.STATUS_PALETTE]
+    return {"title": "天地を喰らうII 頭像拼貼",
+            "note": "每張頭像是 6 條 48×8 的橫條（bank:列號），調色盤固定，照ぶしょう畫面左右鏡像。"
+                    f"每列從遊戲在該位置用過的橫條中挑一條；勾選「不限位置」可改從全部 {len(keys)} 條挑。資料與圖形都直接取自 ROM。",
+            "fixed": hexrgb[:3], "colors": hexrgb[3:], "strips": strips,
+            "labels": [f"{b:X}:{i:02X}" for b, i in keys], "rows": [sorted(x) for x in rows], "generals": gens}
 
 
 def kanji_sheets(r: R.Rom, out: str) -> None:
@@ -244,6 +283,8 @@ def main() -> None:
     write_csv(a.out, "messages", ["id", "offset", "text"],
               [[m, f"{r.message_offset(m):05X}", text.message(m)] for m in range(R.MESSAGE_COUNT)], book)
     portraits(r, a.out)
+    strip_rows = strips_page.write(strip_data(r), a.out)
+    write_csv(a.out, "portrait_strips", list(strip_rows[0]), [list(x.values()) for x in strip_rows], book)
     kanji_sheets(r, a.out)
     write_csv(a.out, "maps", ["map", "area/tileset", "BG tile set", "grid rows", "grid cols", "screens", "png"],
               maps(r, a.out), book)
