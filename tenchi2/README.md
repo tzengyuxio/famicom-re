@@ -32,7 +32,7 @@ ROM 預設直接讀 `roms/Tenchi o Kurau II - Shokatsu Koumei Den (Japan) (Rev A
 | 檔案 | 內容 |
 |------|------|
 | `generals.csv` | 256 筆武將：假名名、漢字名、ちりょく／ぶりょく／すばやさ、ぶき、ちけい、策略群、遇敵章節、未解欄位原值、頭像列位置 |
-| `portraits/NNN.png`、`portraits_sheet.png` | 頭像 48×48（照ぶしょう畫面的鏡像與調色盤） |
+| `portraits/NNN.png`、`portraits_sheet.png` | 頭像 48×48（照ぶしょう畫面的鏡像與調色盤）；總覽圖依編號排 256 格，每格附 ROM 的漢字名字形、編號、假名 |
 | `portrait_strips.csv` | 頭像橫條：位置（第 1–6 條）、橫條（bank:列號）、所屬（專屬／兜／官帽）、用到的臉數與武將數、武將名單（同名合併） |
 | `strips_sheet.png`、`strips/<位置>_<bank>-<列號>.png` | 橫條零件總覽：6 個位置各列出用過的橫條（2 倍、已鏡像）、幾張臉用到、哪些武將 |
 | `strips_data.json` | 拼貼頁用的資料。拼貼頁本身是兩款合一的 `tenchi/output/strips.html`（見 `tenchi/README.md`），不含 231 與全空白的臉（0、109、249–255） |

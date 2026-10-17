@@ -101,12 +101,24 @@ def portraits(r: R.Rom, out: str) -> None:
     pal = [R.nes_rgb(c) for c in R.STATUS_PALETTE]
     d = os.path.join(out, "portraits")
     os.makedirs(d, exist_ok=True)
-    sheet = Image.new("RGB", (16 * 52, 16 * 52), (0, 0, 0))
+    cw, chh = 84, 102
+    sheet = Image.new("RGB", (16 * cw, 16 * chh), (40, 40, 40))
+    dr, f = ImageDraw.Draw(sheet), strips_page.font(10)
     for g in range(R.GENERAL_COUNT):
         im = Image.new("RGB", (48, 48))
         im.putdata([pal[c] for row in r.portrait(g) for c in row])
         im.save(os.path.join(d, f"{g:03d}.png"))
-        sheet.paste(im, ((g % 16) * 52 + 2, (g // 16) * 52 + 2))
+        x, y = (g % 16) * cw, (g // 16) * chh
+        sheet.paste(im, (x + 18, y + 4))
+        codes = r.general_kanji_codes(g)
+        kx = x + 18 + (48 - 16 * len(codes)) // 2
+        for n, (s, i) in enumerate(codes):
+            for gy, row in enumerate(r.kanji_glyph(s, i)):
+                for gx, v in enumerate(row):
+                    if v:
+                        sheet.putpixel((kx + n * 16 + gx, y + 54 + gy), (255, 255, 255))
+        for n, t in enumerate((str(g), r.general_name(g))):
+            dr.text((x + (cw - dr.textlength(t, font=f)) // 2, y + 72 + n * 13), t, fill=(200, 200, 200), font=f)
     sheet.save(os.path.join(out, "portraits_sheet.png"))
 
 
