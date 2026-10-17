@@ -298,6 +298,12 @@ class Rom:
         b = self.byte(62, TILESET_BANK + t)
         return self.byte(b, (self.byte(62, BLOCK_BASE + t) << 8) + block * 4 + sub)
 
+    def cell_type(self, t: int, cell: int) -> int:
+        """Terrain type of a cell: bits 2-7 of its palette byte ($D73D). Walking stops on >= 10 (water 10,
+        mountain 12, ...); 8 = door, 9 = warp. In ship mode ($84 bit 7, only maps $27 / $69) 9-11 pass instead."""
+        b = self.byte(62, TILESET_BANK + t)
+        return self.byte(b, (self.byte(62, CELL_PALETTE + t) << 8) + cell) >> 2
+
     def cell_tiles(self, t: int, cell: int) -> tuple[list[int], int]:
         """([TL, TR, BL, BR] tile numbers, sub-palette) of cell id in tileset t."""
         b, pg = self.byte(62, TILESET_BANK + t), self.byte(62, CELL_TILES + t)
@@ -305,7 +311,7 @@ class Rom:
         return tiles, self.byte(b, (self.byte(62, CELL_PALETTE + t) << 8) + cell) & 3
 
     def screen_cells(self, row: int, col: int, t: int) -> list[list[int]]:
-        """16x16 cell ids of grid screen (row, col) drawn with tileset t."""
+        """16 rows x 16 cell ids of grid screen (row, col) drawn with tileset t; only rows 0-14 are on the map."""
         sid, bank = self.screen_entry(row, col)
         blocks = self.screen_blocks(sid, bank)
         return [[self.tileset_cell(t, blocks[y >> 1][x >> 1], (y & 1) * 2 + (x & 1)) for x in range(16)]
@@ -452,11 +458,12 @@ SCREEN_BANK = 0x32
 SCREEN_GRID = 0x9000           # 160 rows x 32 columns of [screen id, data bank]; row r, col c at +r*64 + c*2
 GRID_W, GRID_H = 32, 160
 SCREEN_BYTES = 72              # screen id s at data bank $8000 + s*72: 8x8 block ids + 8 bytes of block bit 8
+SCREEN_ROWS = 15               # a screen is 16 x 15 cells on screen (y cell 0-14): its 16th cell row is never shown
 ALT_SCREEN_BANK = (0x36, 0x38)  # entry bank $36 is read from $38 once the event flag $6320[id] is set
 BLOCK_BASE = 0xDA50            # per tileset ($1D): page of the 512 blocks (4 cells each: TL TR BL BR)
 TILESET_BANK = 0xDA60          # per tileset: data bank of blocks, cell tiles and cell palettes
 CELL_TILES = 0xFAEE            # per tileset: first of 4 pages (TL, TR, BL, BR tile of each cell)
-CELL_PALETTE = 0xDA96          # per tileset: page of the cell sub-palette (bits 0-1)
+CELL_PALETTE = 0xDA96          # per tileset: page of the cell byte: bits 0-1 sub-palette, bits 2-7 terrain type
 MAP_AREA = 0xB700              # bank $34: nibble per map number ($47): area / tileset ($48); even = high nibble
 MAP_CHR = 0xB760               # bank $34: per map: bits 0-4 = 2 KB BG tile set ($49) for tiles $80-$FF
 MAP_COUNT = 160
@@ -464,6 +471,8 @@ MAP_CHR_BASE = 0x10            # tile set k: bank $10 + (k >> 3) * 2, $8000 + (k
 MAP_PALETTE_LO, MAP_PALETTE_HI = 0xB820, 0xB900  # bank $34: per map: -> [first index, colours..., FF] (loader $C838)
 WORLD_SOUTH = 80                # world map rows >= 80 use tileset 7 (rows 68-90 hold the world)
 WORLD_ROWS = range(68, 91)
+WALL = 10                       # terrain types >= WALL stop walking (outside ship mode)
+VIEW_UP, VIEW_LEFT = 7, 8       # the camera shows cells y - 7 .. y + 7, x - 8 .. x + 7 around the party
 DOOR_BANK = 0x36
 DOOR_TABLE = 0x8800             # door records (bank 61 $BD69)
 WARP_TABLE = 0x98C0             # warp records (bank 61 $BE5D)

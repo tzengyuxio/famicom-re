@@ -13,6 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(HERE, "..", "tenchi"))  # appended, so `rom` stays tenchi2/rom.py
 import strips_page
 
+SCREEN_H = R.SCREEN_ROWS * 16  # 240 px
 KIND_NAMES = {0x80: "よろい", 0x81: "かぶと", 0x82: "たて", 0x88: "そうび"}
 
 
@@ -168,8 +169,8 @@ class MapPainter:
 
     def screen(self, m: int, row: int, col: int) -> Image.Image:
         t = self.r.tileset(m, row)
-        im = Image.new("RGB", (256, 256))
-        for y, line in enumerate(self.r.screen_cells(row, col, t)):
+        im = Image.new("RGB", (256, SCREEN_H))
+        for y, line in enumerate(self.r.screen_cells(row, col, t)[:R.SCREEN_ROWS]):
             for x, cid in enumerate(line):
                 im.paste(self.cell(m, t, cid), (x * 16, y * 16))
         return im
@@ -201,6 +202,33 @@ def map_regions(r: R.Rom, links: list[dict]) -> dict[tuple[int, int], int]:
     return owner
 
 
+def world_view(r: R.Rom, links: list[dict]) -> set[tuple[int, int]]:
+    """Grid cells (row * 15 + y, col * 16 + x) of the world the camera can show: walk (terrain < WALL) from every
+    world cell a link starts at or leads to, then add the camera window around each reachable cell."""
+    types = {}
+    for row in R.WORLD_ROWS:
+        t = r.tileset(0, row)
+        for col in range(R.GRID_W):
+            for y, line in enumerate(r.screen_cells(row, col, t)[:R.SCREEN_ROWS]):
+                for x, c in enumerate(line):
+                    types[(row * R.SCREEN_ROWS + y, col * 16 + x)] = r.cell_type(t, c)
+    seen = set()
+    for k in links:
+        for (y, ys, x, xs), on_world in ((k["from"], True), (k["to"], k["map"] == 0)):
+            c = (ys * R.SCREEN_ROWS + y, xs * 16 + x)
+            if on_world and c in types:
+                seen.add(c)
+    queue = deque(seen)
+    while queue:
+        y, x = queue.popleft()
+        for c in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
+            if c not in seen and types.get(c, R.WALL) < R.WALL:
+                seen.add(c)
+                queue.append(c)
+    return {(y + dy, x + dx) for y, x in seen
+            for dy in range(-R.VIEW_UP, R.VIEW_UP + 1) for dx in range(-R.VIEW_LEFT, R.VIEW_LEFT)}
+
+
 def label(draw: ImageDraw.ImageDraw, x: int, y: int, text: str, colour: tuple[int, int, int]) -> None:
     draw.rectangle((x, y, x + 31, y + 15), outline=colour, width=2)
     draw.rectangle((x + 2, y - 11, x + 2 + 6 * len(text) + 3, y - 1), fill=(0, 0, 0))
@@ -218,12 +246,16 @@ def maps(r: R.Rom, out: str) -> list[list]:
     d = os.path.join(out, "maps")
     os.makedirs(d, exist_ok=True)
     rows = []
+    view = world_view(r, links)
+    by_map[0] = [s for s in by_map[0] if any((s[0] * R.SCREEN_ROWS + y, s[1] * 16 + x) in view
+                                              for y in range(R.SCREEN_ROWS) for x in range(16))]
     for m, screens in sorted(by_map.items()):
         parts = components(screens) if m else [screens]
         for n, part in enumerate(parts):
             suffix = "" if len(parts) == 1 else "_" + chr(ord("a") + n)
             name = "world.png" if m == 0 else os.path.join("maps", f"map_{m:03d}{suffix}.png")
-            rows.append(draw_map(r, painter, links, owner, m, part, os.path.join(out, name)) + [name])
+            rows.append(draw_map(r, painter, links, owner, m, part, os.path.join(out, name),
+                                 view if m == 0 else None) + [name])
     return rows
 
 
@@ -244,19 +276,28 @@ def components(screens: list[tuple[int, int]]) -> list[list[tuple[int, int]]]:
 
 
 def draw_map(r: R.Rom, painter: MapPainter, links: list[dict], owner: dict, m: int,
-             screens: list[tuple[int, int]], path: str) -> list:
+             screens: list[tuple[int, int]], path: str, view: set[tuple[int, int]] | None = None) -> list:
+    """view: grid cells the camera can show; the others are drawn at 30 % brightness."""
     y0, y1 = min(s[0] for s in screens), max(s[0] for s in screens)
     x0, x1 = min(s[1] for s in screens), max(s[1] for s in screens)
-    im = Image.new("RGB", ((x1 - x0 + 1) * 256, (y1 - y0 + 1) * 256))
+    im = Image.new("RGB", ((x1 - x0 + 1) * 256, (y1 - y0 + 1) * SCREEN_H))
     for y, x in screens:
-        im.paste(painter.screen(m, y, x), ((x - x0) * 256, (y - y0) * 256))
+        im.paste(painter.screen(m, y, x), ((x - x0) * 256, (y - y0) * SCREEN_H))
+    if view is not None:
+        mask = Image.new("L", im.size, 0)
+        md = ImageDraw.Draw(mask)
+        for cy, cx in view:
+            px, py = (cx - x0 * 16) * 16, (cy - y0 * R.SCREEN_ROWS) * 16
+            if y0 <= cy // R.SCREEN_ROWS <= y1 and x0 <= cx // 16 <= x1:
+                md.rectangle((px, py, px + 15, py + 15), fill=255)
+        im = Image.composite(im, Image.eval(im, lambda v: v * 3 // 10), mask)
     draw = ImageDraw.Draw(im)
     inside = set(screens)
     for k in links:
         fy, fys, fx, fxs = k["from"]
-        if (fys, fxs) in inside:
+        if (fys, fxs) in inside and (view is None or (fys * R.SCREEN_ROWS + fy, fxs * 16 + fx) in view):
             colour = (255, 255, 0) if k["kind"] == "door" else (0, 255, 255)
-            label(draw, (fxs - x0) * 256 + fx * 16, (fys - y0) * 256 + fy * 16, str(k["map"]), colour)
+            label(draw, (fxs - x0) * 256 + fx * 16, (fys - y0) * SCREEN_H + fy * 16, str(k["map"]), colour)
     im.save(path)
     area, chr_set = r.map_info(m)
     return [m, area, chr_set, f"{y0}-{y1}", f"{x0}-{x1}", len(screens)]
