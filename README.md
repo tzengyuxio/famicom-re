@@ -1,6 +1,6 @@
 # famicom-re
 
-FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco、1 款台灣非授權）的 ROM 逆向工程：解析人物、頭像（專屬＋組合臉）、地圖、攻略數值，並匯出 [kaodata](https://kaodata.simagame.me) 統一格式資料集（kaodata/1）。
+FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco、2 款 Capcom、1 款台灣非授權）的 ROM 逆向工程：解析人物、頭像（專屬＋組合臉）、地圖、攻略數值，並匯出 [kaodata](https://kaodata.simagame.me) 統一格式資料集（kaodata/1）。
 
 每款遊戲一個資料夾，指令、輸出檔、進度寫在該資料夾的 `README.md`，ROM 格式（含未解部分）寫在 `docs/`。
 
@@ -25,8 +25,10 @@ FC／NES 歷史策略遊戲（KOEI 為主，另有 2 款 Namco、1 款台灣非�
 | [`chuugen/`](chuugen/) | 三國志 中原の覇者 | Namco 1988 | Namco 163 | `chuugen-fc` |
 | [`haou/`](haou/) | 三國志II 覇王の大陸 | Namco 1992 | Namco 163 | `haou-fc` |
 | [`shenghuo/`](shenghuo/) | 聖火列傳 | C&E 1991（台灣非授權） | Mapper 240 | —（非光榮） |
+| [`tenchi/`](tenchi/) | 天地を喰らう | Capcom 1989 | MMC1 | —（非光榮） |
+| [`tenchi2/`](tenchi2/) | 天地を喰らうII 諸葛孔明伝 | Capcom 1991 | MMC3 | —（非光榮） |
 
-發行年是 FC 版日本發售年，依發售順序排列（Namco 與非授權作品放最後）。光榮 FC 共 14 款，已全部解析；發售日對照 ja.wikipedia 與 [fc.game-kit.net 光榮 FC 一覧](https://fc.game-kit.net/fc-db/fc-s/?fc-maker=%E5%85%89%E6%A0%84)，水滸伝另對照 ROM 內的版權字串，見各資料夾 README。
+發行年是 FC 版日本發售年，依發售順序排列（非光榮作品放最後）。光榮 FC 共 14 款，已全部解析；發售日對照 ja.wikipedia 與 [fc.game-kit.net 光榮 FC 一覧](https://fc.game-kit.net/fc-db/fc-s/?fc-maker=%E5%85%89%E6%A0%84)，水滸伝另對照 ROM 內的版權字串，見各資料夾 README。
 
 ## 環境
 
