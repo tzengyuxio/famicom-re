@@ -17,7 +17,11 @@ FONT = ("0123456789 └──*★" "かきくけこさしすせそたちつて�
 _DAKU = str.maketrans("かきくけこさしすせそたちつてとはひふへほカキクケコサシスセソタチツテトハヒフヘホウ",
                       "がぎぐげござじずぜぞだぢづでどばびぶべぼガギグゲゴザジズゼゾダヂヅデドバビブベボヴ")
 _HANDAKU = str.maketrans("はひふへほハヒフヘホ", "ぱぴぷぺぽパピプペポ")
-CONTROL = {0xEF: "{F0x}", 0xF0: "{dict}", 0xFA: "\n", 0xFB: "{FB}", 0xFC: "\n", 0xFD: "{page}", 0xFE: "", 0xFF: ""}
+# Message controls ($D250): EF n = place name of area n, F0 n = dictionary word n, F1 n = item n, F2 n = general n,
+# F3-F7 = names held in variables (item $4D, ..., the event's general $05F0), F8 lo hi = call code at hi:lo,
+# FA / FC = newline, FB = wait for a key, FD = new page, FE / FF = end.
+CONTROL = {0xF3: "{item}", 0xF4: "{name4}", 0xF5: "{name5}", 0xF6: "{name6}", 0xF7: "{name}", 0xF9: "{F9}",
+           0xFA: "\n", 0xFB: "{key}", 0xFC: "\n", 0xFD: "{page}"}
 
 
 def char(c: int) -> str:
@@ -87,6 +91,7 @@ class Rom:
 
 # ---------------------------------------------------------------- maps
 GRID_ROWS, GRID_COLS = 50, 32  # block grid at bank 9 $A700, 2 bytes per block: (block index, bank)
+BLOCK_H = 15  # a block is one screen: 16 x 15 metatiles (its 8x8 chunks hold 16 rows; row 15 is never shown)
 CHUNK_PAGE = (0x80, 0x8D, 0x9A)  # bank 9 page of the 2x2-metatile chunk table, per tileset ($D950)
 METATILE_PAGE = (0x88, 0x95, 0xA2)  # bank 9 page of the metatile tables (TL, TR, BL, BR, attribute) ($F6C9)
 
@@ -97,7 +102,7 @@ class MapRom(Rom):
         return self.prg[o], self.prg[o + 1]
 
     def block_metatiles(self, row: int, col: int, ts: int, alt: bool = False) -> list[list[int]]:
-        """16x16 metatile ids of grid block (row, col) drawn with tileset `ts`."""
+        """16x16 metatile ids of grid block (row, col) drawn with tileset `ts` (rows 0-14 are the screen)."""
         idx, bank = self.block_ref(row, col)
         if bank == 0x0C and alt:
             bank = 0x0D
@@ -120,13 +125,14 @@ class MapRom(Rom):
 
     def entrances(self) -> list[dict]:
         """Entrance table (bank 7 $8000/$8100, 240 pointers): stepping on (row, col) pushes the current
-        area and moves to (dest_row, dest_col) in area `area`. Positions are in metatiles."""
+        area and moves to (dest_row, dest_col) in area `area`. Positions are world metatiles
+        (row = block row * 15 + row in block, col = block col * 16 + col in block)."""
         out = []
         for i in range(0xF0):
             p = self.byte(7, 0x8000 + i) | self.byte(7, 0x8100 + i) << 8
             r = self.read(7, p, 9)
-            out.append({"id": i, "ptr": p, "dir": r[0] >> 6, "row": r[1] * 16 + (r[0] & 0x3F), "col": r[3] * 16 + r[2],
-                        "dest_row": r[5] * 16 + r[4], "dest_col": r[7] * 16 + r[6], "area": r[8]})
+            out.append({"id": i, "ptr": p, "dir": r[0] >> 6, "row": r[1] * BLOCK_H + (r[0] & 0x3F), "col": r[3] * 16 + r[2],
+                        "dest_row": r[5] * BLOCK_H + r[4], "dest_col": r[7] * 16 + r[6], "area": r[8]})
         return out
 
     def teleports(self) -> list[dict]:
@@ -135,8 +141,8 @@ class MapRom(Rom):
         for i in range(0xB0):
             p = self.byte(7, 0x8200 + i) | self.byte(7, 0x82B0 + i) << 8
             r = self.read(7, p, 9)
-            out.append({"id": i, "ptr": p, "row": r[1] * 16 + r[0], "col": r[3] * 16 + r[2], "flags": r[4] & 0xF0,
-                        "dest_row": r[5] * 16 + (r[4] & 0x0F), "dest_col": r[7] * 16 + r[6], "area": r[8]})
+            out.append({"id": i, "ptr": p, "row": r[1] * BLOCK_H + r[0], "col": r[3] * 16 + r[2], "flags": r[4] & 0xF0,
+                        "dest_row": r[5] * BLOCK_H + (r[4] & 0x0F), "dest_col": r[7] * 16 + r[6], "area": r[8]})
         return out
 
     def area_type(self, area: int) -> int:
@@ -172,13 +178,13 @@ class MapRom(Rom):
         chr_, pal = self.bg_chr(typ), self.bg_palette(typ)
         tiles = {}
         mts = {}
-        im = Image.new("RGB", (len(cols) * 256, len(rows) * 256))
+        im = Image.new("RGB", (len(cols) * 256, len(rows) * BLOCK_H * 16))
         px = im.load()
         rgb = [nes_rgb(c) for c in pal]
         for bi, br in enumerate(rows):
             for bj, bc in enumerate(cols):
                 grid = self.block_metatiles(br, bc, ts, alt)
-                for y in range(16):
+                for y in range(BLOCK_H):
                     for x in range(16):
                         m = grid[y][x]
                         if m not in mts:
@@ -188,7 +194,7 @@ class MapRom(Rom):
                         for k, t in enumerate(tl):
                             if t not in tiles:
                                 tiles[t] = tile_2bpp(chr_, (t - 0x80) * 16) if t >= 0x80 else [0] * 64
-                            ox, oy = bj * 256 + x * 16 + (k & 1) * 8, bi * 256 + y * 16 + (k >> 1) * 8
+                            ox, oy = bj * 256 + x * 16 + (k & 1) * 8, bi * BLOCK_H * 16 + y * 16 + (k >> 1) * 8
                             for i, c in enumerate(tiles[t]):
                                 px[ox + (i & 7), oy + (i >> 3)] = rgb[pb + c] if c else rgb[0]
         return im
@@ -200,19 +206,29 @@ PORTRAIT_FIXED = (0x0F, 0x37, 0x26)  # BG palette 3, colours 0-2, of the status 
 PORTRAIT_COLOR = (0x0F, 0x21, 0x11, 0x1A, 0x14, 0x00, 0x15, 0x17, 0x18, 0x20)  # colour 3 by +16 & $0F ($D0FD)
 SOLDIER_TABLE = 0xBED0  # bank 12: 152 words, 兵士数 by rank (index 1 = 100, about +5 % per step)
 
-
-def soldiers(rank: int) -> int:
-    o = 12 * 0x4000 + SOLDIER_TABLE - 0x8000 + rank * 2
-    return Rom._shared.prg[o] | Rom._shared.prg[o + 1] << 8
+GROWTH_RATE = 0xB569  # bank 14: 25 rates; soldiers x (256 + rate) / 256 per level up to 49 ($B4E0)
+GROWTH_STEP = 0xB582  # bank 14: levels 10, 20, 30, 40 move to the next rate
+N_FORMATIONS = 80  # fixed battles, bank 12 $8D60, 5 general ids each
+GENERIC = {1: "カイゾク", 2: "サンゾク", 3: "トウゾク", 4: "へイシ"}  # ids the random formations fill with
 
 
 class GameRom(MapRom):
-    def __init__(self, path: str = DEFAULT_ROM):
-        super().__init__(path)
-        Rom._shared = self
-
     def soldier_table(self) -> list[int]:
         return [self.byte(12, SOLDIER_TABLE + 2 * i) | self.byte(12, SOLDIER_TABLE + 2 * i + 1) << 8 for i in range(129)]
+
+    def soldiers(self, rank: int, level: int = 1) -> int:
+        """兵士数 of soldier rank byte (record +7). Bit 7 set: grows with the party level from 100."""
+        if not rank & 0x80:
+            return self.byte(12, SOLDIER_TABLE + 2 * rank) | self.byte(12, SOLDIER_TABLE + 2 * rank + 1) << 8
+        y, v = rank & 0x7F, 100
+        steps = self.read(14, GROWTH_STEP, 5)
+        for f in range(1, 256):
+            if f in steps:
+                y += 1
+            if f == level:
+                return v
+            v = ((v & 0xFFFF) * (256 + self.byte(14, GROWTH_RATE + y)) >> 8) if f < 50 else v + 2000
+        return v
 
     def general_ptr(self, i: int) -> int:
         return self.byte(12, 0xA800 + i) | self.byte(12, 0xA900 + i) << 8
@@ -222,11 +238,7 @@ class GameRom(MapRom):
         r = self.read(12, p, 20)
         name = self.string(12, p + 20, end=(0xFE, 0xFF))
         kanji = [c for c in r[17:20] if c != 0xFF]
-        banks, b = [], 1
-        for k in range(len(kanji)):
-            if r[16] & (0x80 >> k):
-                b += 1
-            banks.append(b)
+        banks = [2 if r[16] & (0x80 >> k) else 1 for k in range(len(kanji))]  # glyph bank per kanji ($D4C9)
         return {"id": i, "ptr": p, "name": decode(name), "raw": r,
                 "buryoku": r[0], "chiryoku": r[1], "region": r[2], "b3": r[3], "weapon": r[4] & 0x1F, "b4_hi": r[4] >> 5,
                 "armor": r[5], "enemy_rank": r[6], "ally_rank": r[7], "level": r[8], "speed": r[9],
@@ -308,6 +320,94 @@ class GameRom(MapRom):
             t = {"id": i, "name": decode(self.string(12, p)), "level": learn.get(i, "")}
             t.update({k: self.byte(14, a + i) for k, a in cols.items()})
             out.append(t)
+        return out
+
+    def shop_of_area(self, area: int) -> tuple[int, int]:
+        """(left, right) shop index of a town: $8F9D+area if the block column $63 < 7, else $8FDD+area."""
+        return self.byte(14, 0x8F9D + area), self.byte(14, 0x8FDD + area)
+
+    def chests(self) -> list[dict]:
+        """Treasure chests (bank 12 $8800/$8880 per area; 5-byte records row, block row, col, block col,
+        item; an area owns the records up to the next area's pointer). Opened flags: bit 7>>n of $6600+area."""
+        out = []
+        ptr = [self.byte(12, 0x8800 + a) | self.byte(12, 0x8880 + a) << 8 for a in range(0x81)]
+        for a in range(0x80):
+            for k in range(max(0, ptr[a + 1] - ptr[a]) // 5):
+                r = self.read(12, ptr[a] + k * 5, 5)
+                out.append({"area": a, "slot": k, "row": r[1] * BLOCK_H + r[0], "col": r[3] * 16 + r[2], "item": r[4]})
+        return out
+
+    def zone(self, brow: int, bcol: int) -> int:
+        """Encounter zone ($6026) of an overworld block: nibbles at bank 13 $BE98, 12 bytes per block row
+        rows 4-23 (high nibble = even column)."""
+        if not 4 <= brow < 24 or bcol >= 24:
+            return 0
+        b = self.byte(13, 0xBE98 + (brow - 4) * 12 + bcol // 2)
+        return b & 0x0F if bcol & 1 else b >> 4
+
+    def formations(self) -> list[list[int]]:
+        return [list(self.read(12, 0x8D60 + k * 5, 5)) for k in range(N_FORMATIONS)]
+
+    def enemy_flags(self) -> bytes:
+        """New-game random-encounter flags: bit (0x80 >> (id & 7)) of bank 13 $98C7[id >> 3] -> $6300 = $98."""
+        return self.read(13, 0x98C7, 32)
+
+    def encounter_pools(self) -> dict[int, list[int]]:
+        """Named generals a random battle in zone z may draw: flagged ids 1-$E0 whose record +2 == z
+        (bank 14 $B43B). Events can add ids later (lists at $E397 calls)."""
+        fl = self.enemy_flags()
+        pools = {z: [] for z in range(1, 9)}
+        for i in range(1, N_GENERALS):
+            z = self.byte(12, self.general_ptr(i) + 2)
+            if fl[i >> 3] & (0x80 >> (i & 7)) and z in pools:
+                pools[z].append(i)
+        return pools
+
+    def word(self, n: int) -> bytes:
+        """Dictionary word n (bank 13, pointers $B700/$B800)."""
+        return self.string(13, self.byte(13, 0xB700 + n) | self.byte(13, 0xB800 + n) << 8, end=(0xFE, 0xFF))
+
+    def text(self, bs: bytes, depth: int = 0) -> str:
+        out, i = [], 0
+        while i < len(bs):
+            c = bs[i]
+            i += 1
+            if c < 0xEF:
+                out.append(char(c))
+            elif c in (0xEF, 0xF0, 0xF1, 0xF2) and i < len(bs):
+                n = bs[i]
+                i += 1
+                if c == 0xEF:
+                    out.append(self.place_name(n) or f"{{place{n:02X}}}")
+                elif c == 0xF0:
+                    out.append(self.text(self.word(n), depth + 1) if depth < 3 else "{word}")
+                elif c == 0xF1:
+                    out.append(self.item_name(n))
+                else:
+                    out.append(self.general(n)["name"] if n < N_GENERALS else f"{{general{n:02X}}}")
+            elif c == 0xF8 and i + 1 < len(bs):
+                out.append(f"{{call {bs[i + 1]:02X}{bs[i]:02X}}}")
+                i += 2
+            elif c in (0xFE, 0xFF):
+                break
+            else:
+                out.append(CONTROL.get(c, f"{{{c:02X}}}"))
+        return "".join(out)
+
+    def item_name(self, i: int) -> str:
+        i &= 0x7F
+        p = self.byte(12, 0xA3C8 + i) | self.byte(12, 0xA438 + i) << 8
+        return decode(self.string(12, p + 2))
+
+    def messages(self) -> list[dict]:
+        """Dialogue: banks 10 and 11, 512 pointers each at $8000 (low) / $8200 (high), FF-terminated."""
+        out = []
+        for b in (10, 11):
+            for i in range(512):
+                p = self.byte(b, 0x8000 + i) | self.byte(b, 0x8200 + i) << 8
+                if 0x8400 <= p < 0xC000:
+                    raw = self.string(b, p)
+                    out.append({"bank": b, "id": i, "ptr": p, "text": self.text(raw), "raw": raw})
         return out
 
     def place_name(self, area: int) -> str:

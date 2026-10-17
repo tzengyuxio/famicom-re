@@ -40,6 +40,42 @@ class Nes(_emu.Nes):
             else:
                 self.press(button, wait)
 
+    def call(self, addr: int, a: int = 0, limit: int = 2_000_000) -> int:
+        """Run the game's subroutine at `addr` (A = `a`) until it returns; returns A. The return address
+        is $FFF0, which the game never executes. No NMI is delivered meanwhile."""
+        c = self.cpu
+        sp = c.sp
+        self[0x100 + sp], self[0x100 + ((sp - 1) & 0xFF)] = 0xFF, 0xEF
+        c.sp, c.pc, c.a = (sp - 2) & 0xFF, addr, a
+        for _ in range(limit):
+            if c.pc == 0xFFF0:
+                return c.a
+            c.step()
+        raise RuntimeError(f"call ${addr:04X} did not return")
+
+    def call_frames(self, addr: int, a: int = 0, max_frames: int = 120) -> None:
+        """Like call(), but keeps running whole frames (NMI included) so routines that wait for the
+        NMI's PPU upload can finish. Stops as soon as the routine returns to $FFF0."""
+        class Done(Exception):
+            pass
+
+        def stop(_):
+            raise Done
+
+        c = self.cpu
+        sp = c.sp
+        self[0x100 + sp], self[0x100 + ((sp - 1) & 0xFF)] = 0xFF, 0xEF
+        c.sp, c.pc, c.a = (sp - 2) & 0xFF, addr, a
+        self.breakpoints[0xFFF0] = stop
+        try:
+            for _ in range(max_frames):
+                self.run_frame()
+            raise RuntimeError(f"call ${addr:04X} did not return")
+        except Done:
+            pass
+        finally:
+            del self.breakpoints[0xFFF0]
+
     def tile(self, base: int, t: int) -> list[int]:
         o = base + t * 16
         return [((self.chr[o + y] >> (7 - x)) & 1) | (((self.chr[o + 8 + y] >> (7 - x)) & 1) << 1)
