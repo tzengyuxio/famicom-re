@@ -30,7 +30,6 @@ KOEI 等 FC/NES 遊戲（另有 Namco 2 款、Capcom 2 款、台灣非授權 1 �
 | `tenchi/` | 天地を喰らう (Capcom, 1989, MMC1)：武將 217 id（能力、兵士數成長）、頭像＋漢字名、道具／商店、策略 30、固定戰鬥 80、遇敵區域（章節）與名單、戰後報酬公式、台詞 886 段、大地圖＋99 個區域的地圖（出入口／寶箱）；非光榮作品，不做 kaodata |
 | `tenchi2/` | 天地を喰らうII 諸葛孔明伝 (Capcom, 1991, MMC3)：武將 256（能力、ぶき、ちけい、策略群）、頭像＋漢字名、道具 120、商店、策略 54、經驗值、訊息 2048、遇敵、大地圖＋各地圖（標註門／傳送入口）；非光榮作品，不做 kaodata |
 
-- ROM 都放 `roms/`（不進版控）：各遊戲（含三國志）的程式都直接讀 `roms/` 裡的 zip。分析時可暫時把 `.nes` 解到根目錄，做完要刪掉，只留 zip 作為來源
 - `docs/`：GitHub Pages，只剩兩個大眾臉探索器的轉址頁（已搬到 kaodata.simagame.me），不要放分析文件
 - 各遊戲的 kaodata 匯出共用 `sangokushi/tools/export_kaodata.py` 的參考渲染器；`sangokushi/tools/parts_sheet.py` 輸出大眾臉零件總覽圖與各零件 PNG（有組合臉的遊戲由 `export.py` 呼叫，寫進 `output/`）
 
@@ -59,8 +58,7 @@ uvx ruff check --line-length 120 <檔案或資料夾>
 
 - 新遊戲：開新資料夾，`README.md` 寫指令／檔案／進度，`docs/` 寫 ROM 格式（含尚未解開的部分）
 - 外部資料（不是 ROM 解析出來的）欄位名加 `[EXT]` 前綴
-- 輸出 CSV 用 UTF-8-BOM（Excel 相容）；匯出結果放各遊戲的 `output/`（不進版控）
-- 頭像等解碼要有獨立驗證（模擬器跑遊戲本身的程式、截圖或 Mesen 紀錄）
+- 輸出 CSV 用 UTF-8-BOM（Excel 相容）
 - 最上層與 `tools/` 的分工兩款不一致，刻意保留、不要統一：
   - `suikoden/`：最上層是執行入口與解碼核心 `rom.py`，`tools/` 只放輔助模組（模擬器）
   - `sangokushi/`：最上層是早期工具；`tools/` 混放正式入口（kaodata 匯出／驗證、`parts_sheet.py`）與研究用小工具
@@ -73,7 +71,7 @@ uvx ruff check --line-length 120 <檔案或資料夾>
 
 | 層 | 本 repo 路徑 |
 |----|--------------|
-| original | `roms/*.zip`（不進版控）；分析時暫解到根目錄的 `.nes`，做完即刪 |
+| original | `roms/*.zip`（不進版控），各遊戲的程式直接讀 zip；分析時暫解到根目錄的 `.nes`，做完即刪 |
 | references | 沒有固定位置；網址記在各遊戲 docs（例：`tenchi/docs/ROM_FORMAT.md` §11、`tenchi2/docs/ROM_FORMAT.md` §9） |
 | captures | 沒有固定位置；`verify*.py` 在記憶體裡跑模擬器比對，不留截圖。既有的散在 `sangokushi/output/`（Mesen 截圖）與 `sangokushi/mob_portrait/screenshot/`（進版控） |
 | extracted | `<game>/output/` 的 CSV／XLSX、頭像與零件 PNG、解碼出的地圖 |
