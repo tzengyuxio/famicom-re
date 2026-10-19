@@ -65,6 +65,26 @@ uvx ruff check --line-length 120 <檔案或資料夾>
   - `suikoden/`：最上層是執行入口與解碼核心 `rom.py`，`tools/` 只放輔助模組（模擬器）
   - `sangokushi/`：最上層是早期工具；`tools/` 混放正式入口（kaodata 匯出／驗證、`parts_sheet.py`）與研究用小工具
 
+## RE 共通語言
+
+@~/.claude/re-common.md
+
+本 repo 路徑 ↔ 共通層名（`<game>` 指各遊戲資料夾）：
+
+| 層 | 本 repo 路徑 |
+|----|--------------|
+| original | `roms/*.zip`（不進版控）；分析時暫解到根目錄的 `.nes`，做完即刪 |
+| references | 沒有固定位置；網址記在各遊戲 docs（例：`tenchi/docs/ROM_FORMAT.md` §11、`tenchi2/docs/ROM_FORMAT.md` §9） |
+| captures | 沒有固定位置；`verify*.py` 在記憶體裡跑模擬器比對，不留截圖。既有的散在 `sangokushi/output/`（Mesen 截圖）與 `sangokushi/mob_portrait/screenshot/`（進版控） |
+| extracted | `<game>/output/` 的 CSV／XLSX、頭像與零件 PNG、解碼出的地圖 |
+| generated | `<game>/output/` 的總覽圖（`*_sheet.png`）、標註過的地圖（`world.png`、`maps/`）、拼貼頁（`strips.html`）；`sangokushi/mob_portrait/generated/`、`variant_explorer/`（進版控） |
+| runtime | 沒有固定位置（py65 模擬器在記憶體裡跑，沒有模擬器設定檔） |
+| export | kaodata dataset：`<game>/export_kaodata.py --out <kaodata>/data-local/<id>`；`sangokushi/output/san1-fc/` |
+| docs | `<game>/README.md`、`<game>/docs/`、`<game>/data/`（人工抄錄、會被工具讀的對照表）、`BACKLOG.md`。根目錄 `docs/` 是 GitHub Pages 轉址頁，不是 docs 層 |
+| tools | `<game>/` 最上層的 `rom.py`、`export*.py`、`verify*.py` 與 `<game>/tools/`；跨遊戲共用的是 `sangokushi/tools/`（`export_kaodata.py`、`parts_sheet.py`、`nes_emu.py`）與 `tenchi/strips_page.py` |
+
+`<game>/output/` 混著 extracted、generated，有 kaodata 的 `sangokushi/output/` 還含 export；照共通語言 §1，不專程搬家。
+
 ## 上下游
 
 依 `~/.claude/repos.md` 的跨 repo 協作規範（用 `handoff` skill）。
